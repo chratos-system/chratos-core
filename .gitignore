@@ -113,6 +113,7 @@ share/NavcoindComparisonTool.jar
 
 !src/leveldb*/Makefile
 !depends/Makefile
+!depends/patches/**/*
 
 /doc/doxygen/
 
