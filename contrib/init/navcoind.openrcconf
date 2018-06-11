@@ -1,0 +1,33 @@
+# /etc/conf.d/chratosd: config file for /etc/init.d/chratosd
+
+# Config file location
+#CHRATOSD_CONFIGFILE="/etc/chratos/chratos.conf"
+
+# What directory to write pidfile to?  (created and owned by $CHRATOSD_USER)
+#CHRATOSD_PIDDIR="/var/run/chratosd"
+
+# What filename to give the pidfile
+#CHRATOSD_PIDFILE="${CHRATOSD_PIDDIR}/chratosd.pid"
+
+# Where to write chratosd data (be mindful that the blockchain is large)
+#CHRATOSD_DATADIR="/var/lib/chratosd"
+
+# User and group to own chratosd process
+#CHRATOSD_USER="chratos"
+#CHRATOSD_GROUP="chratos"
+
+# Path to chratosd executable
+#CHRATOSD_BIN="/usr/bin/chratosd"
+
+# Nice value to run chratosd under
+#CHRATOSD_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+CHRATOSD_OPTS="-disablewallet"
+
+# The timeout in seconds OpenRC will wait for chratosd to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+CHRATOSD_SIGTERM_TIMEOUT=60

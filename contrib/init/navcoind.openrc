@@ -1,0 +1,92 @@
+#!/sbin/runscript
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/chratos/.chratos" ]; then
+	CHRATOSD_DEFAULT_DATADIR="/var/lib/chratos/.chratos"
+else
+	CHRATOSD_DEFAULT_DATADIR="/var/lib/chratosd"
+fi
+
+CHRATOSD_CONFIGFILE=${CHRATOSD_CONFIGFILE:-/etc/chratos/chratos.conf}
+CHRATOSD_PIDDIR=${CHRATOSD_PIDDIR:-/var/run/chratosd}
+CHRATOSD_PIDFILE=${CHRATOSD_PIDFILE:-${CHRATOSD_PIDDIR}/chratosd.pid}
+CHRATOSD_DATADIR=${CHRATOSD_DATADIR:-${CHRATOSD_DEFAULT_DATADIR}}
+CHRATOSD_USER=${CHRATOSD_USER:-${CHRATOS_USER:-chratos}}
+CHRATOSD_GROUP=${CHRATOSD_GROUP:-chratos}
+CHRATOSD_BIN=${CHRATOSD_BIN:-/usr/bin/chratosd}
+CHRATOSD_NICE=${CHRATOSD_NICE:-${NICELEVEL:-0}}
+CHRATOSD_OPTS="${CHRATOSD_OPTS:-${CHRATOS_OPTS}}"
+
+name="Chratos Core Daemon"
+description="Chratos cryptocurrency P2P network daemon"
+
+command="/usr/bin/chratosd"
+command_args="-pid=\"${CHRATOSD_PIDFILE}\" \
+		-conf=\"${CHRATOSD_CONFIGFILE}\" \
+		-datadir=\"${CHRATOSD_DATADIR}\" \
+		-daemon \
+		${CHRATOSD_OPTS}"
+
+required_files="${CHRATOSD_CONFIGFILE}"
+start_stop_daemon_args="-u ${CHRATOSD_USER} \
+			-N ${CHRATOSD_NICE} -w 2000"
+pidfile="${CHRATOSD_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${CHRATOSD_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${CHRATOSD_USER}:${CHRATOSD_GROUP}" \
+	"${CHRATOSD_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${CHRATOSD_USER}:${CHRATOSD_GROUP}" \
+	"${CHRATOSD_PIDDIR}"
+
+	checkpath -f \
+	-o ${CHRATOSD_USER}:${CHRATOSD_GROUP} \
+	-m 0660 \
+	${CHRATOSD_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${CHRATOSD_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run chratosd."
+		eerror "The setting must appear in ${CHRATOSD_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following"
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is also recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"Chratos Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

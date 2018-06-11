@@ -1,0 +1,81 @@
+policy_module(chratos, 1.100.1)
+
+########################################
+#
+# Declarations
+#
+
+type chratos_t;
+type chratos_exec_t;
+init_daemon_domain(chratos_t, chratos_exec_t)
+
+permissive chratos_t;
+
+type chratos_initrc_exec_t;
+init_script_file(chratos_initrc_exec_t)
+
+type chratos_conf_t;
+files_type(chratos_conf_t)
+
+type chratos_var_lib_t;
+files_type(chratos_var_lib_t)
+
+type chratos_var_run_t;
+files_type(chratos_var_run_t)
+
+type chratos_port_t;
+corenet_port(chratos_port_t)
+
+########################################
+#
+# chratos local policy
+#
+allow chratos_t self:process { fork };
+
+allow chratos_t self:fifo_file rw_fifo_file_perms;
+allow chratos_t self:unix_stream_socket create_stream_socket_perms;
+
+manage_dirs_pattern(chratos_t, chratos_conf_t, chratos_conf_t)
+manage_files_pattern(chratos_t, chratos_conf_t, chratos_conf_t)
+
+manage_dirs_pattern(chratos_t, chratos_var_lib_t, chratos_var_lib_t)
+manage_files_pattern(chratos_t, chratos_var_lib_t, chratos_var_lib_t)
+files_var_lib_filetrans(chratos_t, chratos_var_lib_t, { dir file })
+
+manage_dirs_pattern(chratos_t, chratos_var_run_t, chratos_var_run_t)
+manage_files_pattern(chratos_t, chratos_var_run_t, chratos_var_run_t)
+
+sysnet_dns_name_resolve(chratos_t)
+corenet_all_recvfrom_unlabeled(chratos_t)
+
+allow chratos_t self:tcp_socket create_stream_socket_perms;
+corenet_tcp_sendrecv_generic_if(chratos_t)
+corenet_tcp_sendrecv_generic_node(chratos_t)
+corenet_tcp_sendrecv_all_ports(chratos_t)
+corenet_tcp_bind_generic_node(chratos_t)
+
+gen_require(`
+    type chratos_port_t;
+')
+allow chratos_t chratos_port_t:tcp_socket name_bind;
+
+gen_require(`
+    type chratos_port_t;
+')
+allow chratos_t chratos_port_t:tcp_socket name_connect;
+
+domain_use_interactive_fds(chratos_t)
+
+files_read_etc_files(chratos_t)
+
+miscfiles_read_localization(chratos_t)
+
+sysnet_dns_name_resolve(chratos_t)
+
+allow chratos_t chratos_exec_t:file execute_no_trans;
+allow chratos_t self:process setsched;
+corecmd_exec_ls(chratos_t)
+corenet_tcp_connect_http_port(chratos_t)
+dev_read_urand(chratos_t)
+fs_getattr_xattr_fs(chratos_t)
+kernel_read_system_state(chratos_t)

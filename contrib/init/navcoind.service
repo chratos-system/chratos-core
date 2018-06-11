@@ -1,0 +1,22 @@
+[Unit]
+Description=Chratos's distributed currency daemon
+After=network.target
+
+[Service]
+User=chratos
+Group=chratos
+
+Type=forking
+PIDFile=/var/lib/chratosd/chratosd.pid
+ExecStart=/usr/bin/chratosd -daemon -pid=/var/lib/chratosd/chratosd.pid \
+-conf=/etc/chratos/chratos.conf -datadir=/var/lib/chratosd -disablewallet
+
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=2s
+StartLimitInterval=120s
+StartLimitBurst=5
+
+[Install]
+WantedBy=multi-user.target

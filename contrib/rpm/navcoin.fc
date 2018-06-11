@@ -1,0 +1,8 @@
+/usr/bin/chratos-cli		--	gen_context(system_u:object_r:chratos_exec_t,s0)
+/usr/sbin/chratosd		--	gen_context(system_u:object_r:chratos_exec_t,s0)
+/usr/lib(64)?/chratos/chratosd		--	gen_context(system_u:object_r:chratos_exec_t,s0)
+
+/etc/chratos(/.*)?		gen_context(system_u:object_r:chratos_conf_t,s0)
+/var/lib/chratos(/.*)?		gen_context(system_u:object_r:chratos_var_lib_t,s0)
+
+(/var)?/run/chratosd(/.*)?   gen_context(system_u:object_r:chratos_var_run_t,s0)
