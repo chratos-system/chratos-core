@@ -12,9 +12,9 @@ https://chratos.io
 |:-----------|:-----------|
 | Block Spacing | `2 minutes` |
 | Stake Minimum Age | `4 hours` |
-| Stake Reward | `5% per annum (10% for the first 6 months)` |
-| Port | `38380` |
-| RPC Port | `38381` |
+| Stake Reward | `12 halving every x years` |
+| Port | `9123` |
+| RPC Port | `9124` |
 
 License
 ---------------------
