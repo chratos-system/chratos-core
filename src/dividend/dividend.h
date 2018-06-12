@@ -12,24 +12,28 @@
 #include "primitives/block.h"
 #include "chain.h"
 
+CDividendLedger *pdividendLedgerMain = NULL;
+
 class CDividendTx : public CTransaction {
   public:
-
     void MarkDirty();
+    bool IsTrusted() const { return true; };
+    CAmount GetAvailableCredit() const { return 0; };
   private:
 
 };
 
 class CDividendLedger {
   public:
-
+ 
     CDividendLedger();
+
     CDividendLedger(const std::string& strLedgerFileIn);
 
     void MarkDirty();
 
     bool AddToLedger(const CDividendTx &dtxIn, bool fFromLoadLedger, 
-                     CDividendDB *pdividenddb);
+                     CDividendLedgerDB *pdividenddb);
 
     void SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex, 
                          const CBlock* pblock, const bool fConnect = true);
@@ -42,14 +46,23 @@ class CDividendLedger {
 
     CAmount GetImmatureBalance() const;
 
+    bool LoadMinVersion(int nVersion) {
+      AssertLockHeld(cs_ledger);
+      nLedgerVersion = nVersion;
+      nLedgerMaxVersion = std::max(nLedgerMaxVersion, nVersion);
+      return true;
+    }
+
     /* Initializes the ledger, returns a new CDividendLedger instance or a 
      * null pointer in case of an error.
      */
     static bool InitLoadLedger();
 
-    DBErrors LoadWallet(bool &fFirstRunRet);
+    DBErrors LoadLedger(bool &fFirstRunRet);
 
     std::map<uint256, CDividendTx> &GetMapLedger() const;
+
+    mutable CCriticalSection cs_ledger;
 
   private:
 
@@ -61,7 +74,9 @@ class CDividendLedger {
 
     std::string strLedgerFile;
 
-    mutable CCriticalSection cs_ledger;
+    int nLedgerVersion;
+
+    int nLedgerMaxVersion;
 };
 
 #endif

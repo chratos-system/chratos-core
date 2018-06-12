@@ -16,6 +16,7 @@ class CBasicKeyStore;
 class CWallet;
 class uint256;
 class CBlockIndex;
+class CDividendLedger;
 
 /** General change type (added, updated, removed). */
 enum ChangeType
@@ -92,6 +93,9 @@ public:
 
     /** A wallet has been loaded. */
     boost::signals2::signal<void (CWallet* wallet)> LoadWallet;
+
+    /** A dividend ledger has been loaded. */
+    boost::signals2::signal<void (CDividendLedger *ledger)> LoadLedger;
 
     /** Show progress e.g. for verifychain */
     boost::signals2::signal<void (const std::string &title, int nProgress)> ShowProgress;

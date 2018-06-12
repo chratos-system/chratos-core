@@ -96,9 +96,9 @@ CHRATOS_CORE_H = \
   consensus/consensus.h \
   core_io.h \
   core_memusage.h \
-	dividend/db.h \
 	dividend/dividend.h \
 	dividend/dividenddb.h \
+	dividend/rpcdividend.h \
   httprpc.h \
   httpserver.h \
   indirectmap.h \
@@ -268,9 +268,9 @@ libchratos_consensus_a_SOURCES = \
   consensus/merkle.h \
   consensus/params.h \
   consensus/validation.h \
-	dividend/db.cpp \
 	dividend/dividend.cpp \
 	dividend/dividenddb.cpp \
+	dividend/rpcdividend.cpp \
 	aes_helper.c \
 	blake.c \
 	bmw.c \
