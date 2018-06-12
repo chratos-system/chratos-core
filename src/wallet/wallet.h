@@ -17,6 +17,7 @@
 #include "wallet/walletdb.h"
 #include "wallet/rpcwallet.h"
 #include "primitives/transaction.h"
+#include "dividend/dividend.h"
 
 #include <algorithm>
 #include <map>
