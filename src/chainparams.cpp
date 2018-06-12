@@ -143,10 +143,10 @@ public:
          * The characters are rarely used upper ASCII, not valid as UTF-8, and produce
          * a large 32-bit integer with any alignment.
          */
-        pchMessageStart[0] = 0x3f;
-        pchMessageStart[1] = 0x9a;
-        pchMessageStart[2] = 0x24;
-        pchMessageStart[3] = 0x76;
+        pchMessageStart[0] = 0x5a;
+        pchMessageStart[1] = 0x72;
+        pchMessageStart[2] = 0xec;
+        pchMessageStart[3] = 0xa2;
         nDefaultPort = 9123;
         nPruneAfterHeight = 100000;
         bnProofOfWorkLimit = arith_uint256(~arith_uint256() >> 16);
@@ -158,11 +158,11 @@ public:
         assert(consensus.hashGenesisBlock == uint256S("0x00002c8ee799c9eca2b827f7fd5f166c920166676e1c420aafd30d1b4038c3d9"));
         assert(genesis.hashMerkleRoot == uint256S("0x1fa5d082779b253f6fb13790f3078183fcb0ac1a234a0a2e6a2288f6e68e8de1"));
 
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,50);
+        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,87);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,85);
-        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,110);
-        base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0x38)(0x88)(0xB2)(0x1E).convert_to_container<std::vector<unsigned char> >();
-        base58Prefixes[EXT_SECRET_KEY] = boost::assign::list_of(0x38)(0x88)(0xAD)(0xE4).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1,28);
+        base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0xc7)(0x88)(0xB2)(0x1E).convert_to_container<std::vector<unsigned char> >();
+        base58Prefixes[EXT_SECRET_KEY] = boost::assign::list_of(0xc7)(0x88)(0xAD)(0xE4).convert_to_container<std::vector<unsigned char> >();
 
         vFixedSeeds.clear();
       	vSeeds.clear();
