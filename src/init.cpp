@@ -41,6 +41,7 @@
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
 #endif
+#include "dividend/dividend.h"
 #include <stdint.h>
 #include <stdio.h>
 
@@ -1440,12 +1441,18 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         LogPrintf("Wallet disabled!\n");
     } else {
         CWallet::InitLoadWallet();
-        if (!pwalletMain)
+        if (!pwalletMain) {
             return false;
+        }
     }
 #else // ENABLE_WALLET
     LogPrintf("No wallet support compiled in!\n");
 #endif // !ENABLE_WALLET
+
+    CDividendLedger::InitLoadLedger();
+    if (!pdividendLedgerMain) {
+      return false;
+    }
 
     // ********************************************************* Step 9: data directory maintenance
 

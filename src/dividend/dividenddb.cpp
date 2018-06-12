@@ -65,6 +65,8 @@ ReadKeyValue(CDividendLedger* pledger, CDataStream& ssKey, CDataStream& ssValue,
     }
   } catch (...) {
   }
+
+  return true;
 }
 
 DBErrors CDividendLedgerDB::LoadLedger(CDividendLedger *pledger) {

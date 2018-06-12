@@ -12,7 +12,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
 
-const char *DEFAULT_DIVIDEND_LEDGER_DAT = "dividendLedger.dat";
+const char *DEFAULT_DIVIDEND_LEDGER_DAT = "dividendledger.dat";
 
 CDividendLedger::CDividendLedger() {
   fFileBacked = false;
@@ -82,8 +82,11 @@ bool CDividendLedger::InitLoadLedger() {
   uiInterface.InitMessage(_("Loading Dividend Ledger"));
 
   int64_t nStart = GetTimeMillis();
+  
   bool fFirstRun = true;
+  
   CDividendLedger *ledgerInstance = new CDividendLedger(ledgerFile);
+
   DBErrors nLoadLedgerRet = ledgerInstance->LoadLedger(fFirstRun);
 
   if (nLoadLedgerRet != DB_LOAD_OK) {
