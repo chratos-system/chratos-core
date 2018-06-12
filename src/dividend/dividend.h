@@ -47,6 +47,8 @@ class CDividendLedger {
      */
     static bool InitLoadLedger();
 
+    DBErrors LoadWallet(bool &fFirstRunRet);
+
     std::map<uint256, CDividendTx> &GetMapLedger() const;
 
   private:
