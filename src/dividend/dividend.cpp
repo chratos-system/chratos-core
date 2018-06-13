@@ -62,7 +62,7 @@ bool CDividendLedger::AddToLedgerIfDividend(const CTransaction &tx,
 
     if (fExisted && !fUpdate) { return false; }
     if (fExisted || IsDividend(tx)) {
-      CDividendTx dtx(this, tx);
+      CDividendTx dtx(this, tx, pblock);
 
       CDividendLedgerDB ldb(strLedgerFile, "r+", false);
 
@@ -83,15 +83,46 @@ bool CDividendLedger::IsDividend(const CTxOut &txout) {
 }
 
 bool CDividendLedger::AddToLedger(const CDividendTx &dtxIn,
-    bool fFromLoadLedger, 
-    CDividendLedgerDB *pdividenddb) {
+                                  bool fFromLoadLedger, 
+                                  CDividendLedgerDB *pdividenddb) {
+  uint256 hash = dtxIn.GetHash();
 
+  if (fFromLoadLedger) {
+    mapLedger[hash] = dtxIn;
+    CDividendTx &dtx = mapLedger[hash];
+    dtxOrdered.insert(std::make_pair(dtx.getBlockTime(), &dtx));
+  } else {
+    LOCK(cs_ledger);
+    auto ret = mapWallet.insert(make_pair(hash, dtxIn));
+    CDividendTx &dtx = (*ret.first).second;
+    bool fInsertedNew = ret.second;
+
+    if (fInsertedNew) {
+      int64_t blocktime = mapBlockIndex[wtxIn.hashBlock]->GetBlockTime();
+      dtx.blockTime = blocktime;
+    }
+
+    bool fUpdated = false;
+
+    if (!fInsertedNew) {
+    }
+
+    // Write to disk
+    if (fInsertedNew || fUpdated) {
+      if (!pdividenddb->WriteTx(dtx)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
 }
 
 void CDividendLedger::SyncTransaction(const CTransaction& tx,
                                       const CBlockIndex *pindex,
                                       const CBlock* pblock,
                                       const bool fConnect) {
+
 }
 
 int CDividendLedger::ScanForDividendTransactions(CBlockIndex* pindexStart,

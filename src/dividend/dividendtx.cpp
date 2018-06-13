@@ -5,16 +5,19 @@
 #include "dividend/dividendtx.h"
 #include "dividend/dividend.h"
 #include "primitives/transaction.h"
+#include "primitives/block.h"
 
 CDividendTx::CDividendTx() {
-  Init(nullptr);
+  Init(nullptr, nullptr);
 }
 
-CDividendTx::CDividendTx(const CDividendLedger* pledgerIn) {
+CDividendTx::CDividendTx(const CDividendLedger* pledgerIn,
+                         const CMerkleTx& txIn) : CMerkleTx(txIn) {
   Init(pledgerIn);
 }
 
-CDividendTx::CDividendTx(const CDividendLedger* pledgerIn, const CTransaction& txIn) : CTransaction(txIn) {
+CDividendTx::CDividendTx(const CDividendLedger* pledgerIn,
+                         const CTransaction& txIn) : CTransaction(txIn) {
   Init(pledgerIn);
 }
 
@@ -31,4 +34,9 @@ bool CDividendTx::IsTrusted() const {
 
 CAmount CDividendTx::GetAvailableCredit() const {
   return 0;
+}
+
+
+int64_t CDividendTx::getBlockTime() const {
+  return blockTime;
 }

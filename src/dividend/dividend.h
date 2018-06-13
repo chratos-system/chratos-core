@@ -17,6 +17,7 @@ CDividendLedger *pdividendLedgerMain = NULL;
 
 class CDividendLedger : public CBasicKeyStore {
   public:
+    typedef std::multimap<int64_t, CDividendTx *> TxItems;
  
     CDividendLedger();
 
@@ -74,6 +75,8 @@ class CDividendLedger : public CBasicKeyStore {
     int nLedgerVersion;
 
     int nLedgerMaxVersion;
+
+    TxItems dtxOrdered;
 
     bool IsDividend(const CTransaction &ctx);
 

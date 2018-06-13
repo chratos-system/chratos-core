@@ -7,26 +7,39 @@
 #ifndef CHRATOS_DIVIDEND_DIVIDEND_TX_H
 #define CHRATOS_DIVIDEND_DIVIDEND_TX_H
 
-#include "primitives/transaction.h"
+#include "wallet/wallet.h"
 
 class CDividendLedger;
+class CBlock;
 
-class CDividendTx : public CTransaction {
+class CDividendTx : public CMerkleTx {
   public:
 
     CDividendTx();
-    CDividendTx(const CDividendLedger *pledgerIn);
-    CDividendTx(const CDividendLedger *pledgerIn, const CTransaction &txIn);
+
+    CDividendTx(const CDividendLedger *pledgerIn,
+                const CMerkleTx &txIn,
+                const CBlock *pblock);
+
+    CDividendTx(const CDividendLedger *pledgerIn,
+                const CTransaction &txIn,
+                const CBlock *pblock);
 
     void MarkDirty();
     bool IsTrusted() const;
     CAmount GetAvailableCredit() const;
 
-    void Init(const CDividendLedger *pledgerIn);
+    void Init(const CDividendLedger *pledgerIn, const CBlock *pblock);
+
+    int64_t getBlockTime() const;
 
   private:
 
     const CDividendLedger *ledger;
+
+    int64_t blockTime;
+
+    uint256 blockHash;
 };
 
 #endif
