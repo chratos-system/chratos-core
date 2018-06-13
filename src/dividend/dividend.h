@@ -10,27 +10,24 @@
 #include "primitives/transaction.h"
 #include "dividend/dividenddb.h"
 #include "primitives/block.h"
+#include "keystore.h"
 #include "chain.h"
 
 CDividendLedger *pdividendLedgerMain = NULL;
 
-class CDividendTx : public CTransaction {
-  public:
-    void MarkDirty();
-    bool IsTrusted() const { return true; };
-    CAmount GetAvailableCredit() const { return 0; };
-  private:
-
-};
-
-class CDividendLedger {
+class CDividendLedger : public CBasicKeyStore {
   public:
  
     CDividendLedger();
 
     CDividendLedger(const std::string& strLedgerFileIn);
 
+    void Init();
+
     void MarkDirty();
+
+    bool AddToLedgerIfDividend(const CTransaction &tx, const CBlock *pblock,
+                               bool fUpdate);
 
     bool AddToLedger(const CDividendTx &dtxIn, bool fFromLoadLedger, 
                      CDividendLedgerDB *pdividenddb);
@@ -77,6 +74,10 @@ class CDividendLedger {
     int nLedgerVersion;
 
     int nLedgerMaxVersion;
+
+    bool IsDividend(const CTransaction &ctx);
+
+    bool IsDividend(const CTxOut &txout);
 };
 
 #endif

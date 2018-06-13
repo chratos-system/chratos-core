@@ -268,8 +268,9 @@ UniValue importprunedfunds(const JSONRPCRequest &request)
         );
 
     CTransaction tx;
-    if (!DecodeHexTx(tx, request.params[0].get_str()))
+    if (!DecodeHexTx(tx, request.params[0].get_str())) {
         throw JSONRPCError(RPC_DESERIALIZATION_ERROR, "TX decode failed");
+    }
     uint256 hashTx = tx.GetHash();
     CWalletTx wtx(pwalletMain,tx);
 
@@ -278,8 +279,9 @@ UniValue importprunedfunds(const JSONRPCRequest &request)
     ssMB >> merkleBlock;
 
     string strLabel = "";
-    if (request.params.size() == 3)
+    if (request.params.size() == 3) {
         strLabel = request.params[2].get_str();
+    }
 
     //Search partial merkle tree in proof for our transaction and index in valid block
     vector<uint256> vMatch;

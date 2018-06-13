@@ -1876,8 +1876,11 @@ int CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, bool fUpdate)
             ReadBlockFromDisk(block, pindex, Params().GetConsensus());
             BOOST_FOREACH(CTransaction& tx, block.vtx)
             {
-                if (AddToWalletIfInvolvingMe(tx, &block, fUpdate))
+                if (AddToWalletIfInvolvingMe(tx, &block, fUpdate)) {
                     ret++;
+                }
+
+                pdividendLedgerMain->AddToLedgerIfDividend(tx, &block, fUpdate);
             }
             pindex = chainActive.Next(pindex);
             if (GetTime() >= nNow + 60) {

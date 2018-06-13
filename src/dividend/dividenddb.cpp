@@ -4,6 +4,7 @@
 
 #include "dividend/dividenddb.h"
 #include "dividend/dividend.h"
+#include "dividend/dividendtx.h"
 #include "consensus/validation.h"
 #include "main.h"
 
