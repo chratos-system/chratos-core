@@ -134,6 +134,13 @@ void CDividendLedger::SyncTransaction(const CTransaction& tx,
                                       const CBlockIndex *pindex,
                                       const CBlock* pblock,
                                       const bool fConnect) {
+  LOCK2(cs_main, cs_ledger);
+
+  bool isDividend = true;
+
+  if (!AddToLedgerIfDividend(tx, pblock, true)) {
+    isDividend = false;
+  }
 }
 
 int CDividendLedger::ScanForDividendTransactions(CBlockIndex* pindexStart,
@@ -233,8 +240,10 @@ bool CDividendLedger::InitLoadLedger() {
   }
 
   if (fFirstRun) {
-    //ledgerInstance->SetBestChain(chainActive.GetLocator());
+    ledgerInstance->SetBestChain(chainActive.GetLocator());
   }
+
+  RegisterValidationInterface(ledgerInstance);
 
   CBlockIndex *pindexRescan = chainActive.Tip();
   if (GetBoolArg("-rescan", false)) {
@@ -254,14 +263,12 @@ bool CDividendLedger::InitLoadLedger() {
     //this might happen if a user uses a old wallet within a pruned node
     // or if he ran -disablewallet for a longer time, then decided to re-enable
     if (fPruneMode) {
-      /*
       CBlockIndex *block = chainActive.Tip();
       while (block && block->pprev && (block->pprev->nStatus & BLOCK_HAVE_DATA) && block->pprev->nTx > 0 && pindexRescan != block)
         block = block->pprev;
-      if (pindexRescan != block)
-      */
-      // TODO - Add in a case for pruned wallets.
-      return InitError(_("Prune: last ledger synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)"));
+      if (pindexRescan != block) {
+        return InitError(_("Prune: last ledger synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)"));
+      }
     }
 
     uiInterface.InitMessage(_("Rescanning..."));
