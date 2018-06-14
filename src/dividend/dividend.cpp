@@ -93,7 +93,7 @@ bool CDividendLedger::AddToLedger(const CDividendTx &dtxIn,
     dtxOrdered.insert(std::make_pair(dtx.getBlockTime(), &dtx));
   } else {
     LOCK(cs_ledger);
-    auto ret = mapWallet.insert(make_pair(hash, dtxIn));
+    auto ret = mapLedger.insert(make_pair(hash, dtxIn));
     CDividendTx &dtx = (*ret.first).second;
     bool fInsertedNew = ret.second;
 
