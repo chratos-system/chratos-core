@@ -16,7 +16,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
 
-const char *DEFAULT_DIVIDEND_LEDGER_DAT = "dividendledger.dat";
+const char *DEFAULT_DIVIDEND_LEDGER_DAT = "dividend_ledger.dat";
 const char *DIVIDEND_DEFAULT_ADDRESS = "cDividendBurnAddressChatrosCScKSU9";
 
 CDividendLedger *pdividendLedgerMain = nullptr;
