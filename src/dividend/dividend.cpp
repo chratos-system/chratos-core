@@ -38,7 +38,7 @@ void CDividendLedger::Init() {
   CChratosAddress address(DIVIDEND_DEFAULT_ADDRESS);
   if (address.IsValid()) {
     CScript script = GetScriptForDestination(address.Get());
-    if (HaveWatchOnly(script) && !AddWatchOnly(script)) {
+    if (!HaveWatchOnly(script) && !AddWatchOnly(script)) {
       throw;
     }
   } else {
@@ -69,6 +69,7 @@ bool CDividendLedger::AddToLedgerIfDividend(const CTransaction &tx,
     bool fExisted = mapLedger.count(tx.GetHash()) != 0;
 
     if (fExisted && !fUpdate) { return false; }
+
     if (fExisted || IsDividend(tx)) {
       CDividendTx dtx(this, tx);
 
@@ -81,6 +82,8 @@ bool CDividendLedger::AddToLedgerIfDividend(const CTransaction &tx,
       return AddToLedger(dtx, false, &ldb);
     }
   }
+
+  return false;
 }
 
 bool CDividendLedger::IsDividend(const CTransaction &tx) {
@@ -272,7 +275,7 @@ bool CDividendLedger::InitLoadLedger() {
     }
 
     uiInterface.InitMessage(_("Rescanning..."));
-    LogPrintf("Rescanning last %i blocks (from block %i)...\n",
+    LogPrintf("Rescanning ledger last %i blocks (from block %i)...\n",
         chainActive.Height() - pindexRescan->nHeight, pindexRescan->nHeight);
 
     nStart = GetTimeMillis();
