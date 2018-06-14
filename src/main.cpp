@@ -1808,8 +1808,8 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 
     if (nHeight < 500)
     {
-        // Premine amount of 571,000,000
-        CAmount nSubsidy = (571e6 / 500) * COIN;
+        // Premine amount of 10,000
+        CAmount nSubsidy = (1e4 / 500) * COIN;
         return nSubsidy;
     }
 
