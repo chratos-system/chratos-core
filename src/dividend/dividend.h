@@ -9,13 +9,14 @@
 
 #include "primitives/transaction.h"
 #include "dividend/dividenddb.h"
+#include "validationinterface.h"
 #include "primitives/block.h"
 #include "keystore.h"
 #include "chain.h"
 
 extern CDividendLedger *pdividendLedgerMain;
 
-class CDividendLedger : public CBasicKeyStore {
+class CDividendLedger : public CBasicKeyStore, public CValidationInterface {
   public:
     typedef std::multimap<int64_t, CDividendTx *> TxItems;
  
@@ -27,6 +28,8 @@ class CDividendLedger : public CBasicKeyStore {
 
     void MarkDirty();
 
+    void SetBestChain(const CBlockLocator &loc);
+
     bool AddToLedgerIfDividend(const CTransaction &tx, const CBlock *pblock,
                                bool fUpdate);
 
@@ -36,13 +39,16 @@ class CDividendLedger : public CBasicKeyStore {
     void SyncTransaction(const CTransaction& tx, const CBlockIndex *pindex, 
                          const CBlock* pblock, const bool fConnect = true);
 
-    int ScanForDividendTransactions(CBlockIndex* pindexStart, bool fUpdate = false);
+    int ScanForDividendTransactions(CBlockIndex* pindexStart,
+                                    bool fUpdate = false);
 
     CAmount GetBalance() const;
 
     CAmount GetUnconfirmedBalance() const;
 
     CAmount GetImmatureBalance() const;
+
+    boost::signals2::signal<void (const std::string &title, int nProgress)> ShowProgress;
 
     bool LoadMinVersion(int nVersion) {
       AssertLockHeld(cs_ledger);

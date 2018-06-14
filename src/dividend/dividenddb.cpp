@@ -214,3 +214,16 @@ DBErrors CDividendLedgerDB::FindDividendTx(CDividendLedger *pledger,
     result = DB_CORRUPT;
   }
 }
+
+bool CDividendLedgerDB::ReadBestBlock(CBlockLocator& locator) {
+  if (Read(std::string("bestblock"), locator) && !locator.vHave.empty()) {
+    return true;
+  }
+  return Read(std::string("bestblock_nomerkle"), locator);
+}
+
+bool CDividendLedgerDB::WriteBestBlock(const CBlockLocator& locator) {
+  nWalletDBUpdated++;
+  Write(std::string("bestblock"), CBlockLocator());
+  return Write(std::string("bestblock_nomerkle"), locator);
+}

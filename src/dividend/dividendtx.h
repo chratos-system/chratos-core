@@ -24,7 +24,9 @@ class CDividendTx : public CMerkleTx {
                 const CTransaction &txIn);
 
     void MarkDirty();
+
     bool IsTrusted() const;
+
     CAmount GetAvailableCredit() const;
 
     void Init(const CDividendLedger *pledgerIn);

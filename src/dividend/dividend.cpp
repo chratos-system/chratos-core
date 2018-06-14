@@ -10,6 +10,7 @@
 #include "main.h"
 #include "script/ismine.h"
 #include "base58.h"
+#include "checkpoints.h"
 
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
@@ -43,6 +44,11 @@ void CDividendLedger::Init() {
   } else {
     throw;
   }
+}
+
+void CDividendLedger::SetBestChain(const CBlockLocator &loc) {
+  CDividendLedgerDB ledgerdb(strLedgerFile);
+  ledgerdb.WriteBestBlock(loc);
 }
 
 void CDividendLedger::MarkDirty() {
@@ -128,11 +134,47 @@ void CDividendLedger::SyncTransaction(const CTransaction& tx,
                                       const CBlockIndex *pindex,
                                       const CBlock* pblock,
                                       const bool fConnect) {
-
 }
 
 int CDividendLedger::ScanForDividendTransactions(CBlockIndex* pindexStart,
                                                  bool fUpdate) {
+  int ret = 0;
+  int64_t nNow = GetTime();
+
+  const CChainParams &chainParams = Params();
+
+  CBlockIndex *pindex = pindexStart;
+  {
+    LOCK2(cs_main, cs_ledger);
+
+    ShowProgress(_("Rescanning..."), 0);
+    double dProgressStart = Checkpoints::GuessVerificationProgress(chainParams.Checkpoints(), pindex, false);
+    double dProgressTip = Checkpoints::GuessVerificationProgress(chainParams.Checkpoints(), chainActive.Tip(), false);
+
+    while (pindex) {
+      if (pindex->nHeight % 100 == 0 && dProgressTip - dProgressStart > 0.0) {
+        ShowProgress(_("Rescanning..."),
+            std::max(1, std::min(99, (int)((Checkpoints::GuessVerificationProgress(chainParams.Checkpoints(), pindex, false) - dProgressStart) / (dProgressTip - dProgressStart) * 100))));
+      }
+
+      CBlock block;
+      ReadBlockFromDisk(block, pindex, Params().GetConsensus());
+      BOOST_FOREACH(CTransaction &tx, block.vtx) {
+        if (AddToLedgerIfDividend(tx, &block, fUpdate)) {
+          ret++;
+        }
+      }
+
+      pindex = chainActive.Next(pindex);
+      if (GetTime() >= nNow + 60) {
+        nNow = GetTime();
+        LogPrintf("Still ledger rescanning. At block %d. Progress=%f\n", pindex->nHeight, Checkpoints::GuessVerificationProgress(chainParams.Checkpoints(), pindex));
+      }
+    }
+    ShowProgress(_("Rescanning..."), 100); // hide progress dialog in GUI
+  }
+
+  return ret;
 }
 
 CAmount CDividendLedger::GetBalance() const {
@@ -194,6 +236,44 @@ bool CDividendLedger::InitLoadLedger() {
     //ledgerInstance->SetBestChain(chainActive.GetLocator());
   }
 
+  CBlockIndex *pindexRescan = chainActive.Tip();
+  if (GetBoolArg("-rescan", false)) {
+    pindexRescan = chainActive.Genesis();
+  } else {
+    CDividendLedgerDB ledgerdb(ledgerFile);
+    CBlockLocator locator;
+    if (ledgerdb.ReadBestBlock(locator)) {
+      pindexRescan = FindForkInGlobalIndex(chainActive, locator);
+    } else {
+      pindexRescan = chainActive.Genesis();
+    }
+  }
+  
+  if (chainActive.Tip() && chainActive.Tip() != pindexRescan) {
+    //We can't rescan beyond non-pruned blocks, stop and throw an error
+    //this might happen if a user uses a old wallet within a pruned node
+    // or if he ran -disablewallet for a longer time, then decided to re-enable
+    if (fPruneMode) {
+      /*
+      CBlockIndex *block = chainActive.Tip();
+      while (block && block->pprev && (block->pprev->nStatus & BLOCK_HAVE_DATA) && block->pprev->nTx > 0 && pindexRescan != block)
+        block = block->pprev;
+      if (pindexRescan != block)
+      */
+      // TODO - Add in a case for pruned wallets.
+      return InitError(_("Prune: last ledger synchronisation goes beyond pruned data. You need to -reindex (download the whole blockchain again in case of pruned node)"));
+    }
+
+    uiInterface.InitMessage(_("Rescanning..."));
+    LogPrintf("Rescanning last %i blocks (from block %i)...\n",
+        chainActive.Height() - pindexRescan->nHeight, pindexRescan->nHeight);
+
+    nStart = GetTimeMillis();
+    ledgerInstance->ScanForDividendTransactions(pindexRescan, true);
+    LogPrintf(" rescan      %15dms\n", GetTimeMillis() - nStart);
+    ledgerInstance->SetBestChain(chainActive.GetLocator());
+  }
+ 
   pdividendLedgerMain = ledgerInstance;
 }
 

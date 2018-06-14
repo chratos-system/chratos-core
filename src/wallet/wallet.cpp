@@ -1879,8 +1879,6 @@ int CWallet::ScanForWalletTransactions(CBlockIndex* pindexStart, bool fUpdate)
                 if (AddToWalletIfInvolvingMe(tx, &block, fUpdate)) {
                     ret++;
                 }
-
-                pdividendLedgerMain->AddToLedgerIfDividend(tx, &block, fUpdate);
             }
             pindex = chainActive.Next(pindex);
             if (GetTime() >= nNow + 60) {

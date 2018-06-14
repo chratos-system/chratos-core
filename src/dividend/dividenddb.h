@@ -29,6 +29,9 @@ class CDividendLedgerDB : public CDB {
                             std::vector<uint256>& vTxHash,
                             std::vector<CDividendTx>& vDtx);
 
+    bool ReadBestBlock(CBlockLocator& locator);
+    bool WriteBestBlock(const CBlockLocator& locator);
+
   private:
     unsigned int nLedgerDBUpdated;
 };
