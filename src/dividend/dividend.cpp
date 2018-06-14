@@ -17,7 +17,7 @@
 #include <boost/thread.hpp>
 
 const char *DEFAULT_DIVIDEND_LEDGER_DAT = "dividendledger.dat";
-const char *DIVIDEND_DEFAULT_ADDRESS = "cDIVIDENDADDRESS12345";
+const char *DIVIDEND_DEFAULT_ADDRESS = "cDividendBurnAddressChatrosCScKSU9";
 
 CDividendLedger *pdividendLedgerMain = nullptr;
 
@@ -35,14 +35,14 @@ CDividendLedger::CDividendLedger(const std::string& strLedgerFileIn) {
 }
 
 void CDividendLedger::Init() {
-  CChratosAddress address("cChratosDividendAddressxxxxvCMpCy");
+  CChratosAddress address(DIVIDEND_DEFAULT_ADDRESS);
   if (address.IsValid()) {
     CScript script = GetScriptForDestination(address.Get());
     if (HaveWatchOnly(script) && !AddWatchOnly(script)) {
       throw;
     }
   } else {
-    throw;
+    throw std::runtime_error("Error: Invalid address for dividend: " + address.ToString());
   }
 }
 
