@@ -62,7 +62,11 @@ bool CDividendLedger::AddToLedgerIfDividend(const CTransaction &tx,
 
     if (fExisted && !fUpdate) { return false; }
     if (fExisted || IsDividend(tx)) {
-      CDividendTx dtx(this, tx, pblock);
+      CDividendTx dtx(this, tx);
+
+      if (pblock) {
+        dtx.SetMerkleBranch(*pblock);
+      }
 
       CDividendLedgerDB ldb(strLedgerFile, "r+", false);
 
@@ -98,8 +102,8 @@ bool CDividendLedger::AddToLedger(const CDividendTx &dtxIn,
     bool fInsertedNew = ret.second;
 
     if (fInsertedNew) {
-      int64_t blocktime = mapBlockIndex[wtxIn.hashBlock]->GetBlockTime();
-      dtx.blockTime = blocktime;
+      int64_t blocktime = mapBlockIndex[dtxIn.hashBlock]->GetBlockTime();
+      dtx.setBlockTime(blocktime);
     }
 
     bool fUpdated = false;

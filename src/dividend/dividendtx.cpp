@@ -8,7 +8,7 @@
 #include "primitives/block.h"
 
 CDividendTx::CDividendTx() {
-  Init(nullptr, nullptr);
+  Init(nullptr);
 }
 
 CDividendTx::CDividendTx(const CDividendLedger* pledgerIn,
@@ -17,7 +17,7 @@ CDividendTx::CDividendTx(const CDividendLedger* pledgerIn,
 }
 
 CDividendTx::CDividendTx(const CDividendLedger* pledgerIn,
-                         const CTransaction& txIn) : CTransaction(txIn) {
+                         const CTransaction& txIn) : CMerkleTx(txIn) {
   Init(pledgerIn);
 }
 
@@ -39,4 +39,8 @@ CAmount CDividendTx::GetAvailableCredit() const {
 
 int64_t CDividendTx::getBlockTime() const {
   return blockTime;
+}
+
+void CDividendTx::setBlockTime(int64_t bt) {
+  blockTime = bt;
 }

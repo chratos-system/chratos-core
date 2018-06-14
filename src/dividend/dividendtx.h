@@ -18,20 +18,20 @@ class CDividendTx : public CMerkleTx {
     CDividendTx();
 
     CDividendTx(const CDividendLedger *pledgerIn,
-                const CMerkleTx &txIn,
-                const CBlock *pblock);
+                const CMerkleTx &txIn);
 
     CDividendTx(const CDividendLedger *pledgerIn,
-                const CTransaction &txIn,
-                const CBlock *pblock);
+                const CTransaction &txIn);
 
     void MarkDirty();
     bool IsTrusted() const;
     CAmount GetAvailableCredit() const;
 
-    void Init(const CDividendLedger *pledgerIn, const CBlock *pblock);
+    void Init(const CDividendLedger *pledgerIn);
 
     int64_t getBlockTime() const;
+    
+    void setBlockTime(int64_t);
 
   private:
 
