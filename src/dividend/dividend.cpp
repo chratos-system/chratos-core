@@ -18,6 +18,8 @@
 const char *DEFAULT_DIVIDEND_LEDGER_DAT = "dividendledger.dat";
 const char *DIVIDEND_DEFAULT_ADDRESS = "cDIVIDENDADDRESS12345";
 
+CDividendLedger *pdividendLedgerMain = nullptr;
+
 CDividendLedger::CDividendLedger() {
   fFileBacked = false;
   nTimeFirstKey = 0;

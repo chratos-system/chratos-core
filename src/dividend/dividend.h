@@ -13,7 +13,7 @@
 #include "keystore.h"
 #include "chain.h"
 
-CDividendLedger *pdividendLedgerMain = NULL;
+extern CDividendLedger *pdividendLedgerMain;
 
 class CDividendLedger : public CBasicKeyStore {
   public:
