@@ -13,8 +13,9 @@
 #include "primitives/block.h"
 #include "keystore.h"
 #include "chain.h"
+#include "dividend/rpcdividend.h"
 
-extern CDividendLedger *pdividendLedgerMain;
+extern CDividendLedger *pledgerMain;
 
 class CDividendLedger : public CBasicKeyStore, public CValidationInterface {
   public:
@@ -43,10 +44,6 @@ class CDividendLedger : public CBasicKeyStore, public CValidationInterface {
                                     bool fUpdate = false);
 
     CAmount GetBalance() const;
-
-    CAmount GetUnconfirmedBalance() const;
-
-    CAmount GetImmatureBalance() const;
 
     boost::signals2::signal<void (const std::string &title, int nProgress)> ShowProgress;
 

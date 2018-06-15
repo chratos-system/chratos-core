@@ -964,6 +964,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         RegisterWalletRPCCommands(tableRPC);
 #endif
 
+    RegisterDividendRPCCommands(tableRPC);
     nConnectTimeout = GetArg("-timeout", DEFAULT_CONNECT_TIMEOUT);
     if (nConnectTimeout <= 0)
         nConnectTimeout = DEFAULT_CONNECT_TIMEOUT;
@@ -1450,7 +1451,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 #endif // !ENABLE_WALLET
 
     CDividendLedger::InitLoadLedger();
-    if (!pdividendLedgerMain) {
+    if (!pledgerMain) {
       return false;
     }
 

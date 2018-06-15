@@ -37,10 +37,10 @@ CAmount CDividendTx::GetAvailableCredit() const {
 }
 
 
-int64_t CDividendTx::getBlockTime() const {
+int64_t CDividendTx::GetBlockTime() const {
   return blockTime;
 }
 
-void CDividendTx::setBlockTime(int64_t bt) {
+void CDividendTx::SetBlockTime(int64_t bt) {
   blockTime = bt;
 }

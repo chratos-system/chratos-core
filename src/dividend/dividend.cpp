@@ -19,7 +19,7 @@
 const char *DEFAULT_DIVIDEND_LEDGER_DAT = "dividend_ledger.dat";
 const char *DIVIDEND_DEFAULT_ADDRESS = "cDividendBurnAddressChatrosCScKSU9";
 
-CDividendLedger *pdividendLedgerMain = nullptr;
+CDividendLedger *pledgerMain = nullptr;
 
 CDividendLedger::CDividendLedger() {
   fFileBacked = false;
@@ -105,7 +105,7 @@ bool CDividendLedger::AddToLedger(const CDividendTx &dtxIn,
   if (fFromLoadLedger) {
     mapLedger[hash] = dtxIn;
     CDividendTx &dtx = mapLedger[hash];
-    dtxOrdered.insert(std::make_pair(dtx.getBlockTime(), &dtx));
+    dtxOrdered.insert(std::make_pair(dtx.GetBlockTime(), &dtx));
   } else {
     LOCK(cs_ledger);
     auto ret = mapLedger.insert(make_pair(hash, dtxIn));
@@ -114,7 +114,7 @@ bool CDividendLedger::AddToLedger(const CDividendTx &dtxIn,
 
     if (fInsertedNew) {
       int64_t blocktime = mapBlockIndex[dtxIn.hashBlock]->GetBlockTime();
-      dtx.setBlockTime(blocktime);
+      dtx.SetBlockTime(blocktime);
     }
 
     bool fUpdated = false;
@@ -193,21 +193,9 @@ CAmount CDividendLedger::GetBalance() const {
     LOCK2(cs_main, cs_ledger);
     for (auto &kv : mapLedger) {
       auto pcoin = &(kv.second);
-      if (pcoin->IsTrusted()) {
-        nTotal += pcoin->GetAvailableCredit();
-      }
+      nTotal += pcoin->GetAvailableCredit();
     }
   }
-  return nTotal;
-}
-
-CAmount CDividendLedger::GetUnconfirmedBalance() const {
-  CAmount nTotal = 0;
-  return nTotal;
-}
-
-CAmount CDividendLedger::GetImmatureBalance() const {
-  CAmount nTotal = 0;
   return nTotal;
 }
 
@@ -284,7 +272,7 @@ bool CDividendLedger::InitLoadLedger() {
     ledgerInstance->SetBestChain(chainActive.GetLocator());
   }
  
-  pdividendLedgerMain = ledgerInstance;
+  pledgerMain = ledgerInstance;
 }
 
 std::map<uint256, CDividendTx> &CDividendLedger::GetMapLedger() const {
@@ -312,3 +300,4 @@ DBErrors CDividendLedger::LoadLedger(bool &fFirstRunRet) {
 
   return DB_LOAD_OK;
 }
+

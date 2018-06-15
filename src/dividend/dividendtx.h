@@ -31,9 +31,9 @@ class CDividendTx : public CMerkleTx {
 
     void Init(const CDividendLedger *pledgerIn);
 
-    int64_t getBlockTime() const;
-    
-    void setBlockTime(int64_t);
+    int64_t GetBlockTime() const;
+
+    void SetBlockTime(int64_t);
 
   private:
 
