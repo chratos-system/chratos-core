@@ -93,8 +93,8 @@ bool CDividendLedger::IsDividend(const CTransaction &tx) {
   return false;
 }
 
-bool CDividendLedger::IsDividend(const CTxOut &txout) {
-  return ::IsMine(*this, txout.scriptPubKey);
+bool CDividendLedger::IsDividend(const CTxOut &txout) const {
+  return ::IsMine(*pledgerMain, txout.scriptPubKey);
 }
 
 bool CDividendLedger::AddToLedger(const CDividendTx &dtxIn,
@@ -301,3 +301,21 @@ DBErrors CDividendLedger::LoadLedger(bool &fFirstRunRet) {
   return DB_LOAD_OK;
 }
 
+CAmount CDividendLedger::GetCredit(const CTransaction& tx,
+                                   const isminefilter& filter) const {
+  CAmount nCredit = 0;
+  BOOST_FOREACH(const CTxOut& txout, tx.vout) {
+    nCredit += GetCredit(txout, filter);
+    if (!MoneyRange(nCredit)) {
+      throw std::runtime_error("CDividendLedger::GetCredit(): value out of range");
+    }
+  }
+  return nCredit;
+}
+
+CAmount CDividendLedger::GetCredit(const CTxOut& txout, const isminefilter& filter) const {
+  if (!MoneyRange(txout.nValue)) {
+    throw std::runtime_error("CWallet::GetCredit(): value out of range");
+  } 
+  return (IsDividend(txout) ? txout.nValue : 0);
+}

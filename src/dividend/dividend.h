@@ -14,8 +14,10 @@
 #include "keystore.h"
 #include "chain.h"
 #include "dividend/rpcdividend.h"
+#include "script/ismine.h"
 
 extern CDividendLedger *pledgerMain;
+
 
 class CDividendLedger : public CBasicKeyStore, public CValidationInterface {
   public:
@@ -65,6 +67,10 @@ class CDividendLedger : public CBasicKeyStore, public CValidationInterface {
 
     mutable CCriticalSection cs_ledger;
 
+    CAmount GetCredit(const CTransaction& tx, const isminefilter& filter) const;
+
+    CAmount GetCredit(const CTxOut& txout, const isminefilter& filter) const;
+
   private:
 
     int64_t nTimeFirstKey;
@@ -83,7 +89,7 @@ class CDividendLedger : public CBasicKeyStore, public CValidationInterface {
 
     bool IsDividend(const CTransaction &ctx);
 
-    bool IsDividend(const CTxOut &txout);
+    bool IsDividend(const CTxOut &txout) const;
 };
 
 #endif

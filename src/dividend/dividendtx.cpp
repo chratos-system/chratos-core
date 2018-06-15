@@ -33,7 +33,17 @@ bool CDividendTx::IsTrusted() const {
 }
 
 CAmount CDividendTx::GetAvailableCredit() const {
-  return 0;
+
+  CAmount nCredit = 0;
+
+  for (auto &txout : vout) {
+    nCredit += ledger->GetCredit(txout, ISMINE_WATCH_ONLY);
+    if (!MoneyRange(nCredit)) {
+      throw std::runtime_error("CDividendTx::GetAvailableCredit() : value out of range");
+    }
+  }
+
+  return nCredit;
 }
 
 

@@ -40,8 +40,9 @@ isminetype IsMine(const CKeyStore &keystore, const CScript& scriptPubKey)
     vector<valtype> vSolutions;
     txnouttype whichType;
     if (!Solver(scriptPubKey, whichType, vSolutions)) {
-        if (keystore.HaveWatchOnly(scriptPubKey))
+        if (keystore.HaveWatchOnly(scriptPubKey)) {
             return ISMINE_WATCH_UNSOLVABLE;
+        }
         return ISMINE_NO;
     }
 
