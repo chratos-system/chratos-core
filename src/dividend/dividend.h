@@ -63,13 +63,15 @@ class CDividendLedger : public CBasicKeyStore, public CValidationInterface {
 
     DBErrors LoadLedger(bool &fFirstRunRet);
 
-    std::map<uint256, CDividendTx> &GetMapLedger() const;
+    std::map<uint256, CDividendTx> GetMapLedger() const;
 
     mutable CCriticalSection cs_ledger;
 
     CAmount GetCredit(const CTransaction& tx, const isminefilter& filter) const;
 
     CAmount GetCredit(const CTxOut& txout, const isminefilter& filter) const;
+
+    TxItems GetOrdered() const;
 
   private:
 

@@ -275,7 +275,7 @@ bool CDividendLedger::InitLoadLedger() {
   pledgerMain = ledgerInstance;
 }
 
-std::map<uint256, CDividendTx> &CDividendLedger::GetMapLedger() const {
+std::map<uint256, CDividendTx> CDividendLedger::GetMapLedger() const {
 }
 
 DBErrors CDividendLedger::LoadLedger(bool &fFirstRunRet) {
@@ -318,4 +318,8 @@ CAmount CDividendLedger::GetCredit(const CTxOut& txout, const isminefilter& filt
     throw std::runtime_error("CWallet::GetCredit(): value out of range");
   } 
   return (IsDividend(txout) ? txout.nValue : 0);
+}
+
+CDividendLedger::TxItems CDividendLedger::GetOrdered() const {
+  return dtxOrdered;
 }
