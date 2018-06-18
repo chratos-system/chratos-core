@@ -6,6 +6,7 @@
 #include "dividend/dividend.h"
 #include "primitives/transaction.h"
 #include "primitives/block.h"
+#include "main.h"
 
 CDividendTx::CDividendTx() {
   Init(nullptr);
@@ -48,7 +49,7 @@ CAmount CDividendTx::GetAvailableCredit() const {
 
 
 int64_t CDividendTx::GetBlockTime() const {
-  return blockTime;
+  return mapBlockIndex[hashBlock]->GetBlockTime();
 }
 
 void CDividendTx::SetBlockTime(int64_t bt) {

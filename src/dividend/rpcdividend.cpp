@@ -43,7 +43,8 @@ void ListTransactions(const CDividendTx& dtx, UniValue& ret) {
   UniValue entry(UniValue::VOBJ);
 
   DividendTxToJSON(dtx, entry);
-  entry.push_back(Pair("credit", ValueFromAmount(credit)));
+  entry.push_back(Pair("amount", ValueFromAmount(credit)));
+  ret.push_back(entry);
 }
 
 UniValue getbalance(const JSONRPCRequest &request) {
