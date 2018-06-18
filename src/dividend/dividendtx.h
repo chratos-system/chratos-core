@@ -35,6 +35,8 @@ class CDividendTx : public CMerkleTx {
 
     void SetBlockTime(int64_t);
 
+    CAmount GetCoinSupply() const;
+
   private:
 
     const CDividendLedger *ledger;
@@ -42,6 +44,8 @@ class CDividendTx : public CMerkleTx {
     int64_t blockTime;
 
     uint256 blockHash;
+
+    CBlockIndex *GetBlock() const;
 };
 
 #endif

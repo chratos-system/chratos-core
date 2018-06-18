@@ -273,9 +273,12 @@ bool CDividendLedger::InitLoadLedger() {
   }
  
   pledgerMain = ledgerInstance;
+
+  return true;
 }
 
 std::map<uint256, CDividendTx> CDividendLedger::GetMapLedger() const {
+  return mapLedger;
 }
 
 DBErrors CDividendLedger::LoadLedger(bool &fFirstRunRet) {

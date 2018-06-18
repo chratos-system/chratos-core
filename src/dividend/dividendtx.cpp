@@ -47,11 +47,19 @@ CAmount CDividendTx::GetAvailableCredit() const {
   return nCredit;
 }
 
+CAmount CDividendTx::GetCoinSupply() const {
+  CAmount supply = GetBlock()->nCFSupply * COIN;
+  return supply;
+}
 
 int64_t CDividendTx::GetBlockTime() const {
-  return mapBlockIndex[hashBlock]->GetBlockTime();
+  return GetBlock()->GetBlockTime();
 }
 
 void CDividendTx::SetBlockTime(int64_t bt) {
   blockTime = bt;
+}
+
+CBlockIndex *CDividendTx::GetBlock() const {
+  return mapBlockIndex[hashBlock];
 }

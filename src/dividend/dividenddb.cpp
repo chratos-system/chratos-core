@@ -213,6 +213,8 @@ DBErrors CDividendLedgerDB::FindDividendTx(CDividendLedger *pledger,
   } catch (...) {
     result = DB_CORRUPT;
   }
+
+  return result;
 }
 
 bool CDividendLedgerDB::ReadBestBlock(CBlockLocator& locator) {
