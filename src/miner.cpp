@@ -197,6 +197,8 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         coinbaseTx.vout[0].nValue = GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     }
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
+    // TODO - Check here for changing into the dividend rather than communityfund.
+    /*
     if(IsCommunityFundEnabled(pindexPrev, chainparams.GetConsensus()))
     {
         std::map<uint256, bool> votes;
@@ -268,6 +270,7 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
         }
         coinbaseTx.strDZeel = strDZeel.write();
     }
+    */
     pblock->vtx[0] = coinbaseTx;
 
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
@@ -836,7 +839,7 @@ bool SignBlock(CBlock *pblock, CWallet& wallet, int64_t nFees)
               for (vector<CTransaction>::iterator it = vtx.begin(); it != vtx.end();)
                   if (it->nTime > pblock->nTime) { it = vtx.erase(it); } else { ++it; }
 
-              txCoinStake.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
+             // txCoinStake.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
               txCoinStake.strDZeel = GetArg("-stakervote","") + ";" + std::to_string(CLIENT_VERSION);
 
               // After the changes, we need to resign inputs.

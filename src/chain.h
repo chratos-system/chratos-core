@@ -212,11 +212,8 @@ public:
     unsigned int nNonce;
 
     int64_t nMint;
-    int64_t nCFSupply;
-    int64_t nCFLocked;
-
-    std::vector<std::pair<uint256, bool>> vProposalVotes;
-    std::vector<std::pair<uint256, bool>> vPaymentRequestVotes;
+    int64_t nMoneySupply;
+    int64_t nDividendFund;
 
     std::string strDZeel;
 
@@ -248,8 +245,8 @@ public:
         nChainTx = 0;
         nStatus = 0;
         nMint = 0;
-        nCFSupply = 0;
-        nCFLocked = 0;
+        nMoneySupply = 0;
+        nDividendFund = 0;
         nFlags = 0;
         nStakeModifier = 0;
 	      hashProof = arith_uint256();
@@ -260,8 +257,6 @@ public:
         nTime          = 0;
         nBits          = 0;
         nNonce         = 0;
-        vProposalVotes.clear();
-        vPaymentRequestVotes.clear();
     }
 
     CBlockIndex()
@@ -381,9 +376,9 @@ public:
 
     std::string ToString() const
     {
-        return strprintf("CBlockIndex(nprev=%p, nFile=%u, nHeight=%d, nMint=%s, nCFSupply=%s, nCFLocked=%s, nFlags=(%s)(%d)(%s), nStakeModifier=%016x, hashProof=%s, prevoutStake=(%s), nStakeTime=%d merkle=%s, hashBlock=%s)",
+        return strprintf("CBlockIndex(nprev=%p, nFile=%u, nHeight=%d, nMint=%s, nMoneySupply=%s, nDividendFund=%s, nFlags=(%s)(%d)(%s), nStakeModifier=%016x, hashProof=%s, prevoutStake=(%s), nStakeTime=%d merkle=%s, hashBlock=%s)",
             pprev, nFile, nHeight,
-            FormatMoney(nMint), FormatMoney(nCFSupply), FormatMoney(nCFLocked),
+            FormatMoney(nMint), FormatMoney(nMoneySupply), FormatMoney(nDividendFund),
             GeneratedStakeModifier() ? "MOD" : "-", GetStakeEntropyBit(), IsProofOfStake()? "PoS" : "PoW",
             nStakeModifier,
             hashProof.ToString(),
@@ -524,10 +519,8 @@ public:
         READWRITE(nBits);
         READWRITE(nNonce);
         READWRITE(blockHash);
-        READWRITE(nCFSupply);
-        READWRITE(nCFLocked);
-        READWRITE(vPaymentRequestVotes);
-        READWRITE(vProposalVotes);
+        READWRITE(nMoneySupply);
+        READWRITE(nDividendFund);
     }
 
     uint256 GetBlockHash() const

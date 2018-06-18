@@ -11,7 +11,7 @@
 struct CDividendLedgerScanState {
     bool fAnyUnordered;
     int nFileVersion;
-    vector<uint256> vLedgerUpgrade;
+    std::vector<uint256> vLedgerUpgrade;
 
     CDividendLedgerScanState() {
         fAnyUnordered = false;
@@ -38,7 +38,7 @@ bool CDividendLedgerDB::EraseTx(uint256 hash) {
 
 bool
 ReadKeyValue(CDividendLedger* pledger, CDataStream& ssKey, CDataStream& ssValue,
-             CDividendLedgerScanState &lss, string& strType, string& strErr) {
+             CDividendLedgerScanState &lss, std::string& strType, std::string& strErr) {
 
   try {
     // Unserialize
@@ -78,7 +78,7 @@ DBErrors CDividendLedgerDB::LoadLedger(CDividendLedger *pledger) {
   try {
     LOCK(pledger->cs_ledger);
     int nMinVersion = 0;
-    if (Read((string)"minversion", nMinVersion)) {
+    if (Read((std::string)"minversion", nMinVersion)) {
       if (nMinVersion > CLIENT_VERSION) {
         return DB_TOO_NEW;
       }
@@ -105,7 +105,7 @@ DBErrors CDividendLedgerDB::LoadLedger(CDividendLedger *pledger) {
       }
 
       // Try to be tolerant of single corrupt records:
-      string strType, strErr;
+      std::string strType, strErr;
       if (!ReadKeyValue(pledger, ssKey, ssValue, lss, strType, strErr)) {
         fNoncriticalErrors = true; // ... but do warn the user there is something wrong.
         if (strType == "tx") {
@@ -167,7 +167,7 @@ DBErrors CDividendLedgerDB::FindDividendTx(CDividendLedger *pledger,
 
     LOCK(pledger->cs_ledger);
     int nMinVersion = 0;
-    if (Read((string)"minversion", nMinVersion)) {
+    if (Read((std::string)"minversion", nMinVersion)) {
       if (nMinVersion > CLIENT_VERSION) {
         return DB_TOO_NEW;
       }
@@ -193,7 +193,7 @@ DBErrors CDividendLedgerDB::FindDividendTx(CDividendLedger *pledger,
         return DB_CORRUPT;
       }
 
-      string strType;
+      std::string strType;
       ssKey >> strType;
       if (strType == "tx") {
         uint256 hash;

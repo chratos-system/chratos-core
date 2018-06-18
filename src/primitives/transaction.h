@@ -170,24 +170,8 @@ public:
         return (nValue == 0 && scriptPubKey.empty());
     }
 
-    bool IsCommunityFundContribution() const
-    {
-        return scriptPubKey.IsCommunityFundContribution();
-    }
-
-    bool IsVote() const
-    {
-        return scriptPubKey.IsProposalVote() || scriptPubKey.IsPaymentRequestVote();
-    }
-
-    bool IsProposalVote() const
-    {
-        return scriptPubKey.IsProposalVote();
-    }
-
-    bool IsPaymentRequestVote() const
-    {
-        return scriptPubKey.IsPaymentRequestVote();
+    bool IsDividendContribution() const {
+      return scriptPubKey.IsDividendContribution();
     }
 
     uint256 GetHash() const;

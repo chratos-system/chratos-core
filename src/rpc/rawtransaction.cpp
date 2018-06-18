@@ -38,40 +38,28 @@ using namespace std;
 
 void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fIncludeHex)
 {
-    txnouttype type;
-    vector<CTxDestination> addresses;
-    int nRequired;
+  txnouttype type;
+  vector<CTxDestination> addresses;
+  int nRequired;
 
-    out.push_back(Pair("asm", ScriptToAsmStr(scriptPubKey)));
-    if (fIncludeHex)
-        out.push_back(Pair("hex", HexStr(scriptPubKey.begin(), scriptPubKey.end())));
+  out.push_back(Pair("asm", ScriptToAsmStr(scriptPubKey)));
+  if (fIncludeHex) {
+    out.push_back(Pair("hex", HexStr(scriptPubKey.begin(), scriptPubKey.end())));
+  }
 
-    if (!ExtractDestinations(scriptPubKey, type, addresses, nRequired)) {
-        out.push_back(Pair("type", GetTxnOutputType(type)));
-        return;
-    }
-
-    out.push_back(Pair("reqSigs", nRequired));
+  if (!ExtractDestinations(scriptPubKey, type, addresses, nRequired)) {
     out.push_back(Pair("type", GetTxnOutputType(type)));
+    return;
+  }
 
-    if (type == TX_PAYMENTREQUESTNOVOTE || type == TX_PAYMENTREQUESTYESVOTE
-                 || type == TX_PROPOSALNOVOTE || type == TX_PROPOSALYESVOTE)
-    {
-        vector<std::vector<unsigned char>> vSolutions;
-        txnouttype whichType;
+  out.push_back(Pair("reqSigs", nRequired));
+  out.push_back(Pair("type", GetTxnOutputType(type)));
 
-        if (Solver(scriptPubKey, whichType, vSolutions))
-        {
-            out.push_back(Pair("hash", uint256(vSolutions[0]).ToString()));
-        }
-    }
-    else
-    {
-        UniValue a(UniValue::VARR);
-        BOOST_FOREACH(const CTxDestination& addr, addresses)
-            a.push_back(CChratosAddress(addr).ToString());
-        out.push_back(Pair("addresses", a));
-    }
+  UniValue a(UniValue::VARR);
+  BOOST_FOREACH(const CTxDestination& addr, addresses) {
+    a.push_back(CChratosAddress(addr).ToString());
+  }
+  out.push_back(Pair("addresses", a));
 }
 
 void TxToJSONExpanded(const CTransaction& tx, const uint256 hashBlock, UniValue& entry,
@@ -538,7 +526,7 @@ UniValue createrawtransaction(const JSONRPCRequest &request)
       rawTx.strDZeel = request.params[2].get_str();
     }
 
-    rawTx.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
+    rawTx.nVersion = CTransaction::TXDZEEL_VERSION;
 
     if (request.params.size() > 3 && !request.params[3].isNull()) {
         int64_t nLockTime = request.params[3].get_int64();

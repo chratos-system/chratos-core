@@ -141,12 +141,16 @@ const char* GetOpName(opcodetype opcode)
     case OP_NOP9                   : return "OP_NOP9";
     case OP_NOP10                  : return "OP_NOP10";
 
+    // Dividend
+    case OP_DIVIDEND               : return "OP_DIVIDEND";
+
+/*
     case OP_CFUND                  : return "OP_CFUND";
     case OP_PROP                   : return "OP_PROP";
     case OP_PREQ                   : return "OP_PREQ";
     case OP_YES                    : return "OP_YES";
     case OP_NO                     : return "OP_NO";
-
+*/
     case OP_INVALIDOPCODE          : return "OP_INVALIDOPCODE";
 
     // Note:
@@ -218,6 +222,13 @@ bool CScript::IsPayToPublicKeyHash() const
 	    (*this)[24] == OP_CHECKSIG);
 }
 
+bool CScript::IsDividendContribution() const {
+  return (this->size() == 2 &&
+      (*this)[0] == OP_RETURN &&
+      (*this)[1] == OP_DIVIDEND);
+}
+
+/*
 bool CScript::IsCommunityFundContribution() const
 {
     return (this->size() == 2 &&
@@ -283,7 +294,7 @@ bool CScript::ExtractVote(uint256 &hash, bool &vote) const
 
     return true;
 }
-
+*/
 bool CScript::IsPayToScriptHash() const
 {
     // Extra-fast test for pay-to-script-hash CScripts:

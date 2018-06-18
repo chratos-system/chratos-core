@@ -25,6 +25,7 @@
 #include "utilstrencodings.h"
 #include "hash.h"
 #include "pos.h"
+#include "dividend/dividend.h"
 
 #include <stdint.h>
 
@@ -891,7 +892,7 @@ UniValue gettxoutsetinfo(const JSONRPCRequest &request)
     }
     return ret;
 }
-
+/*
 UniValue listproposals(const JSONRPCRequest &request)
 {
     UniValue ret(UniValue::VARR);
@@ -935,6 +936,7 @@ UniValue listproposals(const JSONRPCRequest &request)
             }
         }
     }
+    
     return ret;
 }
 
@@ -988,10 +990,12 @@ UniValue cfundstats(const JSONRPCRequest &request)
     }
 
     UniValue ret(UniValue::VOBJ);
-    UniValue cf(UniValue::VOBJ);
-    cf.push_back(Pair("available",      ValueFromAmount(pindexBestHeader->nCFSupply)));
-    cf.push_back(Pair("locked",         ValueFromAmount(pindexBestHeader->nCFLocked)));
-    ret.push_back(Pair("funds", cf));
+    ret.push_back(Pair("coinsupply", ValueFromAmount(pindexBestHeader->nMoneySupply)));
+    UniValue dividend(UniValue::VOBJ);
+    dividend.push_back(
+        Pair("totalpaidout", ValueFromAmount(pledgerMain->GetBalance()))
+    );
+    ret.push_back(Pair("dividend", dividend));
     UniValue vp(UniValue::VOBJ);
     int starting = pindexBestHeader->nHeight - (pindexBestHeader->nHeight % Params().GetConsensus().nVotingPeriod);
     vp.push_back(Pair("starting",       starting));
@@ -1034,7 +1038,7 @@ UniValue cfundstats(const JSONRPCRequest &request)
     return ret;
 
 }
-
+*/
 UniValue gettxout(const JSONRPCRequest &request)
 {
     if (request.fHelp || request.params.size() < 2 || request.params.size() > 3)
@@ -1441,7 +1445,7 @@ UniValue getmempoolinfo(const JSONRPCRequest &request)
 
     return mempoolInfoToJSON();
 }
-
+/*
 UniValue getproposal(const JSONRPCRequest &request)
 {
     if (request.fHelp || request.params.size() != 1)
@@ -1483,7 +1487,7 @@ UniValue getpaymentrequest(const JSONRPCRequest &request)
 
     return ret;
 }
-
+*/
 UniValue invalidateblock(const JSONRPCRequest &request)
 {
     if (request.fHelp || request.params.size() != 1)
@@ -1577,13 +1581,13 @@ static const CRPCCommand commands[] =
     { "blockchain",         "getmempooldescendants",  &getmempooldescendants,  true, {"txid","verbose"} },
     { "blockchain",         "getmempoolentry",        &getmempoolentry,        true, {"txid"} },
     { "blockchain",         "getmempoolinfo",         &getmempoolinfo,         true, {} },
-    { "blockchain",         "getproposal",            &getproposal,            true, {} },
-    { "blockchain",         "getpaymentrequest",      &getpaymentrequest,      true, {} },
+    //{ "blockchain",         "getproposal",            &getproposal,            true, {} },
+    //{ "blockchain",         "getpaymentrequest",      &getpaymentrequest,      true, {} },
     { "blockchain",         "getrawmempool",          &getrawmempool,          true, {"verbose"} },
     { "blockchain",         "gettxout",               &gettxout,               true, {"txid","n","include_mempool"} },
     { "blockchain",         "gettxoutsetinfo",        &gettxoutsetinfo,        true, {} },
     { "blockchain",         "verifychain",            &verifychain,            true, {"checklevel","nblocks"} },
-    { "blockchain",         "listproposals",          &listproposals,          true, {} },
+    //{ "blockchain",         "listproposals",          &listproposals,          true, {} },
 
     /* Not shown in help */
     { "hidden",             "invalidateblock",        &invalidateblock,        true, {"blockhash"}  },

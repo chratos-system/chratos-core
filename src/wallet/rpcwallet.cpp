@@ -342,24 +342,27 @@ UniValue getaddressesbyaccount(const JSONRPCRequest &request)
     return ret;
 }
 
-static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, std::string strDZeel = "", bool donate = false)
+static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, std::string strDZeel = "", bool dividend = false)
 {
     CAmount curBalance = pwalletMain->GetBalance();
 
     // Check amount
-    if (nValue <= 0)
+    if (nValue <= 0) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid amount");
+    }
 
-    if (nValue > curBalance)
+    if (nValue > curBalance) {
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
+    }
 
     CScript CFContributionScript;
 
     // Parse Chratos address
     CScript scriptPubKey = GetScriptForDestination(address);
 
-    if(donate)
-      CFund::SetScriptForCommunityFundContribution(scriptPubKey);
+    if (dividend) {
+      CDividend::SetScriptForDividendContribution(scriptPubKey);
+    }
 
     // Create and send the transaction
     CReserveKey reservekey(pwalletMain);
@@ -488,7 +491,7 @@ UniValue stakervote(const JSONRPCRequest &request)
 
     return "";
 }
-
+/*
 UniValue createproposal(const JSONRPCRequest &request)
 {
     if (!EnsureWalletIsAvailable(request.fHelp))
@@ -515,6 +518,7 @@ UniValue createproposal(const JSONRPCRequest &request)
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     CChratosAddress address("NQFqqMUD55ZV3PJEJZtaKCsQmjLT6JkjvJ"); // Dummy address
+
 
     // Amount
     CAmount nAmount = request.params.size() == 5 ? AmountFromValue(request.params[4]) : Params().GetConsensus().nProposalMinimalFee;
@@ -558,7 +562,8 @@ UniValue createproposal(const JSONRPCRequest &request)
 
     return ret;
 }
-
+*/
+/*
 UniValue createpaymentrequest(const JSONRPCRequest &request)
 {
     if (!EnsureWalletIsAvailable(request.fHelp))
@@ -647,6 +652,50 @@ UniValue createpaymentrequest(const JSONRPCRequest &request)
     ret.push_back(Pair("strDZeel",wtx.strDZeel));
 
     return ret;
+}
+*/
+UniValue paydividend(const JSONRPCRequest &request) {
+  if (!EnsureWalletIsAvailable(request.fHelp)) {
+    return NullUniValue;
+  }
+
+  if (request.fHelp || request.params.size() < 1 || request.params.size() > 2)
+    throw runtime_error(
+        "paydividend amount ( subtractfeefromamount )\n"
+        "\nDonates an amount to the community fund.\n"
+        + HelpRequiringPassphrase() +
+        "\nArguments:\n"
+        "1. \"amount\"      (numeric or string, required) The amount in " + CURRENCY_UNIT + " to donate. eg 1000\n"
+        "2. subtractfeefromamount  (boolean, optional, default=false) The fee will be deducted from the amount being sent.\n"
+        "                             The fund will receive less chratoss than you enter in the amount field.\n"
+        "\nResult:\n"
+        "\"transactionid\"  (string) The transaction id.\n"
+        "\nExamples:\n"
+        + HelpExampleCli("paydividend", "1000")
+        + HelpExampleCli("paydividend", "1000 true")
+        );
+
+    LOCK2(cs_main, pwalletMain->cs_wallet);
+    CChratosAddress address("cLUftkcPBkL9kw7JYsd6Y8iWy2QBnXG2uT"); // Dummy address
+
+    // Amount
+    CAmount nAmount = AmountFromValue(request.params[0]);
+    if (nAmount <= 0) {
+        throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
+    }    CWalletTx wtx;
+
+    bool fSubtractFeeFromAmount = false;
+
+    if (request.params.size() == 2) {
+        fSubtractFeeFromAmount = request.params[1].get_bool();
+    }
+
+    EnsureWalletIsUnlocked();
+
+    SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, "", true);
+
+    return wtx.GetHash().GetHex();
+
 }
 
 UniValue donatefund(const JSONRPCRequest &request)
@@ -1599,13 +1648,18 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
                 entry.push_back(Pair("involvesWatchonly", true));
             entry.push_back(Pair("account", strSentAccount));
             MaybePushAddress(entry, s.destination);
-            bool fCFund = false;
+            bool fDividendFund = false;
             for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
             {
                 const CTxOut& txout = wtx.vout[nOut];
-                if (txout.scriptPubKey.IsCommunityFundContribution()) fCFund = true;
+                if (txout.scriptPubKey.IsDividendContribution()) {
+                  fDividendFund = true;
+                }
             }
-            entry.push_back(Pair("category", fCFund ? "cfund contribution" : "send"));
+            entry.push_back(
+              Pair("category", 
+                   fDividendFund ? "dividend contribution" : "send")
+            );
             entry.push_back(Pair("amount", ValueFromAmount(-s.amount)));
             if (pwalletMain->mapAddressBook.count(s.destination))
                 entry.push_back(Pair("label", pwalletMain->mapAddressBook[s.destination].name));
@@ -3065,6 +3119,7 @@ UniValue resolveopenalias(const JSONRPCRequest &request)
 }
 #endif
 
+/*
 UniValue proposalvotelist(const JSONRPCRequest &request)
 {
     UniValue ret(UniValue::VOBJ);
@@ -3092,7 +3147,8 @@ UniValue proposalvotelist(const JSONRPCRequest &request)
 
     return ret;
 }
-
+*/
+/*
 UniValue proposalvote(const JSONRPCRequest &request)
 {
     string strCommand;
@@ -3130,7 +3186,8 @@ UniValue proposalvote(const JSONRPCRequest &request)
 
     return NullUniValue;
 }
-
+*/
+/*
 UniValue paymentrequestvotelist(const JSONRPCRequest &request)
 {
     UniValue ret(UniValue::VOBJ);
@@ -3196,7 +3253,7 @@ UniValue paymentrequestvote(const JSONRPCRequest &request)
     return NullUniValue;
 
 }
-
+*/
 extern UniValue dumpprivkey(const JSONRPCRequest &request); // in rpcdump.cpp
 extern UniValue dumpmasterprivkey(const JSONRPCRequest &request);
 extern UniValue importprivkey(const JSONRPCRequest &request);
@@ -3251,14 +3308,15 @@ static const CRPCCommand commands[] =
     { "wallet",             "sendfrom",                 &sendfrom,                 false, {"fromaccount","toaddress","amount","minconf","comment","comment_to"} },
     { "wallet",             "sendmany",                 &sendmany,                 false, {"fromaccount|dummy","amounts","minconf","comment","subtractfeefrom","replaceable","conf_target","estimate_mode"} },
     { "wallet",             "sendtoaddress",            &sendtoaddress,            false, {"address","amount","comment","comment_to","subtractfeefromamount","replaceable","conf_target","estimate_mode"} },
-    { "wallet",             "donatefund",               &donatefund,               false, {} },
-    { "wallet",             "createpaymentrequest",     &createpaymentrequest,     false, {} },
-    { "wallet",             "createproposal",           &createproposal,           false, {} },
+    //{ "wallet",             "donatefund",               &donatefund,               false, {} },
+    { "wallet",             "paydividend",               &paydividend,               false, {} },
+    //{ "wallet",             "createpaymentrequest",     &createpaymentrequest,     false, {} },
+    //{ "wallet",             "createproposal",           &createproposal,           false, {} },
     { "wallet",             "stakervote",               &stakervote,               false, {} },
-    { "wallet",             "proposalvote",             &proposalvote,             false, {} },
-    { "wallet",             "proposalvotelist",         &proposalvotelist,         false, {} },
-    { "wallet",             "paymentrequestvote",       &paymentrequestvote,       false, {} },
-    { "wallet",             "paymentrequestvotelist",   &paymentrequestvotelist,   false, {} },
+    //{ "wallet",             "proposalvote",             &proposalvote,             false, {} },
+    //{ "wallet",             "proposalvotelist",         &proposalvotelist,         false, {} },
+    //{ "wallet",             "paymentrequestvote",       &paymentrequestvote,       false, {} },
+    //{ "wallet",             "paymentrequestvotelist",   &paymentrequestvotelist,   false, {} },
     { "wallet",             "setaccount",               &setaccount,               true,  {} },
     { "wallet",             "settxfee",                 &settxfee,                 true,  {"amount"} },
     { "wallet",             "signmessage",              &signmessage,              true,  {"address","message"} },

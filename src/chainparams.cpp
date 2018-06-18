@@ -107,12 +107,7 @@ public:
         consensus.nVotingPeriod = 2880 * 7; // 7 Days
         consensus.nMinimumQuorum = 0.5;
         consensus.nQuorumVotes = consensus.nVotingPeriod * consensus.nMinimumQuorum;
-        consensus.nVotesAcceptProposal = 0.7;
-        consensus.nVotesRejectProposal = 0.7;
-        consensus.nVotesAcceptPaymentRequest = 0.7;
-        consensus.nVotesRejectPaymentRequest = 0.7;
-        consensus.nCommunityFundMinAge = 50;
-        consensus.nProposalMinimalFee = 10000000000;
+        consensus.nDividendFundMinAge = 50;
         consensus.sigActivationTime = 1512990000;
 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
@@ -221,12 +216,7 @@ public:
         consensus.nVotingPeriod = 720; // 6 hours
         consensus.nMinimumQuorum = 0.5;
         consensus.nQuorumVotes = consensus.nVotingPeriod * consensus.nMinimumQuorum;
-        consensus.nVotesAcceptProposal = 0.7;
-        consensus.nVotesRejectProposal = 0.7;
-        consensus.nVotesAcceptPaymentRequest = 0.7;
-        consensus.nVotesRejectPaymentRequest = 0.7;
-        consensus.nCommunityFundMinAge = 5;
-        consensus.nProposalMinimalFee = 10000000000;
+        consensus.nDividendFundMinAge = 5;
         consensus.sigActivationTime = 1512826692;
 
         // Deployment of BIP68, BIP112, and BIP113.
@@ -347,12 +337,7 @@ public:
         consensus.nVotingPeriod = 720; // 6 hours
         consensus.nMinimumQuorum = 0.5;
         consensus.nQuorumVotes = consensus.nVotingPeriod * consensus.nMinimumQuorum;
-        consensus.nVotesAcceptProposal = 0.7;
-        consensus.nVotesRejectProposal = 0.7;
-        consensus.nVotesAcceptPaymentRequest = 0.7;
-        consensus.nVotesRejectPaymentRequest = 0.7;
-        consensus.nCommunityFundMinAge = 5;
-        consensus.nProposalMinimalFee = 10000000000;
+        consensus.nDividendFundMinAge = 5;
         consensus.sigActivationTime = 0;
 
         pchMessageStart[0] = 0xf9;

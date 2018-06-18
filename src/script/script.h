@@ -180,11 +180,7 @@ enum opcodetype
     OP_NOP9 = 0xb8,
     OP_NOP10 = 0xb9,
 
-    OP_CFUND = 0xc1,
-    OP_PROP = 0xc2,
-    OP_PREQ = 0xc3,
-    OP_YES = 0xc4,
-    OP_NO = 0xc5,
+    OP_DIVIDEND = 0xd1,
 
     // template matching params
     OP_SMALLDATA = 0xf9,
@@ -675,14 +671,7 @@ public:
     bool IsPayToScriptHash() const;
     bool IsPayToWitnessScriptHash() const;
     bool IsWitnessProgram(int& version, std::vector<unsigned char>& program) const;
-    bool IsCommunityFundContribution() const;
-    bool IsProposalVote() const;
-    bool IsProposalVoteYes() const;
-    bool IsProposalVoteNo() const;
-    bool IsPaymentRequestVote() const;
-    bool IsPaymentRequestVoteYes() const;
-    bool IsPaymentRequestVoteNo() const;
-    bool ExtractVote(uint256 &hash, bool &vote) const;
+    bool IsDividendContribution() const;
 
     /** Called by IsStandardTx and P2SH/BIP62 VerifyScript (which makes it consensus-critical). */
     bool IsPushOnly(const_iterator pc) const;

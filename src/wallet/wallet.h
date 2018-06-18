@@ -260,7 +260,7 @@ public:
     mutable CAmount nChangeCached;
 
     bool fAnon;
-    bool fCFund;
+    bool fDividendFund;
 
     CWalletTx()
     {
@@ -303,7 +303,7 @@ public:
         fAvailableWatchCreditCached = false;
         fChangeCached = false;
         fAnon = false;
-        fCFund = false;
+        fDividendFund = false;
         nDebitCached = 0;
         nCreditCached = 0;
         nImmatureCreditCached = 0;

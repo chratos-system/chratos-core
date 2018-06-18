@@ -97,6 +97,7 @@ CHRATOS_CORE_H = \
   core_io.h \
   core_memusage.h \
 	dividend/dividend.h \
+	dividend/dividendledger.h \
 	dividend/dividenddb.h \
 	dividend/dividendtx.h \
 	dividend/rpcdividend.h \
@@ -270,6 +271,7 @@ libchratos_consensus_a_SOURCES = \
   consensus/params.h \
   consensus/validation.h \
 	dividend/dividend.cpp \
+	dividend/dividendledger.cpp \
 	dividend/dividenddb.cpp \
 	dividend/dividendtx.cpp \
 	dividend/rpcdividend.cpp \

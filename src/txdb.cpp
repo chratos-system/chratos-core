@@ -166,17 +166,20 @@ bool CBlockTreeDB::WriteTxIndex(const std::vector<std::pair<uint256, CDiskTxPos>
     return WriteBatch(batch);
 }
 
+/*
 bool CBlockTreeDB::ReadProposalIndex(const uint256 &proposalid, CFund::CProposal &proposal) {
     return Read(make_pair(DB_PROPINDEX, proposalid), proposal);
 }
-
+*/
+/*
 bool CBlockTreeDB::WriteProposalIndex(const std::vector<std::pair<uint256, CFund::CProposal> >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<uint256,CFund::CProposal> >::const_iterator it=vect.begin(); it!=vect.end(); it++)
         batch.Write(make_pair(DB_PROPINDEX, it->first), it->second);
     return WriteBatch(batch);
 }
-
+*/
+/*
 bool CBlockTreeDB::UpdateProposalIndex(const std::vector<std::pair<uint256, CFund::CProposal> >&vect) {
     CDBBatch batch(*this);
     for (std::vector<std::pair<uint256,CFund::CProposal> >::const_iterator it=vect.begin(); it!=vect.end(); it++) {
@@ -188,7 +191,8 @@ bool CBlockTreeDB::UpdateProposalIndex(const std::vector<std::pair<uint256, CFun
     }
     return WriteBatch(batch);
 }
-
+*/
+/*
 bool CBlockTreeDB::GetProposalIndex(std::vector<CFund::CProposal>&vect) {
     boost::scoped_ptr<CDBIterator> pcursor(NewIterator());
 
@@ -259,7 +263,7 @@ bool CBlockTreeDB::GetPaymentRequestIndex(std::vector<CFund::CPaymentRequest>&ve
 
     return true;
 }
-
+*/
 bool CBlockTreeDB::ReadSpentIndex(CSpentIndexKey &key, CSpentIndexValue &value) {
     return Read(make_pair(DB_SPENTINDEX, key), value);
 }
@@ -451,11 +455,8 @@ bool CBlockTreeDB::LoadBlockIndexGuts(boost::function<CBlockIndex*(const uint256
                 pindexNew->nStatus        = diskindex.nStatus;
                 pindexNew->nTx            = diskindex.nTx;
                 pindexNew->nMint          = diskindex.nMint;
-                pindexNew->nCFSupply      = diskindex.nCFSupply;
-                pindexNew->vPaymentRequestVotes
-                                          = diskindex.vPaymentRequestVotes;
-                pindexNew->vProposalVotes = diskindex.vProposalVotes;
-                pindexNew->nCFLocked      = diskindex.nCFLocked;
+                pindexNew->nMoneySupply   = diskindex.nMoneySupply;
+                pindexNew->nDividendFund  = diskindex.nDividendFund;
                 pindexNew->strDZeel       = diskindex.strDZeel;
                 pindexNew->nFlags         = diskindex.nFlags;
                 pindexNew->nStakeModifier = diskindex.nStakeModifier;

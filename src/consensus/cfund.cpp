@@ -1,7 +1,7 @@
 // Copyright (c) 2017 The Chratos Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
-
+/*
 #include "consensus/cfund.h"
 #include "base58.h"
 #include "main.h"
@@ -327,4 +327,4 @@ void CFund::CPaymentRequest::ToJson(UniValue& ret) const {
         ret.push_back(Pair("approvedOnBlock", blockhash.ToString()));
         ret.push_back(Pair("paidOnBlock", paymenthash.ToString()));
     }
-}
+}*/

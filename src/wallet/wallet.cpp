@@ -532,6 +532,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
     }
 
     // Adds Community Fund output if enabled
+    /*
     if(IsCommunityFundEnabled(pindexPrev, Params().GetConsensus()))
     {
         int fundIndex = txNew.vout.size() + 1;
@@ -539,7 +540,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         CFund::SetScriptForCommunityFundContribution(txNew.vout[fundIndex-1].scriptPubKey);
         txNew.vout[fundIndex-1].nValue = COMMUNITY_FUND_AMOUNT;
     }
-
+    */
     // Sign
     int nIn = 0;
     CTransaction txNewConst(txNew);
@@ -1790,9 +1791,10 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
 
         if (!ExtractDestination(txout.scriptPubKey, address))
         {
-            if(!txout.scriptPubKey.IsCommunityFundContribution())
+            if(!txout.scriptPubKey.IsDividendContribution()) {
                 LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s n: %d\n",
                          this->GetHash().ToString(),i);
+            }
             address = CNoDestination();
         }
 
@@ -2637,7 +2639,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
     CMutableTransaction txNew;
 
-    txNew.nVersion = IsCommunityFundEnabled(pindexBestHeader,Params().GetConsensus()) ? CTransaction::TXDZEEL_VERSION_V2 : CTransaction::TXDZEEL_VERSION;
+    txNew.nVersion = CTransaction::TXDZEEL_VERSION;
 
     if(wtxNew.nCustomVersion > 0) txNew.nVersion = wtxNew.nCustomVersion;
 
@@ -2713,8 +2715,9 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 {
                     CTxOut txout(recipient.nAmount, recipient.scriptPubKey);
 
-                    if(recipient.scriptPubKey.IsCommunityFundContribution())
-                        wtxNew.fCFund = true;
+                    if(recipient.scriptPubKey.IsDividendContribution()) {
+                        wtxNew.fDividendFund = true;
+                    }
 
                     if (recipient.fSubtractFeeFromAmount)
                     {

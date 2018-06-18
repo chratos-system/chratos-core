@@ -94,8 +94,8 @@ UniValue getinfo(const JSONRPCRequest &request)
     obj.push_back(Pair("blocks",        (int)chainActive.Height()));
 
     UniValue cf(UniValue::VOBJ);
-    cf.push_back(Pair("available",      ValueFromAmount(pindexBestHeader->nCFSupply)));
-    cf.push_back(Pair("locked",         ValueFromAmount(pindexBestHeader->nCFLocked)));
+    cf.push_back(Pair("totalpaidout", ValueFromAmount(pledgerMain->GetBalance())));
+    obj.push_back(Pair("dividends", cf));
 
     obj.push_back(Pair("timeoffset",    GetTimeOffset()));
     obj.push_back(Pair("connections",   (int)vNodes.size()));

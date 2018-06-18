@@ -34,6 +34,7 @@ void DividendTxToJSON(const CDividendTx &dtx, UniValue &entry) {
   uint256 hash = dtx.GetHash();
   entry.push_back(Pair("txid", hash.GetHex()));
   entry.push_back(Pair("time", dtx.GetBlockTime()));
+  entry.push_back(Pair("coinsupply", ValueFromAmount(dtx.GetCoinSupply())));
 }
 
 void ListDividendTransactions(const CDividendTx& dtx, UniValue& ret) {
@@ -53,7 +54,7 @@ UniValue dividendgetbalance(const JSONRPCRequest &request) {
   }
 
   if (request.fHelp || request.params.size() > 0) {
-    throw runtime_error(
+    throw std::runtime_error(
       "dividendgetbalance\n"
       "\nThe total amount burned in the dividend ledger\n"
     );
@@ -70,7 +71,7 @@ UniValue dividendlisttransactions(const JSONRPCRequest &request) {
   }
 
   if (request.fHelp || request.params.size() > 1) {
-    throw runtime_error(
+    throw std::runtime_error(
       "dividendlisttransactions ( count from )\n"
       "\nReturns up to 'count' most recent transactions skipping the first 'from' transactions for the dividend ledger'.\n"
       "\nArguments:\n"
@@ -124,11 +125,11 @@ UniValue dividendlisttransactions(const JSONRPCRequest &request) {
     nCount = ret.size() - nFrom;
   }
 
-  vector<UniValue> arrTmp = ret.getValues();
+  std::vector<UniValue> arrTmp = ret.getValues();
 
-  vector<UniValue>::iterator first = arrTmp.begin();
+  std::vector<UniValue>::iterator first = arrTmp.begin();
   std::advance(first, nFrom);
-  vector<UniValue>::iterator last = arrTmp.begin();
+  std::vector<UniValue>::iterator last = arrTmp.begin();
   std::advance(last, nFrom+nCount);
 
   if (last != arrTmp.end()) arrTmp.erase(last, arrTmp.end());
