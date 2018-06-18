@@ -93,8 +93,10 @@ UniValue getinfo(const JSONRPCRequest &request)
 #endif
     obj.push_back(Pair("blocks",        (int)chainActive.Height()));
 
+    obj.push_back(Pair("moneysupply", ValueFromAmount(pindexBestHeader->nMoneySupply)));
     UniValue cf(UniValue::VOBJ);
-    cf.push_back(Pair("totalpaidout", ValueFromAmount(pledgerMain->GetBalance())));
+    cf.push_back(Pair("totalfund", ValueFromAmount(pledgerMain->GetBalance())));
+    cf.push_back(Pair("totalfund-b", ValueFromAmount(pindexBestHeader->nDividendFund)));
     obj.push_back(Pair("dividends", cf));
 
     obj.push_back(Pair("timeoffset",    GetTimeOffset()));
