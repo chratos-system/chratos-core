@@ -36,7 +36,7 @@ void DividendTxToJSON(const CDividendTx &dtx, UniValue &entry) {
   entry.push_back(Pair("time", dtx.GetBlockTime()));
 }
 
-void ListTransactions(const CDividendTx& dtx, UniValue& ret) {
+void ListDividendTransactions(const CDividendTx& dtx, UniValue& ret) {
 
   CAmount credit = dtx.GetAvailableCredit();
 
@@ -47,14 +47,14 @@ void ListTransactions(const CDividendTx& dtx, UniValue& ret) {
   ret.push_back(entry);
 }
 
-UniValue getbalance(const JSONRPCRequest &request) {
+UniValue dividendgetbalance(const JSONRPCRequest &request) {
   if (!EnsureLedgerIsAvailable(request.fHelp)) {
     return NullUniValue;
   }
 
   if (request.fHelp || request.params.size() > 0) {
     throw runtime_error(
-      "getdividendbalance\n"
+      "dividendgetbalance\n"
       "\nThe total amount burned in the dividend ledger\n"
     );
   }
@@ -64,14 +64,14 @@ UniValue getbalance(const JSONRPCRequest &request) {
   return ValueFromAmount(pledgerMain->GetBalance());
 }
 
-UniValue listtransactions(const JSONRPCRequest &request) {
+UniValue dividendlisttransactions(const JSONRPCRequest &request) {
   if (!EnsureLedgerIsAvailable(request.fHelp)) {
     return NullUniValue;
   }
 
   if (request.fHelp || request.params.size() > 1) {
     throw runtime_error(
-      "listdividendtransactions ( count from )\n"
+      "dividendlisttransactions ( count from )\n"
       "\nReturns up to 'count' most recent transactions skipping the first 'from' transactions for the dividend ledger'.\n"
       "\nArguments:\n"
       "1. count    (numeric, optional, default=10) The number of transactions to return\n"
@@ -113,7 +113,7 @@ UniValue listtransactions(const JSONRPCRequest &request) {
 
     CDividendTx *const pdtx = (*it).second;
     if (pdtx != 0) {
-      ListTransactions(*pdtx, ret);
+      ListDividendTransactions(*pdtx, ret);
     }
   }
  
@@ -146,8 +146,8 @@ UniValue listtransactions(const JSONRPCRequest &request) {
 
 static const CRPCCommand commands[] = {
   // Categoy    Name                  function     safe   argNames
-  { "dividend", "dividendgetbalance", &getbalance, false, {} },
-  { "dividend", "dividendlisttransactions", &listtransactions, false, {} }
+  { "dividend", "dividendgetbalance", &dividendgetbalance, false, {} },
+  { "dividend", "dividendlisttransactions", &dividendlisttransactions, false, {} }
 };
 
 void RegisterDividendRPCCommands(CRPCTable &tableRPC) {
