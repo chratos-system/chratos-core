@@ -4284,13 +4284,11 @@ bool IsWitnessLocked(const CBlockIndex* pindexPrev, const Consensus::Params& par
 
 bool IsCommunityFundEnabled(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
-    LOCK(cs_main);
     return false;
 }
 
 bool IsCommunityFundLocked(const CBlockIndex* pindexPrev, const Consensus::Params& params)
 {
-    LOCK(cs_main);
     return false;
 }
 
