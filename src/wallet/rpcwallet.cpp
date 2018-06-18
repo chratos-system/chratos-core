@@ -3309,7 +3309,7 @@ static const CRPCCommand commands[] =
     { "wallet",             "sendmany",                 &sendmany,                 false, {"fromaccount|dummy","amounts","minconf","comment","subtractfeefrom","replaceable","conf_target","estimate_mode"} },
     { "wallet",             "sendtoaddress",            &sendtoaddress,            false, {"address","amount","comment","comment_to","subtractfeefromamount","replaceable","conf_target","estimate_mode"} },
     //{ "wallet",             "donatefund",               &donatefund,               false, {} },
-    { "wallet",             "paydividend",               &paydividend,               false, {} },
+    { "dividend",             "paydividend",               &paydividend,               false, {} },
     //{ "wallet",             "createpaymentrequest",     &createpaymentrequest,     false, {} },
     //{ "wallet",             "createproposal",           &createproposal,           false, {} },
     { "wallet",             "stakervote",               &stakervote,               false, {} },
