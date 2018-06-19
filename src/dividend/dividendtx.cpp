@@ -53,7 +53,12 @@ CAmount CDividendTx::GetCoinSupply() const {
 }
 
 int64_t CDividendTx::GetBlockTime() const {
-  return GetBlock()->GetBlockTime();
+  auto index = GetBlock();
+  if (index) { 
+    return index->GetBlockTime();
+  } else {
+    return -1;
+  }
 }
 
 void CDividendTx::SetBlockTime(int64_t bt) {

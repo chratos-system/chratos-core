@@ -103,6 +103,8 @@ bool CDividendLedger::AddToLedger(const CDividendTx &dtxIn,
                                   CDividendLedgerDB *pdividenddb) {
   uint256 hash = dtxIn.GetHash();
 
+  if (dtxIn.hashBlock == uint256()) { return false; }
+
   if (fFromLoadLedger) {
     mapLedger[hash] = dtxIn;
     CDividendTx &dtx = mapLedger[hash];
