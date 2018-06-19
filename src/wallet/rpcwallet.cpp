@@ -682,7 +682,8 @@ UniValue paydividend(const JSONRPCRequest &request) {
     CAmount nAmount = AmountFromValue(request.params[0]);
     if (nAmount <= 0) {
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid amount for send");
-    }    CWalletTx wtx;
+    }
+    CWalletTx wtx;
 
     bool fSubtractFeeFromAmount = false;
 

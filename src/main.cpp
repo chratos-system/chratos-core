@@ -692,6 +692,9 @@ CBlockIndex* FindForkInGlobalIndex(const CChain& chain, const CBlockLocator& loc
         if (mi != mapBlockIndex.end())
         {
             CBlockIndex* pindex = (*mi).second;
+            if (!pindex) {
+              continue;
+            }
             if (chain.Contains(pindex))
                 return pindex;
             if (pindex->GetAncestor(chain.Height()) == chain.Tip()) {
@@ -2535,6 +2538,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     AssertLockHeld(cs_main);
 
     pindex->nMoneySupply = pindex->pprev != NULL ? pindex->pprev->nMoneySupply : 0;
+    pindex->nDividendFund = pindex->pprev != NULL ? pindex->pprev->nDividendFund : 0;
 
     if (block.IsProofOfStake())
     {
@@ -4241,7 +4245,7 @@ static bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state
             pindex = miSelf->second;
             if (ppindex)
                 *ppindex = pindex;
-            if (pindex->nStatus & BLOCK_FAILED_MASK)
+            if (pindex && pindex->nStatus & BLOCK_FAILED_MASK)
                 return state.Invalid(error("%s: block %s is marked invalid", __func__, hash.ToString()), 0, "duplicate");
             return true;
         }
@@ -5055,7 +5059,7 @@ bool LoadExternalBlockFile(const CChainParams& chainparams, FILE* fileIn, CDiskB
                 }
 
                 // process in case the block isn't known yet
-                if (mapBlockIndex.count(hash) == 0 || (mapBlockIndex[hash]->nStatus & BLOCK_HAVE_DATA) == 0) {
+                if (mapBlockIndex.count(hash) == 0 || mapBlockIndex[hash] == NULL || (mapBlockIndex[hash]->nStatus & BLOCK_HAVE_DATA) == 0) {
                     LOCK(cs_main);
                     CValidationState state;
                     if (AcceptBlock(block, state, chainparams, NULL, true, dbp, NULL))

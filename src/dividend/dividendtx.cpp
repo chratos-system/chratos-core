@@ -48,7 +48,7 @@ CAmount CDividendTx::GetAvailableCredit() const {
 }
 
 CAmount CDividendTx::GetCoinSupply() const {
-  CAmount supply = GetBlock()->nMoneySupply * COIN;
+  CAmount supply = GetBlock()->nMoneySupply;
   return supply;
 }
 
