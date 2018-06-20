@@ -1596,7 +1596,7 @@ CAmount CWallet::GetDividendCredit(const CTxOut &txout,
 
   for (auto &it : dividends) {
     auto dividend = *(it.second);
-    if (dividend.GetBlockTime() > blocktime) {
+    if (dividend.GetBlockTime() >= blocktime) {
 
       arith_uint256 fund = arith_uint256(dividend.GetDividendCredit());
 
