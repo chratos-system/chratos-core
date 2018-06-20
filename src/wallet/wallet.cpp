@@ -1615,7 +1615,7 @@ CAmount CWallet::GetDividendCredit(const CTxOut &txout,
   if (amount > credit) {
     return amount - credit;
   } else {
-    return credit;
+    return 0;
   }
 }
 
