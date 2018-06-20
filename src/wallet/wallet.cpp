@@ -1597,9 +1597,18 @@ CAmount CWallet::GetDividendCredit(const CTxOut &txout,
   for (auto &it : dividends) {
     auto dividend = *(it.second);
     if (dividend.GetBlockTime() > blocktime) {
-      auto fund = dividend.GetDividendCredit();
-      auto supply = dividend.GetCoinSupply() - fund;
-      amount += amount * fund / supply;
+
+      arith_uint256 fund = arith_uint256(dividend.GetDividendCredit());
+
+      arith_uint256 supply = arith_uint256(
+          dividend.GetCoinSupply() - dividend.GetDividendCredit()
+      );
+
+      arith_uint256 amnt = arith_uint256(amount);
+
+      auto mint = amnt * fund / supply;
+
+      amount += mint.GetLow64();
     }
   }
 
