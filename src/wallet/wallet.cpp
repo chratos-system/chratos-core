@@ -30,6 +30,7 @@
 #include "utilmoneystr.h"
 #include "kernel.h"
 #include "pos.h"
+#include "dividend/dividendtx.h"
 
 #include <assert.h>
 
@@ -1562,9 +1563,51 @@ isminetype CWallet::IsMine(const CTxOut& txout) const
 
 CAmount CWallet::GetCredit(const CTxOut& txout, const isminefilter& filter) const
 {
-    if (!MoneyRange(txout.nValue))
+    if (!MoneyRange(txout.nValue)) {
         throw std::runtime_error("CWallet::GetCredit(): value out of range");
-    return ((IsMine(txout) & filter) ? txout.nValue : 0);
+    }
+    auto amount = ((IsMine(txout) & filter) ? txout.nValue : 0);
+    return amount;
+}
+
+CAmount CWallet::GetDividendCredit(const CTxOut &txout, 
+                                   const CMerkleTx &txn,
+                                   const isminefilter &filter) const {
+
+  auto amount = GetCredit(txout, filter);
+  auto credit = amount;
+
+  if (mapBlockIndex[txn.hashBlock] == NULL) { return 0; }
+  
+  bool txnIsCorrect = false;
+
+  for (auto &out : txn.vout) {
+    txnIsCorrect = txnIsCorrect || out == txout;
+  }
+
+  if (!txnIsCorrect) {
+    throw std::runtime_error("CWallet::GetDividendCredit(): Incorrect txn used to determine block time of dividends");
+  }
+
+  int64_t blocktime = mapBlockIndex[txn.hashBlock]->GetBlockTime();
+
+  // Get all the dividends that occured before.
+  auto dividends = pledgerMain->GetOrdered();
+
+  for (auto &it : dividends) {
+    auto dividend = *(it.second);
+    if (dividend.GetBlockTime() > blocktime) {
+      auto fund = dividend.GetDividendCredit();
+      auto supply = dividend.GetCoinSupply() - fund;
+      amount += amount * fund / supply;
+    }
+  }
+
+  if (amount > credit) {
+    return amount - credit;
+  } else {
+    return credit;
+  }
 }
 
 bool CWallet::IsChange(const CTxOut& txout) const
@@ -2103,6 +2146,30 @@ CAmount CWalletTx::GetAvailableWatchOnlyCredit(const bool& fUseCache) const
     return nCredit;
 }
 
+CAmount CWalletTx::GetAvailableDividendCredit() const {
+  if (pwallet == 0) {
+    return 0;
+  }
+
+  if ((IsCoinBase() || IsCoinStake()) && GetBlocksToMaturity() > 0) {
+    return 0;
+  }
+
+  CAmount nCredit = 0;
+
+  for (unsigned int i = 0; i < vout.size(); i++) {
+    if (!pwallet->IsSpent(GetHash(), i)) {
+      const CTxOut &txout = vout[i];
+      nCredit += pwallet->GetDividendCredit(txout, *this, ISMINE_SPENDABLE);
+      if (!MoneyRange(nCredit)) {
+        throw std::runtime_error("CWalletTx::GetAvailableCredit() : value out of range");
+      }
+    }
+  }
+
+  return nCredit;
+}
+
 CAmount CWalletTx::GetChange() const
 {
     if (fChangeCached)
@@ -2307,6 +2374,22 @@ CAmount CWallet::GetImmatureWatchOnlyBalance() const
         }
     }
     return nTotal;
+}
+
+CAmount CWallet::GetDividendBalance() const {
+  CAmount nTotal = 0;
+  {
+    LOCK2(cs_main, cs_wallet);
+    for (map<uint256, CWalletTx>::const_iterator it = mapWallet.begin(); it != mapWallet.end(); ++it)
+    {
+      const CWalletTx* pcoin = &(*it).second;
+      if (pcoin->IsTrusted()) {
+        nTotal += pcoin->GetAvailableDividendCredit();
+      }
+    }
+  }
+
+  return nTotal;
 }
 
 void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl, bool fIncludeZeroValue) const

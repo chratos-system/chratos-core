@@ -27,7 +27,7 @@ class CDividendTx : public CMerkleTx {
 
     bool IsTrusted() const;
 
-    CAmount GetAvailableCredit() const;
+    CAmount GetDividendCredit() const;
 
     void Init(const CDividendLedger *pledgerIn);
 
@@ -36,6 +36,8 @@ class CDividendTx : public CMerkleTx {
     void SetBlockTime(int64_t);
 
     CAmount GetCoinSupply() const;
+
+    double GetPayoutModifier() const;
 
   private:
 

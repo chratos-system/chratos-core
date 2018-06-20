@@ -39,12 +39,14 @@ void DividendTxToJSON(const CDividendTx &dtx, UniValue &entry) {
 
 void ListDividendTransactions(const CDividendTx& dtx, UniValue& ret) {
 
-  CAmount credit = dtx.GetAvailableCredit();
+  CAmount credit = dtx.GetDividendCredit();
+  double modifier = dtx.GetPayoutModifier();
 
   UniValue entry(UniValue::VOBJ);
 
   DividendTxToJSON(dtx, entry);
   entry.push_back(Pair("amount", ValueFromAmount(credit)));
+  entry.push_back(Pair("modifier", modifier));
   ret.push_back(entry);
 }
 

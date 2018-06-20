@@ -33,19 +33,7 @@ CDividendLedger::CDividendLedger(const std::string& strLedgerFileIn) {
   Init();
 }
 
-void CDividendLedger::Init() {
-  /*
-  CChratosAddress address(DIVIDEND_DEFAULT_ADDRESS);
-  if (address.IsValid()) {
-    CScript script = GetScriptForDestination(address.Get());
-    if (!HaveWatchOnly(script) && !AddWatchOnly(script)) {
-      throw;
-    }
-  } else {
-    throw std::runtime_error("Error: Invalid address for dividend: " + address.ToString());
-  }
-  */
-}
+void CDividendLedger::Init() {}
 
 void CDividendLedger::SetBestChain(const CBlockLocator &loc) {
   CDividendLedgerDB ledgerdb(strLedgerFile);
@@ -118,6 +106,7 @@ bool CDividendLedger::AddToLedger(const CDividendTx &dtxIn,
     if (fInsertedNew) {
       int64_t blocktime = mapBlockIndex[dtxIn.hashBlock]->GetBlockTime();
       dtx.SetBlockTime(blocktime);
+      dtxOrdered.insert(std::make_pair(dtx.GetBlockTime(), &dtx));
     }
 
     bool fUpdated = false;
@@ -196,7 +185,7 @@ CAmount CDividendLedger::GetBalance() const {
     LOCK2(cs_main, cs_ledger);
     for (auto &kv : mapLedger) {
       auto pcoin = &(kv.second);
-      nTotal += pcoin->GetAvailableCredit();
+      nTotal += pcoin->GetDividendCredit();
     }
   }
   return nTotal;
@@ -307,21 +296,21 @@ DBErrors CDividendLedger::LoadLedger(bool &fFirstRunRet) {
   return DB_LOAD_OK;
 }
 
-CAmount CDividendLedger::GetCredit(const CTransaction& tx,
-                                   const isminefilter& filter) const {
+CAmount CDividendLedger::GetDividendCredit(const CTransaction& tx) const {
+                         
   CAmount nCredit = 0;
   BOOST_FOREACH(const CTxOut& txout, tx.vout) {
-    nCredit += GetCredit(txout, filter);
+    nCredit += GetDividendCredit(txout);
     if (!MoneyRange(nCredit)) {
-      throw std::runtime_error("CDividendLedger::GetCredit(): value out of range");
+      throw std::runtime_error("CDividendLedger::GetDividendCredit(): value out of range");
     }
   }
   return nCredit;
 }
 
-CAmount CDividendLedger::GetCredit(const CTxOut& txout, const isminefilter& filter) const {
+CAmount CDividendLedger::GetDividendCredit(const CTxOut& txout) const {
   if (!MoneyRange(txout.nValue)) {
-    throw std::runtime_error("CWallet::GetCredit(): value out of range");
+    throw std::runtime_error("CWallet::GetDividendCredit(): value out of range");
   } 
   return (IsDividend(txout) ? txout.nValue : 0);
 }

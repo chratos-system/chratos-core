@@ -33,12 +33,12 @@ bool CDividendTx::IsTrusted() const {
   return true;
 }
 
-CAmount CDividendTx::GetAvailableCredit() const {
+CAmount CDividendTx::GetDividendCredit() const {
 
   CAmount nCredit = 0;
 
   for (auto &txout : vout) {
-    nCredit += ledger->GetCredit(txout, ISMINE_WATCH_ONLY);
+    nCredit += ledger->GetDividendCredit(txout);
     if (!MoneyRange(nCredit)) {
       throw std::runtime_error("CDividendTx::GetAvailableCredit() : value out of range");
     }
@@ -63,6 +63,13 @@ int64_t CDividendTx::GetBlockTime() const {
 
 void CDividendTx::SetBlockTime(int64_t bt) {
   blockTime = bt;
+}
+
+double CDividendTx::GetPayoutModifier() const {
+  auto credit = GetDividendCredit();
+  auto supply = GetCoinSupply() - credit;
+
+  return double(credit) / double(supply);
 }
 
 CBlockIndex *CDividendTx::GetBlock() const {

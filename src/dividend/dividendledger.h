@@ -67,9 +67,9 @@ class CDividendLedger : public CValidationInterface {
 
     mutable CCriticalSection cs_ledger;
 
-    CAmount GetCredit(const CTransaction& tx, const isminefilter& filter) const;
+    CAmount GetDividendCredit(const CTransaction& tx) const;
 
-    CAmount GetCredit(const CTxOut& txout, const isminefilter& filter) const;
+    CAmount GetDividendCredit(const CTxOut& txout) const;
 
     TxItems GetOrdered() const;
 

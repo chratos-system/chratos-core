@@ -87,6 +87,8 @@ UniValue getinfo(const JSONRPCRequest &request)
     if (pwalletMain) {
         obj.push_back(Pair("walletversion", pwalletMain->GetVersion()));
         obj.push_back(Pair("balance",       ValueFromAmount(pwalletMain->GetBalance())));
+        obj.push_back(Pair("dividendbalance", 
+                           ValueFromAmount(pwalletMain->GetDividendBalance())));
         obj.push_back(Pair("newmint",       ValueFromAmount(pwalletMain->GetNewMint())));
         obj.push_back(Pair("stake",         ValueFromAmount(pwalletMain->GetStake())));
     }
@@ -95,8 +97,7 @@ UniValue getinfo(const JSONRPCRequest &request)
 
     obj.push_back(Pair("moneysupply", ValueFromAmount(pindexBestHeader->nMoneySupply)));
     UniValue cf(UniValue::VOBJ);
-    cf.push_back(Pair("totalfund", ValueFromAmount(pledgerMain->GetBalance())));
-    cf.push_back(Pair("totalfund-b", ValueFromAmount(pindexBestHeader->nDividendFund)));
+    cf.push_back(Pair("totalfund", ValueFromAmount(pindexBestHeader->nDividendFund)));
     obj.push_back(Pair("dividends", cf));
 
     obj.push_back(Pair("timeoffset",    GetTimeOffset()));
