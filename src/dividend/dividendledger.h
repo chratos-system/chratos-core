@@ -15,6 +15,7 @@
 #include "chain.h"
 #include "dividend/rpcdividend.h"
 #include "script/ismine.h"
+#include "main.h"
 
 extern CDividendLedger *pledgerMain;
 
