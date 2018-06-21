@@ -1079,18 +1079,16 @@ int64_t GetTransactionSigOpCost(const CTransaction& tx, const CCoinsViewCache& i
     return nSigOps;
 }
 
-
-
-
-
 bool CheckTransaction(const CTransaction& tx, CValidationState &state)
 {
 
-    // Basic checks that don't depend on any context
-    if (tx.vin.empty())
-        return state.DoS(10, false, REJECT_INVALID, "bad-txns-vin-empty");
-    if (tx.vout.empty())
-        return state.DoS(10, false, REJECT_INVALID, "bad-txns-vout-empty");
+  // Basic checks that don't depend on any context
+  if (tx.vin.empty()) {
+    return state.DoS(10, false, REJECT_INVALID, "bad-txns-vin-empty");
+  }
+  if (tx.vout.empty()) {
+    return state.DoS(10, false, REJECT_INVALID, "bad-txns-vout-empty");
+  }
     // Size limits (this doesn't take the witness into account, as that hasn't been checked for malleability)
     if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) > MAX_BLOCK_BASE_SIZE)
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-oversize");
@@ -1101,13 +1099,16 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
     {
         if (txout.IsEmpty() && !tx.IsCoinBase() && !tx.IsCoinStake())
             return state.DoS(100, error("CTransaction::CheckTransaction() : txout empty for user transaction"));
-        if (txout.nValue < 0)
+        if (txout.nValue < 0) {
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-vout-negative");
-        if (txout.nValue > MAX_MONEY)
+        }
+        if (txout.nValue > MAX_MONEY) {
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-vout-toolarge");
+        }
         nValueOut += txout.nValue;
-        if (!MoneyRange(nValueOut))
+        if (!MoneyRange(nValueOut)) {
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-txouttotal-toolarge");
+        }
     }
 
     // Check for duplicate inputs
@@ -1154,45 +1155,53 @@ std::string FormatStateMessage(const CValidationState &state)
         state.GetRejectCode());
 }
 
-bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state, const CTransaction& tx, bool fLimitFree,
-                              bool* pfMissingInputs, bool fOverrideMempoolLimit, const CAmount& nAbsurdFee,
-                              std::vector<uint256>& vHashTxnToUncache)
-{
+bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state,
+                              const CTransaction& tx, bool fLimitFree,
+                              bool* pfMissingInputs, bool fOverrideMempoolLimit,
+                              const CAmount& nAbsurdFee,
+                              std::vector<uint256>& vHashTxnToUncache) {
     const uint256 hash = tx.GetHash();
     AssertLockHeld(cs_main);
-    if (pfMissingInputs)
+    if (pfMissingInputs) {
         *pfMissingInputs = false;
-    if (!CheckTransaction(tx, state))
-        return false; // state filled in by CheckTransaction
+    }
+    if (!CheckTransaction(tx, state)) {
+      return false; // state filled in by CheckTransaction
+    }
 
     // Coinbase is only valid in a block, not as a loose transaction
-    if (tx.IsCoinBase())
-        return state.DoS(100, false, REJECT_INVALID, "coinbase");
+    if (tx.IsCoinBase()) {
+      return state.DoS(100, false, REJECT_INVALID, "coinbase");
+    }
 
     // Coinbase is only valid in a block, not as a loose transaction
-    if (tx.IsCoinStake())
-        return state.DoS(100, false, REJECT_INVALID, "coinstake");
+    if (tx.IsCoinStake()) {
+      return state.DoS(100, false, REJECT_INVALID, "coinstake");
+    }
 
     // Reject transactions with witness before segregated witness activates (override with -prematurewitness)
     bool witnessEnabled = IsWitnessEnabled(chainActive.Tip(), Params().GetConsensus());
     if (!GetBoolArg("-prematurewitness",false) && !tx.wit.IsNull() && !witnessEnabled) {
-        return state.DoS(0, false, REJECT_NONSTANDARD, "no-witness-yet", true);
+      return state.DoS(0, false, REJECT_NONSTANDARD, "no-witness-yet", true);
     }
 
     // Rather not work on nonstandard transactions (unless -testnet/-regtest)
     string reason;
-    if (fRequireStandard && !IsStandardTx(tx, reason, witnessEnabled))
-        return state.DoS(0, false, REJECT_NONSTANDARD, reason);
+    if (fRequireStandard && !IsStandardTx(tx, reason, witnessEnabled)) {
+      return state.DoS(0, false, REJECT_NONSTANDARD, reason);
+    }
 
     // Only accept nLockTime-using transactions that can be mined in the next
     // block; we don't want our mempool filled up with transactions that can't
     // be mined yet.
-    if (!CheckFinalTx(tx, STANDARD_LOCKTIME_VERIFY_FLAGS))
-        return state.DoS(0, false, REJECT_NONSTANDARD, "non-final");
+    if (!CheckFinalTx(tx, STANDARD_LOCKTIME_VERIFY_FLAGS)) {
+      return state.DoS(0, false, REJECT_NONSTANDARD, "non-final");
+    }
 
     // is it already in the memory pool?
-    if (pool.exists(hash))
-        return state.Invalid(false, REJECT_ALREADY_KNOWN, "txn-already-in-mempool");
+    if (pool.exists(hash)) {
+      return state.Invalid(false, REJECT_ALREADY_KNOWN, "txn-already-in-mempool");
+    }
 
     // Check for conflicts with in-memory transactions
     set<uint256> setConflicts;
@@ -2057,8 +2066,8 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
             }
 
             // Check for negative or overflow input values
-            nValueIn += coins->vout[prevout.n].nValue;
-            if (!MoneyRange(coins->vout[prevout.n].nValue) || !MoneyRange(nValueIn))
+            nValueIn += coins->GetAvailableAmount(prevout.n);
+            if (!MoneyRange(coins->GetAvailableAmount(prevout.n)) || !MoneyRange(nValueIn))
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-inputvalues-outofrange");
 
         }

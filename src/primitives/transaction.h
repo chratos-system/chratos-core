@@ -7,7 +7,6 @@
 #define CHRATOS_PRIMITIVES_TRANSACTION_H
 
 #include "amount.h"
-#include "consensus/cfund.h"
 #include "script/script.h"
 #include "serialize.h"
 #include "uint256.h"

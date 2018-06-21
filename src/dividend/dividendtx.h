@@ -33,6 +33,8 @@ class CDividendTx : public CMerkleTx {
 
     int64_t GetBlockTime() const;
 
+    int64_t GetHeight() const;
+
     void SetBlockTime(int64_t);
 
     CAmount GetCoinSupply() const;

@@ -110,6 +110,8 @@ public:
         nVersion = 0;
     }
 
+    CAmount GetAvailableAmount(int outIndex) const;
+
     //! empty constructor
     CCoins() : fCoinBase(false), fCoinStake(false), vout(0), nHeight(0), nVersion(0) { }
 

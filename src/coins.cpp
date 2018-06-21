@@ -7,6 +7,9 @@
 #include "memusage.h"
 #include "random.h"
 
+#include "dividend/dividend.h"
+#include "arith_uint256.h"
+
 #include <assert.h>
 
 /**
@@ -39,6 +42,12 @@ bool CCoins::Spend(uint32_t nPos)
     vout[nPos].SetNull();
     Cleanup();
     return true;
+}
+
+CAmount CCoins::GetAvailableAmount(int outIndex) const {
+
+  auto amount = vout[outIndex].nValue;
+  return CDividend::GetTotalWithDividend(amount, nHeight);
 }
 
 bool CCoinsView::GetCoins(const uint256 &txid, CCoins &coins) const { return false; }

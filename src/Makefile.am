@@ -122,7 +122,6 @@ CHRATOS_CORE_H = \
   policy/rbf.h \
 	pow.h \
   pos.h \
-  consensus/cfund.h \
   protocol.h \
   random.h \
   reverselock.h \
@@ -180,7 +179,6 @@ libchratos_server_a_SOURCES = \
   blockencodings.cpp \
   chain.cpp \
   checkpoints.cpp \
-  consensus/cfund.cpp \
   httprpc.cpp \
   httpserver.cpp \
   kernel.cpp \
@@ -229,7 +227,6 @@ endif
 libchratos_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(CHRATOS_INCLUDES)
 libchratos_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libchratos_wallet_a_SOURCES = \
-  consensus/cfund.cpp \
   wallet/crypter.cpp \
   wallet/db.cpp \
   wallet/rpcdump.cpp \

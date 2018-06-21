@@ -6,7 +6,6 @@
 #include "amount.h"
 #include "base58.h"
 #include "chain.h"
-#include "consensus/cfund.h"
 #include "core_io.h"
 #include "init.h"
 #include "main.h"
@@ -345,17 +344,16 @@ UniValue getaddressesbyaccount(const JSONRPCRequest &request)
 static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtractFeeFromAmount, CWalletTx& wtxNew, std::string strDZeel = "", bool dividend = false)
 {
     CAmount curBalance = pwalletMain->GetBalance();
+    CAmount divBalance = pwalletMain->GetDividendBalance();
 
     // Check amount
     if (nValue <= 0) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid amount");
     }
 
-    if (nValue > curBalance) {
+    if (nValue > (curBalance + divBalance)) {
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Insufficient funds");
     }
-
-    CScript CFContributionScript;
 
     // Parse Chratos address
     CScript scriptPubKey = GetScriptForDestination(address);
@@ -377,8 +375,10 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
     }
-    if (!pwalletMain->CommitTransaction(wtxNew, reservekey))
+    // TODO - Uncomment this when ready.
+    if (!pwalletMain->CommitTransaction(wtxNew, reservekey)) {
         throw JSONRPCError(RPC_WALLET_ERROR, "Error: The transaction was rejected! This might happen if some of the coins in your wallet were already spent, such as if you used a copy of the wallet and coins were spent in the copy but not marked as spent here.");
+    }
 }
 
 UniValue sendtoaddress(const JSONRPCRequest &request)

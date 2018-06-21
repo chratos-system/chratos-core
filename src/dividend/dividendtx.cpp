@@ -52,6 +52,15 @@ CAmount CDividendTx::GetCoinSupply() const {
   return supply;
 }
 
+int64_t CDividendTx::GetHeight() const {
+  auto index = GetBlock();
+  if (index) {
+    return index->nHeight;
+  } else {
+    return -1;
+  }
+}
+
 int64_t CDividendTx::GetBlockTime() const {
   auto index = GetBlock();
   if (index) { 

@@ -10,7 +10,6 @@
 #include "checkpoints.h"
 #include "chain.h"
 #include "coincontrol.h"
-#include "consensus/cfund.h"
 #include "consensus/consensus.h"
 #include "consensus/validation.h"
 #include "init.h"
@@ -30,7 +29,7 @@
 #include "utilmoneystr.h"
 #include "kernel.h"
 #include "pos.h"
-#include "dividend/dividendtx.h"
+#include "dividend/dividend.h"
 
 #include <assert.h>
 
@@ -1570,15 +1569,20 @@ CAmount CWallet::GetCredit(const CTxOut& txout, const isminefilter& filter) cons
     return amount;
 }
 
+CAmount CWallet::GetAvailableAmount(const CWalletTx *tx, int outputIndex) const {
+  auto txout = tx->vout[outputIndex];
+  return txout.nValue + GetDividendCredit(txout, *tx, ISMINE_SPENDABLE);
+}
+
 CAmount CWallet::GetDividendCredit(const CTxOut &txout, 
-                                   const CMerkleTx &txn,
+                                   const CWalletTx &txn,
                                    const isminefilter &filter) const {
 
   auto amount = GetCredit(txout, filter);
-  auto credit = amount;
 
-  if (mapBlockIndex[txn.hashBlock] == NULL) { return 0; }
-  
+  auto block = mapBlockIndex[txn.hashBlock];
+  if (block == nullptr) { return 0; }
+
   bool txnIsCorrect = false;
 
   for (auto &out : txn.vout) {
@@ -1589,34 +1593,9 @@ CAmount CWallet::GetDividendCredit(const CTxOut &txout,
     throw std::runtime_error("CWallet::GetDividendCredit(): Incorrect txn used to determine block time of dividends");
   }
 
-  int64_t blocktime = mapBlockIndex[txn.hashBlock]->GetBlockTime();
+  int blockHeight = block->nHeight;
 
-  // Get all the dividends that occured before.
-  auto dividends = pledgerMain->GetOrdered();
-
-  for (auto &it : dividends) {
-    auto dividend = *(it.second);
-    if (dividend.GetBlockTime() >= blocktime) {
-
-      arith_uint256 fund = arith_uint256(dividend.GetDividendCredit());
-
-      arith_uint256 supply = arith_uint256(
-          dividend.GetCoinSupply() - dividend.GetDividendCredit()
-      );
-
-      arith_uint256 amnt = arith_uint256(amount);
-
-      auto mint = amnt * fund / supply;
-
-      amount += mint.GetLow64();
-    }
-  }
-
-  if (amount > credit) {
-    return amount - credit;
-  } else {
-    return 0;
-  }
+  return CDividend::GetDividendPayout(amount, blockHeight);
 }
 
 bool CWallet::IsChange(const CTxOut& txout) const
@@ -2516,7 +2495,7 @@ bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, int nConfMine, int
             continue;
 
         int i = output.i;
-        CAmount n = pcoin->vout[i].nValue;
+        CAmount n = GetAvailableAmount(pcoin, i);
 
         pair<CAmount,pair<const CWalletTx*,unsigned int> > coin = make_pair(n,make_pair(pcoin, i));
 
@@ -2601,9 +2580,11 @@ bool CWallet::SelectCoins(const vector<COutput>& vAvailableCoins, const CAmount&
     {
         BOOST_FOREACH(const COutput& out, vCoins)
         {
-            if (!out.fSpendable)
+            if (!out.fSpendable) {
                  continue;
-            nValueRet += out.tx->vout[out.i].nValue;
+            }
+            nValueRet += GetAvailableAmount(out.tx, out.i);
+
             setCoinsRet.insert(make_pair(out.tx, out.i));
         }
         return (nValueRet >= nTargetValue);
@@ -2623,12 +2604,14 @@ bool CWallet::SelectCoins(const vector<COutput>& vAvailableCoins, const CAmount&
         {
             const CWalletTx* pcoin = &it->second;
             // Clearly invalid input, fail
-            if (pcoin->vout.size() <= outpoint.n)
+            if (pcoin->vout.size() <= outpoint.n) {
                 return false;
+            }
             nValueFromPresetInputs += pcoin->vout[outpoint.n].nValue;
             setPresetCoins.insert(make_pair(pcoin, outpoint.n));
-        } else
+        } else {
             return false; // TODO: Allow non-wallet inputs
+        }
     }
 
     // remove preset inputs from vCoins
@@ -2848,7 +2831,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 }
                 BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
                 {
-                    CAmount nCredit = pcoin.first->vout[pcoin.second].nValue;
+                    CAmount nCredit = GetAvailableAmount(pcoin.first, pcoin.second);
                     //The coin age after the next block (depth+1) is used instead of the current,
                     //reflecting an assumption the user would accept a bit more delay for
                     //a chance at a free transaction.
@@ -2861,6 +2844,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                 }
 
                 const CAmount nChange = nValueIn - nValueToSelect;
+
                 if (nChange > 0)
                 {
                     // Fill a vout to ourself

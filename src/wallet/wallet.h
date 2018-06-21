@@ -830,6 +830,8 @@ public:
     CAmount GetImmatureWatchOnlyBalance() const;
     CAmount GetDividendBalance() const;
 
+    CAmount GetAvailableAmount(const CWalletTx *tx, int outputIndex) const;
+
     /**
      * Insert additional inputs into the transaction by
      * calling CreateTransaction();
@@ -881,7 +883,7 @@ public:
     isminetype IsMine(const CTxOut& txout) const;
     CAmount GetCredit(const CTxOut& txout, const isminefilter& filter) const;
     CAmount GetDividendCredit(const CTxOut &txout, 
-                              const CMerkleTx &txn,
+                              const CWalletTx &txn,
                               const isminefilter &filter) const;
     bool IsChange(const CTxOut& txout) const;
     CAmount GetChange(const CTxOut& txout) const;
