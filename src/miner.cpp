@@ -186,13 +186,10 @@ CBlockTemplate* BlockAssembler::CreateNewBlock(const CScript& scriptPubKeyIn, bo
     coinbaseTx.vin.resize(1);
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(1);
-    if(fProofOfStake)
-    {
+    if(fProofOfStake) {
         coinbaseTx.vout[0].scriptPubKey.clear();
         coinbaseTx.vout[0].nValue = 0;
-    }
-    else
-    {
+    } else {
         coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
         coinbaseTx.vout[0].nValue = GetBlockSubsidy(nHeight, chainparams.GetConsensus());
     }

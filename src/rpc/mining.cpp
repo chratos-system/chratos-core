@@ -99,8 +99,9 @@ UniValue getnetworkhashps(const JSONRPCRequest &request)
 UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript, int nGenerate, uint64_t nMaxTries, bool keepScript)
 {
 
-    if (pindexBestHeader->nHeight >= Params().GetConsensus().nLastPOWBlock)
+    if (pindexBestHeader->nHeight >= Params().GetConsensus().nLastPOWBlock) {
       throw JSONRPCError(RPC_MISC_ERROR, "No more PoW blocks");
+    }
 
     static const int nInnerLoopCount = 0x10000;
     int nHeightStart = 0;
@@ -117,9 +118,11 @@ UniValue generateBlocks(boost::shared_ptr<CReserveScript> coinbaseScript, int nG
     UniValue blockHashes(UniValue::VARR);
     while (nHeight < nHeightEnd)
     {
-        std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(coinbaseScript->reserveScript,false,0));
-        if (!pblocktemplate.get())
+        std::unique_ptr<CBlockTemplate> pblocktemplate(BlockAssembler(Params()).CreateNewBlock(coinbaseScript->reserveScript, false, 0));
+
+        if (!pblocktemplate.get()) {
             throw JSONRPCError(RPC_INTERNAL_ERROR, "Couldn't create new block");
+        }
         CBlock *pblock = &pblocktemplate->block;
         {
             LOCK(cs_main);

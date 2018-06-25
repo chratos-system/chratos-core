@@ -246,14 +246,26 @@ const CTxOut &CCoinsViewCache::GetOutputFor(const CTxIn& input) const
     return coins->vout[input.prevout.n];
 }
 
+unsigned int CCoinsViewCache::GetHeightFor(const CTxIn &input) const {
+  const CCoins *coins = AccessCoins(input.prevout.hash);
+  assert(coins && coins->IsAvailable(input.prevout.n));
+  return coins->nHeight;
+}
+
 CAmount CCoinsViewCache::GetValueIn(const CTransaction& tx) const
 {
-    if (tx.IsCoinBase())
+    if (tx.IsCoinBase()) {
         return 0;
+    }
 
     CAmount nResult = 0;
-    for (unsigned int i = 0; i < tx.vin.size(); i++)
-        nResult += GetOutputFor(tx.vin[i]).nValue;
+
+    for (unsigned int i = 0; i < tx.vin.size(); i++) {
+				auto amount = GetOutputFor(tx.vin[i]).nValue;
+        auto height = GetHeightFor(tx.vin[i]);
+
+        nResult += CDividend::GetTotalWithDividend(amount, height);
+    }
 
     return nResult;
 }

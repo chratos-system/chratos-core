@@ -1308,7 +1308,7 @@ bool AcceptToMemoryPoolWorker(CTxMemPool& pool, CValidationState& state,
         int64_t nSigOpsCost = GetTransactionSigOpCost(tx, view, STANDARD_SCRIPT_VERIFY_FLAGS);
 
         CAmount nValueOut = tx.GetValueOut();
-        CAmount nFees = (!tx.IsCoinStake())?nValueIn-nValueOut:0;
+        CAmount nFees = (!tx.IsCoinStake()) ? nValueIn - nValueOut : 0;
         // nModifiedFees includes any fee deltas from PrioritiseTransaction
         CAmount nModifiedFees = nFees;
         double nPriorityDummy = 0;
