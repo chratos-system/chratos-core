@@ -72,6 +72,7 @@ moc_chratosaddressvalidator.cpp
 moc_chratosamountfield.cpp
 moc_chratosgui.cpp
 moc_chratosunits.cpp
+moc_dividendview.cpp
 moc_notificator.cpp
 moc_openuridialog.cpp
 moc_optionsdialog.cpp
@@ -109,6 +110,8 @@ chratosgui.h
 chratosstrings.cpp
 chratosunits.cpp
 chratosunits.h
+dividendview.cpp
+dividendview.h
 networkstyle.cpp
 networkstyle.h
 notificator.cpp

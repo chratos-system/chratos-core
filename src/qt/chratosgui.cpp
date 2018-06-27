@@ -114,6 +114,7 @@ ChratosGUI::ChratosGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     appMenuBar(0),
     overviewAction(0),
     historyAction(0),
+    dividendAction(0),
     quitAction(0),
     sendCoinsAction(0),
     sendCoinsMenuAction(0),
@@ -149,7 +150,7 @@ ChratosGUI::ChratosGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     fShowingVoting(0),
     platformStyle(platformStyle)
 {
-    GUIUtil::restoreWindowGeometry("nWindow", QSize(840, 600), this);
+    GUIUtil::restoreWindowGeometry("nWindow", QSize(1006, 600), this);
     //setFixedSize(QSize(840, 600));
     QString windowTitle = tr(PACKAGE_NAME) + " - ";
 #ifdef ENABLE_WALLET
@@ -365,6 +366,13 @@ void ChratosGUI::createActions()
     historyAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_4));
     tabGroup->addAction(historyAction);
 
+    dividendAction = new QAction(platformStyle->SingleColorIcon(":/icons/dividend"), tr("&Dividends"), this);
+    dividendAction->setStatusTip(tr("View dividend history"));
+    dividendAction->setToolTip(dividendAction->statusTip());
+    dividendAction->setCheckable(true);
+    dividendAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_5));
+    tabGroup->addAction(dividendAction);
+
     if (GetBoolArg("-staking", true))
     {
       toggleStakingAction = new QAction(tr("Turn Off &Staking"), this);
@@ -398,6 +406,9 @@ void ChratosGUI::createActions()
     connect(receiveCoinsMenuAction, SIGNAL(triggered()), this, SLOT(gotoRequestPaymentPage()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(gotoHistoryPage()));
+
+    connect(dividendAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(dividendAction, SIGNAL(triggered()), this, SLOT(gotoDividendPage()));
     if (GetBoolArg("-staking", true))
     {
       toggleStakingAction = new QAction(tr("Turn Off &Staking"), this);
@@ -624,6 +635,16 @@ void ChratosGUI::createToolBars()
                     "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
                     "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
 
+        topMenu5 = new QPushButton(walletFrame->topMenu);
+        topMenu5->setFixedSize(166, 94);
+        topMenu5->setObjectName("topMenu5");
+        connect(topMenu5, SIGNAL(clicked()), this, SLOT(gotoDividendPage()));
+        topMenu5->move(840, 0);
+        topMenu5->setStyleSheet(
+            "#topMenu5 { border-image: url(:/icons/menu_dividend_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+            "#topMenu5:hover { border-image: url(:/icons/menu_dividend_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+
+
         // ImageButton* navLogo2 = new ImageButton();
         // navLogo2->setFixedSize(64,64);
         // navLogo2->setObjectName("navLogo");
@@ -752,6 +773,7 @@ void ChratosGUI::setWalletActionsEnabled(bool enabled)
     receiveCoinsAction->setEnabled(enabled);
     receiveCoinsMenuAction->setEnabled(enabled);
     historyAction->setEnabled(enabled);
+    dividendAction->setEnabled(enabled);
     encryptWalletAction->setEnabled(enabled);
     backupWalletAction->setEnabled(enabled);
     changePassphraseAction->setEnabled(enabled);
@@ -886,6 +908,9 @@ void ChratosGUI::gotoOverviewPage()
     topMenu4->setStyleSheet(
                 "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
                 "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu5->setStyleSheet(
+                "#topMenu5 { border-image: url(:/icons/menu_dividend_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu5:hover { border-image: url(:/icons/menu_dividend_hover)  0 0 0 0 stretch stretch; border: 0px; }");
     if (walletFrame) walletFrame->gotoOverviewPage();
 }
 
@@ -902,6 +927,9 @@ void ChratosGUI::gotoHistoryPage()
                 "#topMenu3:hover { border-image: url(:/icons/menu_receive_hover)  0 0 0 0 stretch stretch; border: 0px; }");
     topMenu4->setStyleSheet(
                 "#topMenu4 { border-image: url(:/icons/menu_transaction_s)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu5->setStyleSheet(
+                "#topMenu5 { border-image: url(:/icons/menu_dividend_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu5:hover { border-image: url(:/icons/menu_dividend_hover)  0 0 0 0 stretch stretch; border: 0px; }");
     historyAction->setChecked(true);
     if (walletFrame) walletFrame->gotoHistoryPage();
 }
@@ -919,6 +947,9 @@ void ChratosGUI::gotoReceiveCoinsPage()
     topMenu4->setStyleSheet(
                 "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
                 "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu5->setStyleSheet(
+                "#topMenu5 { border-image: url(:/icons/menu_dividend_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu5:hover { border-image: url(:/icons/menu_dividend_hover)  0 0 0 0 stretch stretch; border: 0px; }");
     receiveCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoReceiveCoinsPage();
 }
@@ -936,6 +967,9 @@ void ChratosGUI::gotoRequestPaymentPage()
     topMenu4->setStyleSheet(
                 "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
                 "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu5->setStyleSheet(
+                "#topMenu5 { border-image: url(:/icons/menu_dividend_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu5:hover { border-image: url(:/icons/menu_dividend_hover)  0 0 0 0 stretch stretch; border: 0px; }");
     receiveCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoRequestPaymentPage();
 }
@@ -953,8 +987,31 @@ void ChratosGUI::gotoSendCoinsPage(QString addr)
     topMenu4->setStyleSheet(
                 "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
                 "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu5->setStyleSheet(
+                "#topMenu5 { border-image: url(:/icons/menu_dividend_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu5:hover { border-image: url(:/icons/menu_dividend_hover)  0 0 0 0 stretch stretch; border: 0px; }");
     sendCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoSendCoinsPage(addr);
+}
+
+void ChratosGUI::gotoDividendPage() {
+    topMenu1->setStyleSheet(
+       "#topMenu1 { border-image: url(:/icons/menu_home_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+       "#topMenu1:hover { border-image: url(:/icons/menu_home_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu2->setStyleSheet(
+                "#topMenu2 { border-image: url(:/icons/menu_send_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu2:hover { border-image: url(:/icons/menu_send_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu3->setStyleSheet(
+                "#topMenu3 { border-image: url(:/icons/menu_receive_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu3:hover { border-image: url(:/icons/menu_receive_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu4->setStyleSheet(
+                "#topMenu4 { border-image: url(:/icons/menu_transaction_ns)  0 0 0 0 stretch stretch; border: 0px; }"
+                "#topMenu4:hover { border-image: url(:/icons/menu_transaction_hover)  0 0 0 0 stretch stretch; border: 0px; }");
+    topMenu5->setStyleSheet(
+                "#topMenu5 { border-image: url(:/icons/menu_dividend_s)  0 0 0 0 stretch stretch; border: 0px; }");
+    dividendAction->setChecked(true);
+    if (walletFrame) walletFrame->gotoDividendPage();
+
 }
 
 void ChratosGUI::gotoSignMessageTab(QString addr)

@@ -18,6 +18,7 @@
 #include "signverifymessagedialog.h"
 #include "transactiontablemodel.h"
 #include "transactionview.h"
+#include "dividendview.h"
 #include "walletmodel.h"
 
 #include "ui_interface.h"
@@ -54,6 +55,12 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
     vbox->addLayout(hbox_buttons);
     transactionsPage->setLayout(vbox);
 
+    dividendsPage = new QWidget(this);
+    QVBoxLayout *dbox = new QVBoxLayout();
+    dividendView = new DividendView(platformStyle, this);
+    dbox->addWidget(dividendView);
+    dividendsPage->setLayout(dbox);
+
     receiveCoinsPage = new ReceiveCoinsDialog(platformStyle);
     sendCoinsPage = new SendCoinsDialog(platformStyle);
     requestPaymentPage = new getAddressToReceive();
@@ -66,6 +73,7 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
     addWidget(receiveCoinsPage);
     addWidget(sendCoinsPage);
     addWidget(requestPaymentPage);
+    addWidget(dividendsPage);
 
     // Clicking on a transaction on the overview pre-selects the transaction on the transaction history page
     connect(overviewPage, SIGNAL(transactionClicked(QModelIndex)), transactionView, SLOT(focusTransaction(QModelIndex)));
@@ -128,6 +136,7 @@ void WalletView::setWalletModel(WalletModel *walletModel)
     overviewPage->setWalletModel(walletModel);
     receiveCoinsPage->setModel(walletModel);
     requestPaymentPage->setModel(walletModel);
+    dividendView->setModel(walletModel);
     requestPaymentPage->showQR();
     sendCoinsPage->setModel(walletModel);
     usedReceivingAddressesPage->setModel(walletModel->getAddressTableModel());
@@ -190,8 +199,12 @@ void WalletView::gotoReceiveCoinsPage()
     setCurrentWidget(receiveCoinsPage);
 }
 
-void WalletView::gotoRequestPaymentPage(){
+void WalletView::gotoRequestPaymentPage() {
     setCurrentWidget(requestPaymentPage);
+}
+
+void WalletView::gotoDividendPage() {
+  setCurrentWidget(dividendsPage);
 }
 
 void WalletView::gotoSendCoinsPage(QString addr)

@@ -18,6 +18,7 @@ class ReceiveCoinsDialog;
 class SendCoinsDialog;
 class SendCoinsRecipient;
 class TransactionView;
+class DividendView;
 class WalletModel;
 class AddressBookPage;
 class getAddressToReceive;
@@ -62,6 +63,7 @@ private:
 
     OverviewPage *overviewPage;
     QWidget *transactionsPage;
+    QWidget *dividendsPage;
     ReceiveCoinsDialog *receiveCoinsPage;
     SendCoinsDialog *sendCoinsPage;
     getAddressToReceive *requestPaymentPage;
@@ -69,6 +71,7 @@ private:
     AddressBookPage *usedReceivingAddressesPage;
 
     TransactionView *transactionView;
+    DividendView *dividendView;
 
     QProgressDialog *progressDialog;
     const PlatformStyle *platformStyle;
@@ -80,6 +83,8 @@ public Q_SLOTS:
     void gotoHistoryPage();
     /** Switch to receive coins page */
     void gotoReceiveCoinsPage();
+    /** Switch to dividends page */
+    void gotoDividendPage();
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "");
     void gotoRequestPaymentPage();

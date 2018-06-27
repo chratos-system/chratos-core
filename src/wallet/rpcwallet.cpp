@@ -2923,6 +2923,7 @@ typedef std::vector<StakePeriodRange_T> vStakePeriodRange_T;
 // return int =  Number of Wallet's elements analyzed
 int GetsStakeSubTotal(vStakePeriodRange_T& aRange)
 {
+    LOCK2(cs_main, pwalletMain->cs_wallet);
     int nElement = 0;
     int64_t nAmount = 0;
 

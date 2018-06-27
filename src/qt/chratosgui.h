@@ -102,6 +102,7 @@ private:
     QMenuBar *appMenuBar;
     QAction *overviewAction;
     QAction *historyAction;
+    QAction *dividendAction;
     QAction *quitAction;
     QAction *sendCoinsAction;
     QAction *sendCoinsMenuAction;
@@ -130,6 +131,7 @@ private:
     QPushButton *topMenu2;
     QPushButton *topMenu3;
     QPushButton *topMenu4;
+    QPushButton *topMenu5;
 
     QSystemTrayIcon *trayIcon;
     QMenu *trayIconMenu;
@@ -218,6 +220,7 @@ private Q_SLOTS:
     /** Switch to send coins page */
     void gotoSendCoinsPage(QString addr = "");
     void gotoRequestPaymentPage();
+    void gotoDividendPage();
 
     /** Show Sign/Verify Message dialog and switch to sign message tab */
     void gotoSignMessageTab(QString addr = "");

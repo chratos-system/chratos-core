@@ -29,7 +29,7 @@ WalletFrame::WalletFrame(const PlatformStyle *platformStyle, ChratosGUI *_gui) :
 
     topMenu = new QWidget();
     topMenu->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    topMenu->setMinimumWidth(900);
+    topMenu->setMinimumWidth(1060);
     topMenu->setFixedHeight(94);
     topMenu->setObjectName("topMenu");
     topMenu->setStyleSheet(
@@ -240,6 +240,13 @@ void WalletFrame::gotoRequestPaymentPage()
     QMap<QString, WalletView*>::const_iterator i;
     for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i)
         i.value()->gotoRequestPaymentPage();
+}
+
+void WalletFrame::gotoDividendPage() {
+  QMap<QString, WalletView *>::const_iterator i;
+  for (i = mapWalletViews.constBegin(); i != mapWalletViews.constEnd(); ++i) {
+    i.value()->gotoDividendPage();
+  }
 }
 
 void WalletFrame::gotoSendCoinsPage(QString addr)
