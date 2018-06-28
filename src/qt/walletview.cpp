@@ -38,8 +38,8 @@ WalletView::WalletView(const PlatformStyle *platformStyle, QWidget *parent):
     QStackedWidget(parent),
     clientModel(0),
     walletModel(0),
-    platformStyle(platformStyle)
-{
+    ledgerModel(nullptr),
+    platformStyle(platformStyle) {
     // Create tabs
     overviewPage = new OverviewPage(platformStyle);
 
@@ -136,7 +136,6 @@ void WalletView::setWalletModel(WalletModel *walletModel)
     overviewPage->setWalletModel(walletModel);
     receiveCoinsPage->setModel(walletModel);
     requestPaymentPage->setModel(walletModel);
-    dividendView->setModel(walletModel);
     requestPaymentPage->showQR();
     sendCoinsPage->setModel(walletModel);
     usedReceivingAddressesPage->setModel(walletModel->getAddressTableModel());
@@ -161,6 +160,11 @@ void WalletView::setWalletModel(WalletModel *walletModel)
         // Show progress dialog
         connect(walletModel, SIGNAL(showProgress(QString,int)), this, SLOT(showProgress(QString,int)));
     }
+}
+
+void WalletView::setLedgerModel(DividendLedgerModel *ledgerModel) {
+  this->ledgerModel = ledgerModel;
+  dividendView->setModel(ledgerModel);
 }
 
 void WalletView::processNewTransaction(const QModelIndex& parent, int start, int /*end*/)

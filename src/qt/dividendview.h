@@ -1,4 +1,5 @@
 // Copyright (c) 2018 The Chratos Core developers
+//
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -12,7 +13,7 @@
 
 class PlatformStyle;
 class TransactionFilterProxy;
-class WalletModel;
+class DividendLedgerModel;
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -35,7 +36,7 @@ class DividendView : public QWidget
 public:
     explicit DividendView(const PlatformStyle *platformStyle, QWidget *parent = 0);
 
-    void setModel(WalletModel *model);
+    void setModel(DividendLedgerModel *model);
 
     // Date ranges for filter
     enum DateEnum
@@ -49,45 +50,58 @@ public:
         Range
     };
 
+    /*
     enum ColumnWidths {
         STATUS_COLUMN_WIDTH = 30,
-        WATCHONLY_COLUMN_WIDTH = 23,
         DATE_COLUMN_WIDTH = 120,
         TYPE_COLUMN_WIDTH = 113,
         AMOUNT_MINIMUM_COLUMN_WIDTH = 150,
         MINIMUM_COLUMN_WIDTH = 23
     };
+    */
 
 private:
-    WalletModel *model;
-    TransactionFilterProxy *transactionProxyModel;
-    QTableView *dividendView;
+    DividendLedgerModel *model;
+
+    QFrame *dateRangeWidget;
 
     QComboBox *dateWidget;
+
+    QWidget *createDateRangeWidget();
+
+    QDateTimeEdit *dateFrom;
+
+    QDateTimeEdit *dateTo;
+
+    QTableView *dividendView;
+
+    QLabel *amountLabel;
+
+    QLabel *titleLabel;
+
+    /*
+    TransactionFilterProxy *transactionProxyModel;
+
     QComboBox *typeWidget;
-    QComboBox *watchOnlyWidget;
     QLineEdit *addressWidget;
     QLineEdit *amountWidget;
 
     QMenu *contextMenu;
     QSignalMapper *mapperThirdPartyTxUrls;
 
-    QFrame *dateRangeWidget;
-    QDateTimeEdit *dateFrom;
-    QDateTimeEdit *dateTo;
-    QAction *abandonAction;
 
-    QWidget *createDateRangeWidget();
 
     GUIUtil::TableViewLastColumnResizingFixer *columnResizingFixer;
 
     virtual void resizeEvent(QResizeEvent* event);
 
     bool eventFilter(QObject *obj, QEvent *event);
+    */
 
 private Q_SLOTS:
-    void contextualMenu(const QPoint &);
     void dateRangeChanged();
+  /*
+    void contextualMenu(const QPoint &);
     void showDetails();
     void copyAddress();
     void editLabel();
@@ -97,24 +111,22 @@ private Q_SLOTS:
     void copyTxHex();
     void copyTxPlainText();
     void openThirdPartyTxUrl(QString url);
-    void updateWatchOnlyColumn(bool fHaveWatchOnly);
-    void abandonTx();
 
 Q_SIGNALS:
     void doubleClicked(const QModelIndex&);
-
+*/
     /**  Fired when a message should be reported to the user */
+/*
     void message(const QString &title, const QString &message, unsigned int style);
 
 public Q_SLOTS:
     void chooseDate(int idx);
     void chooseType(int idx);
-    void chooseWatchonly(int idx);
     void changedPrefix(const QString &prefix);
     void changedAmount(const QString &amount);
     void exportClicked();
     void focusTransaction(const QModelIndex&);
-
+*/
 };
 
 

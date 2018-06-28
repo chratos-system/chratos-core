@@ -102,6 +102,16 @@ bool WalletFrame::setCurrentWallet(const QString& name)
     return true;
 }
 
+bool WalletFrame::setLedger(DividendLedgerModel *ledgerModel) {
+
+  if (mapWalletViews.size() == 0) { return false; }
+
+  for (auto *it : mapWalletViews) {
+    it->setLedgerModel(ledgerModel);
+  }
+  return true;
+}
+
 bool WalletFrame::removeWallet(const QString &name)
 {
     if (mapWalletViews.count(name) == 0)

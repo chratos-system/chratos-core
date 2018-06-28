@@ -141,6 +141,8 @@ public:
     CAmount getBalance(const CCoinControl *coinControl = NULL) const;
     CAmount getUnconfirmedBalance() const;
     CAmount getImmatureBalance() const;
+    CAmount getDividendBalance() const;
+    CAmount getCompleteBalance() const;
     bool haveWatchOnly() const;
     CAmount getStake() const;
     CAmount getWatchBalance() const;
@@ -233,6 +235,7 @@ private:
     CAmount cachedWatchUnconfBalance;
     CAmount cachedWatchImmatureBalance;
     CAmount cachedStakingBalance;
+    CAmount cachedDividendBalance;
     EncryptionStatus cachedEncryptionStatus;
     int cachedNumBlocks;
 
@@ -244,8 +247,12 @@ private:
 
 Q_SIGNALS:
     // Signal that balance in wallet changed
-    void balanceChanged(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& stakingBalance, const CAmount& immatureBalance,
-                        const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance);
+    void balanceChanged(
+        const CAmount& balance, const CAmount& unconfirmedBalance, 
+        const CAmount& stakingBalance, const CAmount& immatureBalance,
+        const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, 
+        const CAmount& watchImmatureBalance, const CAmount &dividendBalance
+    );
 
     // Encryption status of wallet changed
     void encryptionStatusChanged(int status);
@@ -272,6 +279,8 @@ public Q_SLOTS:
     void updateStatus();
     /* New transaction, or transaction changed status */
     void updateTransaction();
+    /* New Dividend Transaction */
+    void updateDividend();
     /* New, updated or removed address book entry */
     void updateAddressBook(const QString &address, const QString &label, bool isMine, const QString &purpose, int status);
     /* Watch-only added */

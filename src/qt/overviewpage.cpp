@@ -173,8 +173,12 @@ void OverviewPage::setVotingStatus(QString text)
     ui->votingStatusLabel->setText(text);
 }
 
-void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& stakingBalance, const CAmount& immatureBalance, const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance)
-{
+void OverviewPage::setBalance(
+    const CAmount& balance, const CAmount& unconfirmedBalance, 
+    const CAmount& stakingBalance, const CAmount& immatureBalance, 
+    const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance,
+    const CAmount& watchImmatureBalance, const CAmount &dividendBalance
+) {
     int unit = walletModel->getOptionsModel()->getDisplayUnit();
     currentBalance = balance;
     currentUnconfirmedBalance = unconfirmedBalance;
@@ -183,11 +187,22 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
     currentWatchOnlyBalance = watchOnlyBalance;
     currentWatchUnconfBalance = watchUnconfBalance;
     currentWatchImmatureBalance = watchImmatureBalance;
+    currentDividendBalance = dividendBalance;
+
     ui->labelBalance->setText(ChratosUnits::formatWithUnit(unit, balance, false, ChratosUnits::separatorAlways));
     ui->labelUnconfirmed->setText(ChratosUnits::formatWithUnit(unit, unconfirmedBalance, false, ChratosUnits::separatorAlways));
+
+    ui->labelDividend->setText(
+      ChratosUnits::formatWithUnit(
+        unit, dividendBalance, false, ChratosUnits::separatorAlways
+      )
+    );
+
     ui->labelStaking->setText(ChratosUnits::formatWithUnit(unit, stakingBalance, false, ChratosUnits::separatorAlways));
     ui->labelImmature->setText(ChratosUnits::formatWithUnit(unit, immatureBalance, false, ChratosUnits::separatorAlways));
-    ui->labelTotal->setText(ChratosUnits::formatWithUnit(unit, balance + unconfirmedBalance + stakingBalance, false, ChratosUnits::separatorAlways));
+    ui->labelTotal->setText(ChratosUnits::formatWithUnit(unit,
+          balance + unconfirmedBalance + stakingBalance + dividendBalance, 
+          false, ChratosUnits::separatorAlways));
 
     bool showStaking = stakingBalance != 0;
 
@@ -275,7 +290,7 @@ void OverviewPage::setWalletModel(WalletModel *model)
 
         // Keep up to date with wallet
         setBalance(model->getBalance(), model->getUnconfirmedBalance(), model->getStake(), model->getImmatureBalance(),
-                   model->getWatchBalance(), model->getWatchUnconfirmedBalance(), model->getWatchImmatureBalance());
+            model->getWatchBalance(), model->getWatchUnconfirmedBalance(), model->getWatchImmatureBalance(), model->getDividendBalance());
         connect(model, SIGNAL(balanceChanged(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)), this, SLOT(setBalance(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)));
         connect(model, SIGNAL(balanceChanged(CAmount, CAmount, CAmount, CAmount,CAmount,CAmount,CAmount)), this, SLOT(updateStakeReportbalanceChanged(CAmount, CAmount, CAmount,CAmount, CAmount,CAmount,CAmount)));
 
@@ -294,8 +309,12 @@ void OverviewPage::updateDisplayUnit()
     if(walletModel && walletModel->getOptionsModel())
     {
         if(currentBalance != -1)
-            setBalance(currentBalance, currentUnconfirmedBalance, currentStakingBalance, currentImmatureBalance,
-                       currentWatchOnlyBalance, currentWatchUnconfBalance, currentWatchImmatureBalance);
+            setBalance(
+              currentBalance, currentUnconfirmedBalance, 
+              currentStakingBalance, currentImmatureBalance,
+              currentWatchOnlyBalance, currentWatchUnconfBalance, 
+              currentWatchImmatureBalance, currentDividendBalance
+            );
 
         // Update txdelegate->unit with the current unit
         txdelegate->unit = walletModel->getOptionsModel()->getDisplayUnit();

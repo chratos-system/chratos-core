@@ -16,6 +16,7 @@ class ClientModel;
 class PlatformStyle;
 class SendCoinsRecipient;
 class WalletModel;
+class DividendLedgerModel;
 class WalletView;
 
 QT_BEGIN_NAMESPACE
@@ -36,6 +37,8 @@ public:
     bool setCurrentWallet(const QString& name);
     bool removeWallet(const QString &name);
     void removeAllWallets();
+
+    bool setLedger(DividendLedgerModel *ledgerModel);
 
     bool handlePaymentRequest(const SendCoinsRecipient& recipient);
 

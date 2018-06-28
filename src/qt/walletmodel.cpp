@@ -29,10 +29,12 @@
 #include <boost/foreach.hpp>
 
 WalletModel::WalletModel(const PlatformStyle *platformStyle, CWallet *wallet, OptionsModel *optionsModel, QObject *parent) :
-    QObject(parent), wallet(wallet), optionsModel(optionsModel), addressTableModel(0),
+    QObject(parent), wallet(wallet), optionsModel(optionsModel),
+    addressTableModel(0),
     transactionTableModel(0),
     recentRequestsTableModel(0),
     cachedBalance(0), cachedUnconfirmedBalance(0), cachedImmatureBalance(0),
+    cachedDividendBalance(0),
     cachedEncryptionStatus(Unencrypted),
     cachedNumBlocks(0)
 {
@@ -86,6 +88,14 @@ CAmount WalletModel::getStake() const
 CAmount WalletModel::getImmatureBalance() const
 {
     return wallet->GetImmatureBalance();
+}
+
+CAmount WalletModel::getDividendBalance() const {
+  return wallet->GetDividendBalance();
+}
+
+CAmount WalletModel::getCompleteBalance() const {
+  return wallet->GetBalance() + wallet->GetDividendBalance();
 }
 
 bool WalletModel::haveWatchOnly() const
@@ -147,6 +157,8 @@ void WalletModel::checkBalanceChanged()
     CAmount newUnconfirmedBalance = getUnconfirmedBalance();
     CAmount newImmatureBalance = getImmatureBalance();
     CAmount newStakingBalance = getStake();
+    CAmount newDividendBalance = getDividendBalance();
+
     CAmount newWatchOnlyBalance = 0;
     CAmount newWatchUnconfBalance = 0;
     CAmount newWatchImmatureBalance = 0;
@@ -157,10 +169,15 @@ void WalletModel::checkBalanceChanged()
         newWatchImmatureBalance = getWatchImmatureBalance();
     }
 
-    if(cachedBalance != newBalance || cachedUnconfirmedBalance != newUnconfirmedBalance || cachedImmatureBalance != newImmatureBalance ||
-        cachedWatchOnlyBalance != newWatchOnlyBalance || cachedWatchUnconfBalance != newWatchUnconfBalance || cachedWatchImmatureBalance != newWatchImmatureBalance ||
-            cachedStakingBalance != newStakingBalance)
-    {
+    if(cachedBalance != newBalance ||
+       cachedUnconfirmedBalance != newUnconfirmedBalance ||
+       cachedImmatureBalance != newImmatureBalance ||
+       cachedWatchOnlyBalance != newWatchOnlyBalance ||
+       cachedWatchUnconfBalance != newWatchUnconfBalance ||
+       cachedWatchImmatureBalance != newWatchImmatureBalance ||
+       cachedStakingBalance != newStakingBalance ||
+       cachedDividendBalance != newDividendBalance) {
+
         cachedBalance = newBalance;
         cachedUnconfirmedBalance = newUnconfirmedBalance;
         cachedStakingBalance = newStakingBalance;
@@ -168,8 +185,12 @@ void WalletModel::checkBalanceChanged()
         cachedWatchOnlyBalance = newWatchOnlyBalance;
         cachedWatchUnconfBalance = newWatchUnconfBalance;
         cachedWatchImmatureBalance = newWatchImmatureBalance;
-        Q_EMIT balanceChanged(newBalance, newUnconfirmedBalance, newStakingBalance, newImmatureBalance,
-                            newWatchOnlyBalance, newWatchUnconfBalance, newWatchImmatureBalance);
+        cachedDividendBalance = newDividendBalance;
+        Q_EMIT balanceChanged(
+          newBalance, newUnconfirmedBalance, newStakingBalance, 
+          newImmatureBalance, newWatchOnlyBalance, newWatchUnconfBalance,
+          newWatchImmatureBalance, newDividendBalance
+        );
     }
 }
 
@@ -177,6 +198,10 @@ void WalletModel::updateTransaction()
 {
     // Balance and number of transactions might have changed
     fForceCheckBalanceChanged = true;
+}
+
+void WalletModel::updateDividend() {
+  fForceCheckBalanceChanged = true;
 }
 
 void WalletModel::updateAddressBook(const QString &address, const QString &label,

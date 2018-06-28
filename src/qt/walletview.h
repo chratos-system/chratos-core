@@ -20,6 +20,7 @@ class SendCoinsRecipient;
 class TransactionView;
 class DividendView;
 class WalletModel;
+class DividendLedgerModel;
 class AddressBookPage;
 class getAddressToReceive;
 
@@ -53,6 +54,8 @@ public:
     */
     void setWalletModel(WalletModel *walletModel);
 
+    void setLedgerModel(DividendLedgerModel *ledger);
+
     bool handlePaymentRequest(const SendCoinsRecipient& recipient);
 
     void showOutOfSyncWarning(bool fShow);
@@ -60,6 +63,7 @@ public:
 private:
     ClientModel *clientModel;
     WalletModel *walletModel;
+    DividendLedgerModel *ledgerModel;
 
     OverviewPage *overviewPage;
     QWidget *transactionsPage;

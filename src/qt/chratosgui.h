@@ -34,6 +34,7 @@ class SendCoinsRecipient;
 class UnitDisplayStatusBarControl;
 class WalletFrame;
 class WalletModel;
+class DividendLedgerModel;
 class HelpMessageDialog;
 
 class CWallet;
@@ -76,6 +77,8 @@ public:
     void removeAllWallets();
 #endif // ENABLE_WALLET
     bool enableWallet;
+
+    bool setLedger(DividendLedgerModel *ledgerModel);
 
 protected:
     void changeEvent(QEvent *e);

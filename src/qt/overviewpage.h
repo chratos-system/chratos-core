@@ -40,8 +40,11 @@ public:
     void showOutOfSyncWarning(bool fShow);
 
 public Q_SLOTS:
-    void setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& stakingBalance, const CAmount& immatureBalance,
-                    const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance);
+    void setBalance(
+        const CAmount& balance, const CAmount& unconfirmedBalance, 
+        const CAmount& stakingBalance, const CAmount& immatureBalance,
+        const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance,
+        const CAmount& watchImmatureBalance, const CAmount &dividendBalance);
 
     void setStatusTitleBlocks(QString text);
 
@@ -76,6 +79,7 @@ private:
     CAmount currentWatchOnlyBalance;
     CAmount currentWatchUnconfBalance;
     CAmount currentWatchImmatureBalance;
+    CAmount currentDividendBalance;
 
     TxViewDelegate *txdelegate;
     TransactionFilterProxy *filter;

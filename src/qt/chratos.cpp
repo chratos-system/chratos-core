@@ -25,6 +25,9 @@
 #include "walletmodel.h"
 #endif
 
+#include "dividendledgermodel.h"
+#include "dividend/dividendledger.h"
+
 #include "init.h"
 #include "rpc/server.h"
 #include "scheduler.h"
@@ -240,10 +243,12 @@ private:
     ClientModel *clientModel;
     ChratosGUI *window;
     QTimer *pollShutdownTimer;
+    DividendLedgerModel *dividendLedgerModel;
 #ifdef ENABLE_WALLET
     PaymentServer* paymentServer;
     WalletModel *walletModel;
 #endif
+
     int returnValue;
     const PlatformStyle *platformStyle;
     std::unique_ptr<QWidget> shutdownWindow;
@@ -460,6 +465,11 @@ void ChratosApplication::initializeResult(int retval)
                              paymentServer, SLOT(fetchPaymentACK(CWallet*,const SendCoinsRecipient&,QByteArray)));
         }
 #endif
+
+        dividendLedgerModel = new DividendLedgerModel(platformStyle,
+            pledgerMain, optionsModel);
+
+        window->setLedger(dividendLedgerModel);
 
         // If -min option passed, start window minimized.
         if(GetBoolArg("-min", false))

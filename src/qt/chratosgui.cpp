@@ -764,6 +764,13 @@ void ChratosGUI::repairWallet()
 }
 
 #endif // ENABLE_WALLET
+bool ChratosGUI::setLedger(DividendLedgerModel *ledgerModel) {
+  if (!walletFrame) {
+    return false;
+  }
+
+  return walletFrame->setLedger(ledgerModel);
+}
 
 void ChratosGUI::setWalletActionsEnabled(bool enabled)
 {
