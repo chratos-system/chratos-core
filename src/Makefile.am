@@ -26,6 +26,7 @@ LIBCHRATOS_CONSENSUS=libchratos_consensus.a
 LIBCHRATOS_CLI=libchratos_cli.a
 LIBCHRATOS_UTIL=libchratos_util.a
 LIBCHRATOS_CRYPTO=crypto/libchratos_crypto.a
+LIBCHRATOS_DIVIDEND=libchratos_dividend.a
 LIBCHRATOSQT=qt/libchratosqt.a
 LIBSECP256K1=secp256k1/libsecp256k1.la
 
@@ -52,6 +53,7 @@ EXTRA_LIBRARIES += \
   $(LIBCHRATOS_SERVER) \
   $(LIBCHRATOS_CLI) \
   $(LIBCHRATOS_WALLET) \
+	$(LIBCHRATOS_DIVIDEND) \
   $(LIBCHRATOS_ZMQ)
 
 lib_LTLIBRARIES = $(LIBCHRATOSCONSENSUS)
@@ -65,7 +67,7 @@ if BUILD_CHRATOSD
 endif
 
 if BUILD_CHRATOS_UTILS
-  bin_PROGRAMS += chratos-cli chratos-tx
+  bin_PROGRAMS += chratos-cli
 endif
 
 .PHONY: FORCE check-symbols check-security
@@ -221,6 +223,15 @@ libchratos_zmq_a_SOURCES = \
   zmq/zmqpublishnotifier.cpp
 endif
 
+libchratos_dividend_a_CPPFLAGS = $(AM_CPPFLAGS) $(CHRATOS_INCLUDES)
+libchratos_dividend_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+libchratos_dividend_a_SOURCES = \
+	dividend/dividend.cpp \
+	dividend/dividenddb.cpp \
+	dividend/dividendledger.cpp \
+	dividend/dividendtx.cpp \
+	dividend/rpcdividend.cpp \
+	$(CHRATOS_CORE_H)
 
 # wallet: shared between chratosd and chratos-qt, but only linked
 # when wallet enabled
@@ -267,11 +278,6 @@ libchratos_consensus_a_SOURCES = \
   consensus/merkle.h \
   consensus/params.h \
   consensus/validation.h \
-	dividend/dividend.cpp \
-	dividend/dividendledger.cpp \
-	dividend/dividenddb.cpp \
-	dividend/dividendtx.cpp \
-	dividend/rpcdividend.cpp \
 	aes_helper.c \
 	blake.c \
 	bmw.c \
@@ -399,6 +405,7 @@ chratosd_LDADD = \
   $(LIBUNIVALUE) \
   $(LIBCHRATOS_UTIL) \
   $(LIBCHRATOS_WALLET) \
+	$(LIBCHRATOS_DIVIDEND) \
   $(LIBCHRATOS_ZMQ) \
   $(LIBCHRATOS_CONSENSUS) \
   $(LIBCHRATOS_CRYPTO) \
@@ -443,6 +450,7 @@ chratos_tx_LDADD = \
   $(LIBCHRATOS_UTIL) \
   $(LIBCHRATOS_CONSENSUS) \
   $(LIBCHRATOS_CRYPTO) \
+	$(LIBCHRATOS_DIVIDEND) \
   $(LIBSECP256K1)
 
 chratos_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
