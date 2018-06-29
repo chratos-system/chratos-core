@@ -13,6 +13,7 @@ class OptionsModel;
 class DividendTableModel;
 class PlatformStyle;
 
+
 class DividendLedgerModel : public QObject {
   public:
     explicit DividendLedgerModel(
@@ -22,18 +23,20 @@ class DividendLedgerModel : public QObject {
       QObject *parent = 0
     );
 
-//    DividendTableModel *getDividendTableModel();
+    int getCount() const;
 
     CAmount getTotalDividendFund() const;
 
     OptionsModel *getOptionsModel();
+  
+    std::map<uint256, CDividendTx> getTransactions() const;
 
   private:
     CDividendLedger *ledger;
 
     OptionsModel *optionsModel;
 
-    //DividendTableModel *dividendTableModel;
+    const PlatformStyle *platformStyle;
 };
 
 #endif

@@ -222,6 +222,15 @@ QString ChratosUnits::getAmountColumnTitle(int unit)
     return amountTitle;
 }
 
+QString ChratosUnits::getMoneySupplyColumnTitle(int unit) {
+  QString title = QObject::tr("Money Supply");
+  if (ChratosUnits::valid(unit)) {
+    title += " (" + ChratosUnits::name(unit) + ")";
+  }
+
+  return title;
+}
+
 int ChratosUnits::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);

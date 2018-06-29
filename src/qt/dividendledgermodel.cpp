@@ -4,6 +4,7 @@
 
 #include "dividendledgermodel.h"
 #include "dividend/dividendledger.h"
+#include "dividend/dividendtx.h"
 #include "main.h"
 
 DividendLedgerModel::DividendLedgerModel(
@@ -20,4 +21,12 @@ CAmount DividendLedgerModel::getTotalDividendFund() const {
 
 OptionsModel *DividendLedgerModel::getOptionsModel() {
   return optionsModel;
+}
+
+int DividendLedgerModel::getCount() const {
+  return ledger->GetOrdered().size();
+}
+
+std::map<uint256, CDividendTx> DividendLedgerModel::getTransactions() const {
+  return ledger->GetMapLedger();
 }

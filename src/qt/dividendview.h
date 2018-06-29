@@ -14,6 +14,7 @@
 class PlatformStyle;
 class TransactionFilterProxy;
 class DividendLedgerModel;
+class DividendTableModel;
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -50,15 +51,16 @@ public:
         Range
     };
 
-    /*
     enum ColumnWidths {
-        STATUS_COLUMN_WIDTH = 30,
-        DATE_COLUMN_WIDTH = 120,
-        TYPE_COLUMN_WIDTH = 113,
-        AMOUNT_MINIMUM_COLUMN_WIDTH = 150,
-        MINIMUM_COLUMN_WIDTH = 23
+      DATE_COLUMN_WIDTH = 120,
+      AMOUNT_COLUMN_WIDTH = 150,
+      BLOCK_HEIGHT_COLUMN_WIDTH = 90,
+      TXID_COLUMN_WIDTH =  440,
+      MONEY_SUPPLY_COLUMN_WIDTH = 150,
+      PERCENTAGE_COLUMN_WIDTH = 80,
+      AMOUNT_MINIMUM_COLUMN_WIDTH = 150,
+      MINIMUM_COLUMN_WIDTH = 23
     };
-    */
 
 private:
     DividendLedgerModel *model;
@@ -73,60 +75,22 @@ private:
 
     QDateTimeEdit *dateTo;
 
-    QTableView *dividendView;
+    QTableView *tableView;
 
     QLabel *amountLabel;
 
     QLabel *titleLabel;
 
-    /*
-    TransactionFilterProxy *transactionProxyModel;
+    DividendTableModel *tableModel;
 
-    QComboBox *typeWidget;
-    QLineEdit *addressWidget;
-    QLineEdit *amountWidget;
-
-    QMenu *contextMenu;
-    QSignalMapper *mapperThirdPartyTxUrls;
-
-
+    const PlatformStyle *platformStyle;
 
     GUIUtil::TableViewLastColumnResizingFixer *columnResizingFixer;
 
     virtual void resizeEvent(QResizeEvent* event);
 
-    bool eventFilter(QObject *obj, QEvent *event);
-    */
-
 private Q_SLOTS:
     void dateRangeChanged();
-  /*
-    void contextualMenu(const QPoint &);
-    void showDetails();
-    void copyAddress();
-    void editLabel();
-    void copyLabel();
-    void copyAmount();
-    void copyTxID();
-    void copyTxHex();
-    void copyTxPlainText();
-    void openThirdPartyTxUrl(QString url);
-
-Q_SIGNALS:
-    void doubleClicked(const QModelIndex&);
-*/
-    /**  Fired when a message should be reported to the user */
-/*
-    void message(const QString &title, const QString &message, unsigned int style);
-
-public Q_SLOTS:
-    void chooseDate(int idx);
-    void chooseType(int idx);
-    void changedPrefix(const QString &prefix);
-    void changedAmount(const QString &amount);
-    void exportClicked();
-    void focusTransaction(const QModelIndex&);
-*/
 };
 
 

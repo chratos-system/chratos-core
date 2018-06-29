@@ -122,6 +122,7 @@ QT_MOC_CPP = \
   qt/moc_coincontroltreewidget.cpp \
   qt/moc_csvmodelwriter.cpp \
   qt/moc_dividendledgermodel.cpp \
+  qt/moc_dividendtablemodel.cpp \
   qt/moc_dividendview.cpp \
   qt/moc_editaddressdialog.cpp \
   qt/moc_guiutil.cpp \
@@ -190,7 +191,10 @@ CHRATOS_QT_H = \
   qt/coincontroldialog.h \
   qt/coincontroltreewidget.h \
   qt/csvmodelwriter.h \
+	qt/dividendrecord.h \
 	qt/dividendledgermodel.h \
+	qt/dividendtablemodel.h \
+	qt/dividendview.h \
   qt/editaddressdialog.h \
   qt/guiconstants.h \
   qt/guiutil.h \
@@ -346,6 +350,8 @@ CHRATOS_QT_CPP += \
   qt/askpassphrasedialog.cpp \
   qt/coincontroldialog.cpp \
   qt/coincontroltreewidget.cpp \
+	qt/dividendrecord.cpp \
+	qt/dividendtablemodel.cpp \
 	qt/dividendledgermodel.cpp \
 	qt/dividendview.cpp \
   qt/editaddressdialog.cpp \
