@@ -89,8 +89,20 @@ private:
 
     virtual void resizeEvent(QResizeEvent* event);
 
+    bool eventFilter(QObject *obj, QEvent *event);
+
 private Q_SLOTS:
     void dateRangeChanged();
+    void copyTxID();
+    void copyTxHex();
+    void copyTxPlainText();
+    void openThirdPartyTxUrl(QString url);
+    void showDetails();
+Q_SIGNALS:
+    void doubleClicked(const QModelIndex &);
+    void message(const QString &title, const QString &message, unsigned int style);
+private Q_SLOTS:
+    void changedAmount(const QString &amount);
 };
 
 

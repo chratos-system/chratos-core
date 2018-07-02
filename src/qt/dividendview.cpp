@@ -107,7 +107,9 @@ DividendView::DividendView(
 void DividendView::setModel(DividendLedgerModel *model) {
   this->model = model;
   if (model) {
-    tableModel = new DividendTableModel(platformStyle, model, this);
+    tableModel = new DividendTableModel(
+      platformStyle, model, model->getLedger(), this
+    );
     int unit = model->getOptionsModel()->getDisplayUnit();
     auto balance = model->getTotalDividendFund();
     amountLabel->setText(ChratosUnits::formatWithUnit(
@@ -186,6 +188,9 @@ QWidget *DividendView::createDateRangeWidget()
 }
 
 void DividendView::dateRangeChanged() {
+  if (!tableModel) {
+    return;
+  }
 }
 
 // We override the virtual resizeEvent of the QWidget to adjust tables column
@@ -194,19 +199,73 @@ void DividendView::resizeEvent(QResizeEvent* event){
   QWidget::resizeEvent(event);
   columnResizingFixer->stretchColumnWidth(DividendTableModel::TransactionID);
 }
-/*
+
 // Need to override default Ctrl+C action for amount as default behaviour is just to copy DisplayRole text
-bool DividendView::eventFilter(QObject *obj, QEvent *event)
-{
-    if (event->type() == QEvent::KeyPress)
-    {
-        QKeyEvent *ke = static_cast<QKeyEvent *>(event);
-        if (ke->key() == Qt::Key_C && ke->modifiers().testFlag(Qt::ControlModifier))
-        {
-             GUIUtil::copyEntryData(dividendView, 0, TransactionTableModel::TxPlainTextRole);
-             return true;
-        }
+bool DividendView::eventFilter(QObject *obj, QEvent *event) {
+  if (event->type() == QEvent::KeyPress) {
+    QKeyEvent *ke = static_cast<QKeyEvent *>(event);
+    if (ke->key() == Qt::Key_C && ke->modifiers().testFlag(Qt::ControlModifier)) {
+      GUIUtil::copyEntryData(tableView, 0, DividendTableModel::TxPlainTextRole);
+      return true;
     }
-    return QWidget::eventFilter(obj, event);
+  }
+  return QWidget::eventFilter(obj, event);
 }
-*/
+
+void DividendView::copyTxID() {
+  GUIUtil::copyEntryData(
+    tableView, 0, DividendTableModel::TxIDRole
+  );
+}
+
+void DividendView::copyTxHex() {
+  GUIUtil::copyEntryData(
+    tableView, 0, DividendTableModel::TxHexRole
+  );
+}
+
+void DividendView::copyTxPlainText() {
+  GUIUtil::copyEntryData(
+    tableView, 0, DividendTableModel::TxPlainTextRole
+  );
+}
+
+void DividendView::openThirdPartyTxUrl(QString url) {
+  if (!tableView || !tableView->selectionModel()) {
+    return;
+  }
+
+  QModelIndexList selection = tableView->selectionModel()->selectedRows(0);
+  if (!selection.isEmpty()) {
+    QDesktopServices::openUrl(QUrl::fromUserInput(url.replace("%s",
+        selection.at(0).data(DividendTableModel::TxHashRole).toString())));
+  }
+}
+
+void DividendView::showDetails() {
+  if (!tableView->selectionModel()) {
+    return;
+  }
+  
+  QModelIndexList selection = tableView->selectionModel()->selectedRows();
+
+  if (!selection.isEmpty()) {
+    /*
+    TransactionDescDialog *dig = new TransactionDescDialog(selection.at(0));
+    dig->setAttribute(Qt::WA_DeleteOnClose());
+    dig->show();
+    */
+  }
+}
+
+void DividendView::changedAmount(const QString &amount) {
+  if(!tableModel) { return; }
+  CAmount amount_parsed = 0;
+  if (ChratosUnits::parse(
+        model->getOptionsModel()->getDisplayUnit(), amount, &amount_parsed)
+     ) {
+      //transactionProxyModel->setMinAmount(amount_parsed);
+  } else {
+    //transactionProxyModel->setMinAmount(0);
+  }
+}

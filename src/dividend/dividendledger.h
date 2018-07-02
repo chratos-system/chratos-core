@@ -16,6 +16,7 @@
 #include "dividend/rpcdividend.h"
 #include "script/ismine.h"
 #include "main.h"
+#include "ui_interface.h"
 
 extern CDividendLedger *pledgerMain;
 
@@ -49,6 +50,9 @@ class CDividendLedger : public CValidationInterface {
     CAmount GetBalance() const;
 
     boost::signals2::signal<void (const std::string &title, int nProgress)> ShowProgress;
+
+    boost::signals2::signal<void (CDividendLedger *ledger, const uint256 &hashTx,
+        ChangeType status)> NotifyDividendChanged;
 
     bool LoadMinVersion(int nVersion) {
       AssertLockHeld(cs_ledger);

@@ -27,11 +27,29 @@ static int column_alignments[] = {
   Qt::AlignRight|Qt::AlignVCenter /* % */
 };
 
+struct DivLessThan {
+  bool operator() (
+    const DividendRecord &a, const DividendRecord &b
+  ) const {
+    return a.getHash() < b.getHash();
+  }
+
+  bool operator()(const DividendRecord &a, const uint256 &b) const {
+    return a.getHash() < b;
+  }
+
+  bool operator()(const uint256 &a, const DividendRecord &b) const {
+    return a < b.getHash();
+  }
+};
+
 DividendTableModel::DividendTableModel(
   const PlatformStyle *platformStyle,
-  DividendLedgerModel *ledger,
+  DividendLedgerModel *ledgerModel,
+  CDividendLedger *ledger,
   DividendView *parent
-) : QAbstractTableModel(parent), ledgerModel(ledger), dividendView(parent), 
+) : QAbstractTableModel(parent), ledgerModel(ledgerModel),
+  dividendView(parent), ledger(ledger),
   platformStyle(platformStyle) {
 
   columns << tr("Date")
@@ -60,10 +78,15 @@ DividendTableModel::DividendTableModel(
 
     cachedLedger.append(record);
   }
+
+  connect(ledgerModel->getOptionsModel(), SIGNAL(displayUnitChanged(int)),
+    this, SLOT(updateDisplayUnit()));
+
+  subscribeToCoreSignals();
 }
 
 DividendTableModel::~DividendTableModel() {
-
+  unsubscribeFromCoreSignals();
 }
 
 int DividendTableModel::rowCount(const QModelIndex &parent) const {
@@ -195,4 +218,133 @@ QString DividendTableModel::formatTxId(const DividendRecord *rec) const {
 QString DividendTableModel::formatPercentage(const DividendRecord *rec) const {
   auto i = (rec->getModifier()  * 100);
   return QString::number(i);
+}
+
+void DividendTableModel::updateDividend(
+  const QString &hash, int status, bool showTransaction
+) {
+
+  uint256 updated;
+  updated.SetHex(hash.toStdString());
+  
+  auto lower = qLowerBound(
+    cachedLedger.begin(), cachedLedger.end(), updated, DivLessThan()
+  );
+  auto upper = qUpperBound(
+    cachedLedger.begin(), cachedLedger.end(), updated, DivLessThan()
+  );
+
+  int lowerIndex = (lower - cachedLedger.begin());
+  int upperIndex = (upper - cachedLedger.begin());
+  bool inModel = (lower != upper);
+
+  if (status == CT_UPDATED) {
+    if (showTransaction && !inModel) {
+      status = CT_NEW;
+    }
+    if (!showTransaction && inModel) {
+      status = CT_DELETED;
+    }
+  }
+
+  switch (status) {
+    case CT_NEW:
+      if (inModel) { break; }
+      if (showTransaction) {
+        LOCK2(cs_main, ledger->cs_ledger);
+        auto mi = ledger->GetMapLedger().find(updated);
+        if (mi == ledger->GetMapLedger().end()) {
+          break;
+        }
+
+        auto record = DividendRecord::fromDividendTx(mi->second);
+
+        beginInsertRows(QModelIndex(), lowerIndex, lowerIndex);
+        int insert_idx = lowerIndex;
+
+        cachedLedger.insert(insert_idx, record);
+        endInsertRows();
+      }
+      break;
+    case CT_DELETED:
+      if (!inModel) { break; }
+      beginRemoveRows(
+        QModelIndex(), lowerIndex, upperIndex - 1
+      );
+      cachedLedger.erase(lower, upper);
+      endRemoveRows();
+      break;
+    case CT_UPDATED:
+      break;
+  }
+}
+
+void DividendTableModel::updateConfirmations() {
+  // There's nothing needed here initially
+}
+
+void DividendTableModel::updateDisplayUnit() {
+  updateAmountColumnTitle();
+  Q_EMIT dataChanged(index(0, Amount), index(cachedLedger.size() - 1, Amount));
+  Q_EMIT dataChanged(
+    index(0, MoneySupply), index(cachedLedger.size() - 1, MoneySupply)
+  );
+}
+
+void DividendTableModel::updateAmountColumnTitle() {
+  columns[Amount] = ChratosUnits::getAmountColumnTitle(
+    ledgerModel->getOptionsModel()->getDisplayUnit()
+  );
+  columns[MoneySupply] = ChratosUnits::getMoneySupplyColumnTitle(
+    ledgerModel->getOptionsModel()->getDisplayUnit()
+  );
+  Q_EMIT headerDataChanged(Qt::Horizontal, Amount, Amount);
+  Q_EMIT headerDataChanged(Qt::Horizontal, MoneySupply, MoneySupply);
+}
+
+struct DividendNotification {
+  public:
+    DividendNotification() {}
+    DividendNotification(
+      uint256 hash, ChangeType status, bool showTransaction
+    ) : hash(hash), status(status), showTransaction(showTransaction) {}
+    
+    void invoke(QObject *ttm) {
+      QString strHash = QString::fromStdString(hash.GetHex());
+      QMetaObject::invokeMethod(ttm, "updateDividend", Qt::QueuedConnection,
+          Q_ARG(QString, strHash),
+          Q_ARG(int, status),
+          Q_ARG(bool, showTransaction));
+    }
+
+  private:
+    uint256 hash;
+    ChangeType status;
+    bool showTransaction;
+};
+
+static void NotifyDividendChanged(
+  DividendTableModel *model, CDividendLedger *ledger, const uint256 &hash,
+  ChangeType status
+) {
+  auto mi = ledger->GetMapLedger().find(hash);
+  bool inLedger = mi != ledger->GetMapLedger().end();
+
+  bool showTransaction = inLedger;
+  
+  DividendNotification notification(hash, status, showTransaction);
+
+  notification.invoke(model);
+}
+
+void DividendTableModel::subscribeToCoreSignals() {
+  ledger->NotifyDividendChanged.connect(
+    boost::bind(NotifyDividendChanged, this, _1, _2, _3)
+  );
+}
+
+void DividendTableModel::unsubscribeFromCoreSignals() {
+  ledger->NotifyDividendChanged.disconnect(
+    boost::bind(NotifyDividendChanged, this, _1, _2, _3)
+  );
 }

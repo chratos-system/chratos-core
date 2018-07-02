@@ -120,6 +120,8 @@ bool CDividendLedger::AddToLedger(const CDividendTx &dtxIn,
         return false;
       }
     }
+
+    NotifyDividendChanged(this, hash, fInsertedNew ? CT_NEW : CT_UPDATED);
   }
 
   return true;

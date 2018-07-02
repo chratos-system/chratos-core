@@ -484,7 +484,7 @@ fi
 
 if test x$TARGET_OS != xwindows; then
   # All windows code is PIC, forcing it on just adds useless compile warnings
-  AX_CHECK_COMPILE_FLAG([-fPIC],[CFLAGS="-fPIC"])
+  AX_CHECK_COMPILE_FLAG([-fPIC],[PIC_FLAGS="-fPIC"])
 fi
 
 if test x$use_hardening != xno; then
@@ -834,8 +834,14 @@ else
   fi
 fi
 
-dnl univalue check
+save_CXXFLAGS="${CXXFLAGS}"
+CXXFLAGS="${CXXFLAGS} ${CRYPTO_CFLAGS} ${SSL_CFLAGS}"
+AC_CHECK_DECLS([EVP_MD_CTX_new],,,[AC_INCLUDES_DEFAULT
+  #include <openssl/x509_vfy.h>
+])
+CXXFLAGS="${save_CXXFLAGS}"
 
+dnl univalue check
 if test x$system_univalue != xno ; then
   found_univalue=no
   if test x$use_pkgconfig = xyes; then

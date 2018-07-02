@@ -12,6 +12,8 @@
 #include <QList>
 #include <QString>
 
+class CDividendTx;
+
 class DividendRecord {
   public:
     DividendRecord(
@@ -22,6 +24,8 @@ class DividendRecord {
       double modifier,
       int64_t height
     );
+
+    static DividendRecord fromDividendTx(const CDividendTx &tx);
 
     CAmount getAmount() const;
 

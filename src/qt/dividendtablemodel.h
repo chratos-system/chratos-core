@@ -8,7 +8,6 @@
 #include "chratosunits.h"
 #include "dividendrecord.h"
 #include "dividend/dividendtx.h"
-
 #include <QAbstractTableModel>
 #include <QStringList>
 
@@ -32,10 +31,18 @@ class DividendTableModel : public QAbstractTableModel {
       Percentage = 5
     };
 
+    enum RoleIndex {
+      /** Whole transaction as plain text **/
+      TxPlainTextRole,
+      TxHashRole,
+      TxHexRole,
+      TxIDRole
+    };
 
     explicit DividendTableModel(
       const PlatformStyle *platformStyle, 
       DividendLedgerModel *model,
+      CDividendLedger *ledger,
       DividendView *parent = 0
     );
 
@@ -47,19 +54,43 @@ class DividendTableModel : public QAbstractTableModel {
 
     QVariant data(const QModelIndex &index, int role) const;
 
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    QVariant headerData(
+      int section, Qt::Orientation orientation, int role
+    ) const;
 
     QModelIndex index(
       int row, int column, const QModelIndex &parent = QModelIndex()
     ) const;
 
+  public Q_SLOTS:
+
+    void updateDividend(
+      const QString &hash, int status, bool showTransaction
+    );
+
+    void updateConfirmations();
+
+    void updateDisplayUnit();
+
+    void updateAmountColumnTitle();
+
   private:
 
     DividendLedgerModel *ledgerModel;
+
+    CDividendLedger *ledger;
+
     DividendView *dividendView;
+
     QStringList columns;
+
     const PlatformStyle *platformStyle;
+
     QList<DividendRecord> cachedLedger;
+
+    void subscribeToCoreSignals();
+
+    void unsubscribeFromCoreSignals();
 
     QString formatDivDate(const DividendRecord *rec) const;
 
@@ -79,7 +110,9 @@ class DividendTableModel : public QAbstractTableModel {
     ) const;
 
     QString formatDivHeight(const DividendRecord *rec) const;
+
     QString formatTxId(const DividendRecord *rec) const;
+
     QString formatPercentage(const DividendRecord *rec) const;
 };
 

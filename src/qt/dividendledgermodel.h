@@ -13,7 +13,6 @@ class OptionsModel;
 class DividendTableModel;
 class PlatformStyle;
 
-
 class DividendLedgerModel : public QObject {
   public:
     explicit DividendLedgerModel(
@@ -31,12 +30,31 @@ class DividendLedgerModel : public QObject {
   
     std::map<uint256, CDividendTx> getTransactions() const;
 
+    void setDividendTableModel(DividendTableModel *dividendTableModel);
+
+    CDividendLedger *getLedger() const;
+
   private:
+
     CDividendLedger *ledger;
 
     OptionsModel *optionsModel;
 
+    int cachedNumBlocks;
+
+    bool fForceCheckDividendChanged;
+
     const PlatformStyle *platformStyle;
+
+    void subscribeToCoreSignals();
+
+    void unsubscribeFromCoreSignals();
+
+    void updateDividend();
+
+    void pollDividendChange();
+
+    DividendTableModel *dividendTableModel;
 };
 
 #endif
