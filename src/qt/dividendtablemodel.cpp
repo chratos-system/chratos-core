@@ -224,59 +224,26 @@ void DividendTableModel::updateDividend(
   const QString &hash, int status, bool showTransaction
 ) {
 
-  uint256 updated;
-  updated.SetHex(hash.toStdString());
-  
-  auto lower = qLowerBound(
-    cachedLedger.begin(), cachedLedger.end(), updated, DivLessThan()
-  );
-  auto upper = qUpperBound(
-    cachedLedger.begin(), cachedLedger.end(), updated, DivLessThan()
-  );
+  cachedLedger.clear();
 
-  int lowerIndex = (lower - cachedLedger.begin());
-  int upperIndex = (upper - cachedLedger.begin());
-  bool inModel = (lower != upper);
+  auto transactions = ledgerModel->getTransactions();
 
-  if (status == CT_UPDATED) {
-    if (showTransaction && !inModel) {
-      status = CT_NEW;
-    }
-    if (!showTransaction && inModel) {
-      status = CT_DELETED;
-    }
+  for (auto &it : transactions) {
+    auto transaction = it.second;
+    auto record = DividendRecord(
+      it.first,
+      transaction.GetBlockTime(),
+      transaction.GetDividendCredit(),
+      transaction.GetCoinSupply(),
+      transaction.GetPayoutModifier(),
+      transaction.GetHeight()
+    );
+
+    cachedLedger.append(record);
   }
 
-  switch (status) {
-    case CT_NEW:
-      if (inModel) { break; }
-      if (showTransaction) {
-        LOCK2(cs_main, ledger->cs_ledger);
-        auto mi = ledger->GetMapLedger().find(updated);
-        if (mi == ledger->GetMapLedger().end()) {
-          break;
-        }
 
-        auto record = DividendRecord::fromDividendTx(mi->second);
-
-        beginInsertRows(QModelIndex(), lowerIndex, lowerIndex);
-        int insert_idx = lowerIndex;
-
-        cachedLedger.insert(insert_idx, record);
-        endInsertRows();
-      }
-      break;
-    case CT_DELETED:
-      if (!inModel) { break; }
-      beginRemoveRows(
-        QModelIndex(), lowerIndex, upperIndex - 1
-      );
-      cachedLedger.erase(lower, upper);
-      endRemoveRows();
-      break;
-    case CT_UPDATED:
-      break;
-  }
+  layoutChanged();
 }
 
 void DividendTableModel::updateConfirmations() {
@@ -285,10 +252,12 @@ void DividendTableModel::updateConfirmations() {
 
 void DividendTableModel::updateDisplayUnit() {
   updateAmountColumnTitle();
-  Q_EMIT dataChanged(index(0, Amount), index(cachedLedger.size() - 1, Amount));
-  Q_EMIT dataChanged(
-    index(0, MoneySupply), index(cachedLedger.size() - 1, MoneySupply)
-  );
+  if (cachedLedger.size() > 0) {
+    Q_EMIT dataChanged(index(0, Amount), index(cachedLedger.size() - 1, Amount));
+    Q_EMIT dataChanged(
+        index(0, MoneySupply), index(cachedLedger.size() - 1, MoneySupply)
+        );
+  }
 }
 
 void DividendTableModel::updateAmountColumnTitle() {
