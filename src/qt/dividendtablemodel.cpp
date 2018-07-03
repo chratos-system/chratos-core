@@ -63,17 +63,26 @@ DividendTableModel::DividendTableModel(
     )
     << tr("Dividend %");
 
-  auto transactions = ledgerModel->getTransactions();
+  std::vector<CDividendTx> transactions;
+
+  for (auto &it : ledgerModel->getTransactions()) {
+    transactions.push_back(it.second);
+  }
+
+  std::sort(transactions.begin(), transactions.end(), 
+      [](CDividendTx a, CDividendTx b) {
+    return a.GetHeight() > b.GetHeight();
+  });
+
 
   for (auto &it : transactions) {
-    auto transaction = it.second;
     auto record = DividendRecord(
-      it.first,
-      transaction.GetBlockTime(),
-      transaction.GetDividendCredit(),
-      transaction.GetCoinSupply(),
-      transaction.GetPayoutModifier(),
-      transaction.GetHeight()
+      it.GetHash(),
+      it.GetBlockTime(),
+      it.GetDividendCredit(),
+      it.GetCoinSupply(),
+      it.GetPayoutModifier(),
+      it.GetHeight()
     );
 
     cachedLedger.append(record);
