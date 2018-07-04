@@ -8,14 +8,18 @@
 #include "main.h"
 #include <boost/bind.hpp>
 #include "dividendtablemodel.h"
+#include "walletmodel.h"
+#include "wallet/wallet.h"
 
 DividendLedgerModel::DividendLedgerModel(
   const PlatformStyle *platformStyle,
   CDividendLedger *ledger, 
+  WalletModel *walletModel,
   OptionsModel *optionsModel,
   QObject *parent
-) : QObject(parent), ledger(ledger), optionsModel(optionsModel), 
-  fForceCheckDividendChanged(true), dividendTableModel(nullptr) {
+) : QObject(parent), ledger(ledger), optionsModel(optionsModel),
+  walletModel(walletModel), fForceCheckDividendChanged(true),
+  dividendTableModel(nullptr) {
 }
 
 CAmount DividendLedgerModel::getTotalDividendFund() const {
@@ -82,4 +86,12 @@ void DividendLedgerModel::setDividendTableModel(
   DividendTableModel *dividendTableModel
 ) {
   this->dividendTableModel = dividendTableModel;
+}
+
+CAmount DividendLedgerModel::getAmountReceived(const CDividendTx &tx) const {
+  if (this->walletModel && this->walletModel->getWallet()) {
+    return this->walletModel->getWallet()->GetCreditFromDividend(tx);
+  } else {
+    return 0;
+  }
 }

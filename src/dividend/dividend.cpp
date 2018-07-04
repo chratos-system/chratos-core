@@ -49,3 +49,35 @@ CAmount CDividend::GetTotalWithDividend(CAmount amount, int blockHeight) {
 
   return total;
 }
+
+CAmount CDividend::GetDividendPayoutUntil(
+  CAmount amount, int blockHeight, int untilHeight
+) {
+
+  arith_uint256 bigAmount = arith_uint256(amount);
+
+  auto dividends = pledgerMain->GetOrdered();
+
+  for (auto &it : dividends) {
+
+    auto dividend = *(it.second);
+
+    if (dividend.GetHeight() >= blockHeight &&
+        dividend.GetHeight() < untilHeight) {
+      arith_uint256 fund = arith_uint256(dividend.GetDividendCredit());
+
+      arith_uint256 supply = arith_uint256(
+          dividend.GetCoinSupply() - dividend.GetDividendCredit()
+      );
+
+      auto mint = bigAmount * fund / supply;
+
+      bigAmount = bigAmount + mint;
+    }
+  }
+
+  auto total = bigAmount.GetLow64();
+
+  return total;
+
+}

@@ -98,6 +98,7 @@ public:
     //! Gets title for amount column including current display unit if optionsModel reference available */
     static QString getAmountColumnTitle(int unit);
     static QString getMoneySupplyColumnTitle(int unit);
+    static QString getReceivedColumnTitle(int unit);
     ///@}
 
     //! @name AbstractListModel implementation

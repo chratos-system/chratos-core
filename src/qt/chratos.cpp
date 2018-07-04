@@ -467,7 +467,7 @@ void ChratosApplication::initializeResult(int retval)
 #endif
 
         dividendLedgerModel = new DividendLedgerModel(platformStyle,
-            pledgerMain, optionsModel);
+            pledgerMain, walletModel, optionsModel);
 
         window->setLedger(dividendLedgerModel);
 

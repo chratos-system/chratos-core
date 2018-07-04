@@ -7,13 +7,14 @@
 #ifndef CHRATOS_DIVIDEND_DIVIDEND_DB_H
 #define CHRATOS_DIVIDEND_DIVIDEND_DB_H
 
-#include "wallet/db.h"
-#include "wallet/walletdb.h"
+#include "dividend/dbdiv.h"
+#include "database/dberrors.h"
+#include "primitives/block.h"
 
 class CDividendLedger;
 class CDividendTx;
 
-class CDividendLedgerDB : public CDB {
+class CDividendLedgerDB : public CDBDiv {
   public:
     CDividendLedgerDB(const std::string &filename,
                       const char *pszMode = "r+",

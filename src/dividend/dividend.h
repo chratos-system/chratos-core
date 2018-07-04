@@ -15,6 +15,9 @@ class CDividend {
     static void SetScriptForDividendContribution(CScript &script);
     static CAmount GetDividendPayout(CAmount amount, int blockHeight);
     static CAmount GetTotalWithDividend(CAmount amount, int blockHeight);
+    static CAmount GetDividendPayoutUntil(
+      CAmount amount, int blockHeight, int untilHeight
+    );
 };
 
 #endif

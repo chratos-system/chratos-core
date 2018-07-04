@@ -441,6 +441,7 @@ public:
     CAmount GetImmatureWatchOnlyCredit(const bool& fUseCache=true) const;
     CAmount GetAvailableWatchOnlyCredit(const bool& fUseCache=true) const;
     CAmount GetAvailableDividendCredit() const;
+    CAmount GetAvailableCreditWithDividendAt(unsigned int height) const;
     CAmount GetChange() const;
 
     void GetAmounts(std::list<COutputEntry>& listReceived,
@@ -753,6 +754,9 @@ public:
     bool SelectCoinsMinConf(const CAmount& nTargetValue, int nConfMine, int nConfTheirs, std::vector<COutput> vCoins, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, CAmount& nValueRet) const;
 
     bool IsSpent(const uint256& hash, unsigned int n) const;
+    bool IsSpentAt(
+      const uint256 &hash, unsigned int index, unsigned int height
+    ) const;
 
     bool IsLockedCoin(uint256 hash, unsigned int n) const;
     void LockCoin(const COutPoint& output);
@@ -829,6 +833,8 @@ public:
     CAmount GetUnconfirmedWatchOnlyBalance() const;
     CAmount GetImmatureWatchOnlyBalance() const;
     CAmount GetDividendBalance() const;
+    CAmount GetDividendBalanceAt(unsigned int height) const;
+    CAmount GetCreditFromDividend(const CDividendTx &transaction) const;
 
     CAmount GetAvailableAmount(const CWalletTx *tx, int outputIndex) const;
 
@@ -885,6 +891,12 @@ public:
     CAmount GetDividendCredit(const CTxOut &txout, 
                               const CWalletTx &txn,
                               const isminefilter &filter) const;
+    CAmount GetDividendCreditAt(
+      const CTxOut &txout,
+      const CWalletTx &txn,
+      const isminefilter &filter,
+      unsigned int height
+    ) const;
     bool IsChange(const CTxOut& txout) const;
     CAmount GetChange(const CTxOut& txout) const;
     bool IsMine(const CTransaction& tx) const;

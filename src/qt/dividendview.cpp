@@ -135,15 +135,15 @@ void DividendView::setModel(DividendLedgerModel *model) {
     tableView->setColumnWidth(
       DividendTableModel::Date, DATE_COLUMN_WIDTH);
     tableView->setColumnWidth(
-      DividendTableModel::Amount, AMOUNT_COLUMN_WIDTH);
+      DividendTableModel::Amount, AMOUNT_MINIMUM_COLUMN_WIDTH);
     tableView->setColumnWidth(
       DividendTableModel::BlockHeight, BLOCK_HEIGHT_COLUMN_WIDTH);
     tableView->setColumnWidth(
       DividendTableModel::TransactionID, TXID_COLUMN_WIDTH);
     tableView->setColumnWidth(
-      DividendTableModel::MoneySupply, MONEY_SUPPLY_COLUMN_WIDTH);
+      DividendTableModel::MoneySupply, AMOUNT_MINIMUM_COLUMN_WIDTH);
     tableView->setColumnWidth(
-      DividendTableModel::Percentage, PERCENTAGE_COLUMN_WIDTH);
+      DividendTableModel::Received, AMOUNT_MINIMUM_COLUMN_WIDTH);
 
     columnResizingFixer = new GUIUtil::TableViewLastColumnResizingFixer(
       tableView, AMOUNT_MINIMUM_COLUMN_WIDTH, MINIMUM_COLUMN_WIDTH, this

@@ -67,7 +67,7 @@ if BUILD_CHRATOSD
 endif
 
 if BUILD_CHRATOS_UTILS
-  bin_PROGRAMS += chratos-cli
+  bin_PROGRAMS += chratos-cli #chratos-tx
 endif
 
 .PHONY: FORCE check-symbols check-security
@@ -98,6 +98,8 @@ CHRATOS_CORE_H = \
   consensus/consensus.h \
   core_io.h \
   core_memusage.h \
+	database/dberrors.h \
+	dividend/dbdiv.h \
 	dividend/dividend.h \
 	dividend/dividendledger.h \
 	dividend/dividenddb.h \
@@ -226,6 +228,7 @@ endif
 libchratos_dividend_a_CPPFLAGS = $(AM_CPPFLAGS) $(CHRATOS_INCLUDES)
 libchratos_dividend_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libchratos_dividend_a_SOURCES = \
+	dividend/dbdiv.cpp \
 	dividend/dividend.cpp \
 	dividend/dividenddb.cpp \
 	dividend/dividendledger.cpp \
@@ -435,25 +438,25 @@ chratos_cli_LDADD += $(BOOST_LIBS) $(SSL_LIBS) $(UNBOUND_LIBS) $(CURL_LIBS) $(CR
 #
 
 # chratos-tx binary #
-chratos_tx_SOURCES = chratos-tx.cpp
-chratos_tx_CPPFLAGS = $(AM_CPPFLAGS) $(CHRATOS_INCLUDES)
-chratos_tx_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-chratos_tx_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
+#chratos_tx_SOURCES = chratos-tx.cpp
+#chratos_tx_CPPFLAGS = $(AM_CPPFLAGS) $(CHRATOS_INCLUDES)
+#chratos_tx_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+#chratos_tx_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
-if TARGET_WINDOWS
-chratos_tx_SOURCES += chratos-tx-res.rc
-endif
+#if TARGET_WINDOWS
+#chratos_tx_SOURCES += chratos-tx-res.rc
+#endif
 
-chratos_tx_LDADD = \
-  $(LIBUNIVALUE) \
-  $(LIBCHRATOS_COMMON) \
-  $(LIBCHRATOS_UTIL) \
-  $(LIBCHRATOS_CONSENSUS) \
-  $(LIBCHRATOS_CRYPTO) \
-	$(LIBCHRATOS_DIVIDEND) \
-  $(LIBSECP256K1)
+#chratos_tx_LDADD = \
+#  $(LIBUNIVALUE) \
+#  $(LIBCHRATOS_COMMON) \
+#  $(LIBCHRATOS_UTIL) \
+#  $(LIBCHRATOS_CONSENSUS) \
+#  $(LIBCHRATOS_CRYPTO) \
+#  $(LIBCHRATOS_DIVIDEND) \
+#  $(LIBSECP256K1)
 
-chratos_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
+#chratos_tx_LDADD += $(BOOST_LIBS) $(CRYPTO_LIBS)
 #
 
 # chratosconsensus library #

@@ -13,6 +13,7 @@
 #include <QString>
 
 class CDividendTx;
+class DividendLedgerModel;
 
 class DividendRecord {
   public:
@@ -22,10 +23,14 @@ class DividendRecord {
       const CAmount &amount,
       const CAmount &supply,
       double modifier,
-      int64_t height
+      int64_t height,
+      const CAmount &received
     );
 
-    static DividendRecord fromDividendTx(const CDividendTx &tx);
+    static DividendRecord fromDividendTx(
+      const CDividendTx &tx,
+      DividendLedgerModel *model
+    );
 
     CAmount getAmount() const;
 
@@ -38,6 +43,10 @@ class DividendRecord {
     qint64 getTime() const;
 
     int64_t getBlockHeight() const;
+
+    void setReceivedAmount(const CAmount &amount);
+
+    CAmount getReceivedAmount() const;
 
   private:
 
@@ -52,6 +61,8 @@ class DividendRecord {
     qint64 time;
 
     int64_t blockHeight;
+
+    CAmount received;
 };
 
 #endif

@@ -61,7 +61,18 @@ DividendTableModel::DividendTableModel(
     << ChratosUnits::getMoneySupplyColumnTitle(
       ledgerModel->getOptionsModel()->getDisplayUnit()
     )
-    << tr("Dividend %");
+    << tr("Received");
+
+  setupTransactions();
+  connect(ledgerModel->getOptionsModel(), SIGNAL(displayUnitChanged(int)),
+    this, SLOT(updateDisplayUnit()));
+
+  subscribeToCoreSignals();
+}
+
+void DividendTableModel::setupTransactions() {
+
+  cachedLedger.clear();
 
   std::vector<CDividendTx> transactions;
 
@@ -82,17 +93,14 @@ DividendTableModel::DividendTableModel(
       it.GetDividendCredit(),
       it.GetCoinSupply(),
       it.GetPayoutModifier(),
-      it.GetHeight()
+      it.GetHeight(),
+      ledgerModel->getAmountReceived(it)
     );
 
     cachedLedger.append(record);
   }
-
-  connect(ledgerModel->getOptionsModel(), SIGNAL(displayUnitChanged(int)),
-    this, SLOT(updateDisplayUnit()));
-
-  subscribeToCoreSignals();
 }
+
 
 DividendTableModel::~DividendTableModel() {
   unsubscribeFromCoreSignals();
@@ -127,9 +135,9 @@ QVariant DividendTableModel::data(const QModelIndex &index, int role) const {
         case TransactionID:
           return formatTxId(rec);
         case MoneySupply:
-          return formatMoneySupply(rec,ChratosUnits::separatorAlways);
-        case Percentage:
-          return formatPercentage(rec);
+          return formatMoneySupply(rec, ChratosUnits::separatorAlways);
+        case Received:
+          return formatReceived(rec, ChratosUnits::separatorAlways);
       }
       break;
     case Qt::ToolTipRole:
@@ -185,10 +193,18 @@ QString DividendTableModel::formatDivDate(const DividendRecord *rec) const {
 }
 
 QString DividendTableModel::formatMoneySupply(
+    const DividendRecord *div, 
+    ChratosUnits::SeparatorStyle separators
+    ) const {
+  auto amount = div->getSupply();
+  return formatAmount(amount, separators);
+}
+
+QString DividendTableModel::formatReceived(
   const DividendRecord *div, 
   ChratosUnits::SeparatorStyle separators
 ) const {
-  auto amount = div->getSupply();
+  auto amount = div->getReceivedAmount();
   return formatAmount(amount, separators);
 }
 
@@ -233,25 +249,7 @@ void DividendTableModel::updateDividend(
   const QString &hash, int status, bool showTransaction
 ) {
 
-  cachedLedger.clear();
-
-  auto transactions = ledgerModel->getTransactions();
-
-  for (auto &it : transactions) {
-    auto transaction = it.second;
-    auto record = DividendRecord(
-      it.first,
-      transaction.GetBlockTime(),
-      transaction.GetDividendCredit(),
-      transaction.GetCoinSupply(),
-      transaction.GetPayoutModifier(),
-      transaction.GetHeight()
-    );
-
-    cachedLedger.append(record);
-  }
-
-
+  setupTransactions();
   layoutChanged();
 }
 
@@ -262,10 +260,15 @@ void DividendTableModel::updateConfirmations() {
 void DividendTableModel::updateDisplayUnit() {
   updateAmountColumnTitle();
   if (cachedLedger.size() > 0) {
-    Q_EMIT dataChanged(index(0, Amount), index(cachedLedger.size() - 1, Amount));
     Q_EMIT dataChanged(
-        index(0, MoneySupply), index(cachedLedger.size() - 1, MoneySupply)
-        );
+      index(0, Amount), index(cachedLedger.size() - 1, Amount)
+    );
+    Q_EMIT dataChanged(
+      index(0, MoneySupply), index(cachedLedger.size() - 1, MoneySupply)
+    );
+    Q_EMIT dataChanged(
+      index(0,  Received), index(cachedLedger.size() - 1, Received)
+    );
   }
 }
 
@@ -274,6 +277,9 @@ void DividendTableModel::updateAmountColumnTitle() {
     ledgerModel->getOptionsModel()->getDisplayUnit()
   );
   columns[MoneySupply] = ChratosUnits::getMoneySupplyColumnTitle(
+    ledgerModel->getOptionsModel()->getDisplayUnit()
+  );
+  columns[Received] = ChratosUnits::getReceivedColumnTitle(
     ledgerModel->getOptionsModel()->getDisplayUnit()
   );
   Q_EMIT headerDataChanged(Qt::Horizontal, Amount, Amount);

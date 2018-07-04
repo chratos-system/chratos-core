@@ -10,6 +10,7 @@
 #include "primitives/transaction.h"
 #include "wallet/db.h"
 #include "key.h"
+#include "database/dberrors.h"
 
 #include <list>
 #include <stdint.h>
@@ -29,17 +30,6 @@ class CWallet;
 class CWalletTx;
 class uint160;
 class uint256;
-
-/** Error statuses for the wallet database */
-enum DBErrors
-{
-    DB_LOAD_OK,
-    DB_CORRUPT,
-    DB_NONCRITICAL_ERROR,
-    DB_TOO_NEW,
-    DB_LOAD_FAIL,
-    DB_NEED_REWRITE
-};
 
 /* simple HD chain data model */
 class CHDChain

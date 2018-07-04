@@ -30,6 +30,7 @@
 #include "kernel.h"
 #include "pos.h"
 #include "dividend/dividend.h"
+#include "dividend/dividendtx.h"
 
 #include <assert.h>
 
@@ -948,6 +949,31 @@ bool CWallet::IsSpent(const uint256& hash, unsigned int n) const
     return false;
 }
 
+bool CWallet::IsSpentAt(
+  const uint256 &hash, unsigned int index, unsigned int height
+) const {
+
+  const COutPoint outpoint(hash, index);
+  pair<TxSpends::const_iterator, TxSpends::const_iterator> range;
+  range = mapTxSpends.equal_range(outpoint);
+
+  for (TxSpends::const_iterator it = range.first; it != range.second; ++it)
+  {
+    const uint256& wtxid = it->second;
+    std::map<uint256, CWalletTx>::const_iterator mit =
+      mapWallet.find(wtxid);
+    int spendDepth = chainActive.Height() - height;
+    if (mit != mapWallet.end()) {
+      int depth = mit->second.GetDepthInMainChain();
+      if (depth >= spendDepth) {
+        return true; // Spent
+      }
+    }
+  }
+
+  return false;
+}
+
 void CWallet::AddToSpends(const COutPoint& outpoint, const uint256& wtxid)
 {
     mapTxSpends.insert(make_pair(outpoint, wtxid));
@@ -1598,6 +1624,33 @@ CAmount CWallet::GetDividendCredit(const CTxOut &txout,
   return CDividend::GetDividendPayout(amount, blockHeight);
 }
 
+CAmount CWallet::GetDividendCreditAt(
+  const CTxOut &txout,
+  const CWalletTx &txn,
+  const isminefilter &filter,
+  unsigned int height
+) const {
+  auto amount = GetCredit(txout, filter);
+
+  auto block = mapBlockIndex[txn.hashBlock];
+  if (block == nullptr) { return 0; }
+
+  bool txnIsCorrect = false;
+
+  for (auto &out : txn.vout) {
+    txnIsCorrect = txnIsCorrect || out == txout;
+  }
+
+  if (!txnIsCorrect) {
+    throw std::runtime_error("CWallet::GetDividendCredit(): Incorrect txn used to determine block time of dividends");
+  }
+
+  int blockHeight = block->nHeight;
+
+  return CDividend::GetDividendPayoutUntil(amount, blockHeight, height);
+}
+                              
+
 bool CWallet::IsChange(const CTxOut& txout) const
 {
     // TODO: fix handling of 'change' outputs. The assumption is that any
@@ -2158,6 +2211,34 @@ CAmount CWalletTx::GetAvailableDividendCredit() const {
   return nCredit;
 }
 
+CAmount CWalletTx::GetAvailableCreditWithDividendAt(
+  unsigned int height
+) const {
+
+  if (pwallet == 0) { return 0; }
+
+  if ((IsCoinBase() || IsCoinStake()) && GetBlocksToMaturity() > 0) {
+    return 0;
+  }
+
+  CAmount nCredit = 0;
+
+  for (unsigned int i = 0; i < vout.size(); i++) {
+    if (!pwallet->IsSpentAt(GetHash(), i, height)) {
+      const CTxOut &txout = vout[i];
+      nCredit += pwallet->GetDividendCreditAt(
+          txout, *this, ISMINE_SPENDABLE, height
+          );
+      if (!MoneyRange(nCredit)) {
+        throw std::runtime_error("CWalletTx::GetAvailableCredit() : value out of range");
+      }
+    }
+  }
+
+  return nCredit;
+
+}
+
 CAmount CWalletTx::GetChange() const
 {
     if (fChangeCached)
@@ -2380,8 +2461,38 @@ CAmount CWallet::GetDividendBalance() const {
   return nTotal;
 }
 
-void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const CCoinControl *coinControl, bool fIncludeZeroValue) const
-{
+CAmount CWallet::GetDividendBalanceAt(unsigned int height) const {
+
+  CAmount nTotal = 0;
+  {
+    LOCK2(cs_main, cs_wallet);
+    for (auto &it : mapWallet) {
+      const CWalletTx *pcoin = &(it.second);
+      if (pcoin->IsTrusted()) {
+        auto block = mapBlockIndex[pcoin->hashBlock];
+        if (block) {
+          if (block->nHeight <= height) {
+            nTotal += pcoin->GetAvailableCreditWithDividendAt(height);
+          }
+        }
+      }
+    }
+  }
+
+  return nTotal;
+}
+
+CAmount CWallet::GetCreditFromDividend(
+  const CDividendTx &transaction
+) const {
+  CAmount nTotal = GetDividendBalanceAt(transaction.GetHeight());
+  return nTotal * transaction.GetPayoutModifier();
+}
+
+void CWallet::AvailableCoins(
+  vector<COutput>& vCoins, bool fOnlyConfirmed,
+  const CCoinControl *coinControl, bool fIncludeZeroValue
+) const {
     vCoins.clear();
 
     {

@@ -4,6 +4,7 @@
 
 #include "dividendrecord.h"
 #include "dividend/dividendtx.h"
+#include "dividendledgermodel.h"
 
 DividendRecord::DividendRecord(
   uint256 hash,
@@ -11,20 +12,26 @@ DividendRecord::DividendRecord(
   const CAmount &amount,
   const CAmount &supply,
   double modifier,
-  int64_t blockHeight
+  int64_t blockHeight,
+  const CAmount &received
 ) : hash(hash), amount(amount), supply(supply),
-  modifier(modifier), time(time), blockHeight(blockHeight) {
+  modifier(modifier), time(time), blockHeight(blockHeight),
+  received(received) {
 }
 
 
-DividendRecord DividendRecord::fromDividendTx(const CDividendTx &tx) {
+DividendRecord DividendRecord::fromDividendTx(
+  const CDividendTx &tx,
+  DividendLedgerModel *model
+) {
   return DividendRecord(
     tx.GetHash(),
     tx.GetBlockTime(),
     tx.GetDividendCredit(),
     tx.GetCoinSupply(),
     tx.GetPayoutModifier(),
-    tx.GetHeight()
+    tx.GetHeight(),
+    model->getAmountReceived(tx)
   );
 }
 
@@ -50,4 +57,12 @@ qint64 DividendRecord::getTime() const {
 
 int64_t DividendRecord::getBlockHeight() const {
   return blockHeight;
+}
+
+void DividendRecord::setReceivedAmount(const CAmount &amount) {
+  received = amount;
+}
+
+CAmount DividendRecord::getReceivedAmount() const {
+  return received;
 }

@@ -28,7 +28,7 @@ class DividendTableModel : public QAbstractTableModel {
       BlockHeight = 2,
       Amount = 3,
       MoneySupply = 4,
-      Percentage = 5
+      Received = 5
     };
 
     enum RoleIndex {
@@ -104,6 +104,11 @@ class DividendTableModel : public QAbstractTableModel {
       ChratosUnits::SeparatorStyle separators
     ) const;
 
+    QString formatReceived(
+      const DividendRecord *rec,
+      ChratosUnits::SeparatorStyle separators
+    ) const;
+
     QString formatAmount(
       const CAmount &amount,
       ChratosUnits::SeparatorStyle separators
@@ -114,6 +119,9 @@ class DividendTableModel : public QAbstractTableModel {
     QString formatTxId(const DividendRecord *rec) const;
 
     QString formatPercentage(const DividendRecord *rec) const;
+
+    void setupTransactions();
+
 };
 
 #endif

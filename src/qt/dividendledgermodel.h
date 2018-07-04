@@ -12,12 +12,15 @@
 class OptionsModel;
 class DividendTableModel;
 class PlatformStyle;
+class WalletModel;
+class CDividendTx;
 
 class DividendLedgerModel : public QObject {
   public:
     explicit DividendLedgerModel(
       const PlatformStyle *platformStyle,
       CDividendLedger *ledger, 
+      WalletModel *walletModel,
       OptionsModel *optionsModel,
       QObject *parent = 0
     );
@@ -34,9 +37,13 @@ class DividendLedgerModel : public QObject {
 
     CDividendLedger *getLedger() const;
 
+    CAmount getAmountReceived(const CDividendTx &tx) const;
+
   private:
 
     CDividendLedger *ledger;
+
+    WalletModel *walletModel;
 
     OptionsModel *optionsModel;
 

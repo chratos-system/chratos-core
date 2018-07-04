@@ -231,6 +231,15 @@ QString ChratosUnits::getMoneySupplyColumnTitle(int unit) {
   return title;
 }
 
+QString ChratosUnits::getReceivedColumnTitle(int unit) {
+  QString title = QObject::tr("Received");
+  if (ChratosUnits::valid(unit)) {
+    title += " (" + ChratosUnits::name(unit) + ")";
+  }
+
+  return title;
+}
+
 int ChratosUnits::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);

@@ -23,7 +23,7 @@ struct CDividendLedgerScanState {
 CDividendLedgerDB::CDividendLedgerDB(const std::string &filename,
                                      const char *pszMode,
                                      bool fFlushOnClose)
-: CDB(filename, pszMode, fFlushOnClose), nLedgerDBUpdated(0) {
+: CDBDiv(filename, pszMode, fFlushOnClose), nLedgerDBUpdated(0) {
 }
 
 bool CDividendLedgerDB::WriteTx(const CDividendTx &dtx) {
@@ -225,7 +225,7 @@ bool CDividendLedgerDB::ReadBestBlock(CBlockLocator& locator) {
 }
 
 bool CDividendLedgerDB::WriteBestBlock(const CBlockLocator& locator) {
-  nWalletDBUpdated++;
+  nDividendDBUpdated++;
   Write(std::string("bestblock"), CBlockLocator());
   return Write(std::string("bestblock_nomerkle"), locator);
 }

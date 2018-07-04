@@ -1,0 +1,15 @@
+#pragma once
+
+#ifndef _CHRATOS_COIN_DATABASE_ERRORS_
+#define _CHRATOS_COIN_DATABASE_ERRORS_
+
+enum DBErrors {
+  DB_LOAD_OK,
+  DB_CORRUPT,
+  DB_NONCRITICAL_ERROR,
+  DB_TOO_NEW,
+  DB_LOAD_FAIL,
+  DB_NEED_REWRITE
+};
+
+#endif
