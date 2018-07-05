@@ -10,6 +10,7 @@
 #include "dividendtx.h"
 #include "rpc/server.h"
 #include "utilmoneystr.h"
+#include "wallet/wallet.h"
 
 bool EnsureLedgerIsAvailable(bool avoidException) {
   if (!pledgerMain) {
@@ -28,7 +29,10 @@ void DividendTxToJSON(const CDividendTx &dtx, UniValue &entry) {
   if (confirms > 0) {
     entry.push_back(Pair("blockhash", dtx.hashBlock.GetHex()));
     entry.push_back(Pair("blockindex", dtx.nIndex));
-    entry.push_back(Pair("blocktime", mapBlockIndex[dtx.hashBlock]->GetBlockTime()));
+    entry.push_back(Pair("blocktime", 
+      mapBlockIndex[dtx.hashBlock]->GetBlockTime()));
+    entry.push_back(Pair("blockheight",
+      mapBlockIndex[dtx.hashBlock]->nHeight));
   }
 
   uint256 hash = dtx.GetHash();
@@ -47,6 +51,11 @@ void ListDividendTransactions(const CDividendTx& dtx, UniValue& ret) {
   DividendTxToJSON(dtx, entry);
   entry.push_back(Pair("amount", ValueFromAmount(credit)));
   entry.push_back(Pair("modifier", modifier));
+
+  if (pwalletMain) {
+    auto received = ValueFromAmount(pwalletMain->GetCreditFromDividend(dtx));
+    entry.push_back(Pair("amountreceived", received));
+  }
   ret.push_back(entry);
 }
 
@@ -90,6 +99,8 @@ UniValue dividendlisttransactions(const JSONRPCRequest &request) {
       "    \"blockindex\": n,          (numeric) The index of the transaction in the block that includes it."
       "    \"blocktime\": xxx,         (numeric) The block time in seconds since epoch (1 Jan 1970 GMT).\n"
       "    \"txid\": \"transactionid\", (string) The transaction id.\n"
+      "    \"coinsupply\": x.xxx,      (numeric) The total supply of coins at the time of the dividend.\n"
+      "    \"modifier\": x.xxx,        (numeric) The modifier applied to all UTXOs that were created on or before this block time.\n"
       "  }\n"
       "]\n"
    );
