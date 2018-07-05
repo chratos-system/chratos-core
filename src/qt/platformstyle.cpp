@@ -83,7 +83,8 @@ PlatformStyle::PlatformStyle(const QString &name, bool imagesOnButtons, bool col
 {
     // Determine icon highlighting color
     if (colorizeIcons) {
-        const QColor colorHighlightBg(QApplication::palette().color(QPalette::Highlight));
+        //const QColor colorHighlightBg(QApplication::palette().color(QPalette::Highlight));
+        const QColor colorHighlightBg(15, 62, 151);
         const QColor colorHighlightFg(QApplication::palette().color(QPalette::HighlightedText));
         const QColor colorText(QApplication::palette().color(QPalette::WindowText));
         const int colorTextLightness = colorText.lightness();
