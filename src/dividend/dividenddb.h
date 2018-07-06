@@ -8,11 +8,14 @@
 #define CHRATOS_DIVIDEND_DIVIDEND_DB_H
 
 #include "dividend/dbdiv.h"
+//#include "wallet/db.h"
 #include "database/dberrors.h"
 #include "primitives/block.h"
 
 class CDividendLedger;
 class CDividendTx;
+
+static const bool DEFAULT_FLUSHLEDGER = true;
 
 class CDividendLedgerDB : public CDBDiv {
   public:
@@ -32,10 +35,9 @@ class CDividendLedgerDB : public CDBDiv {
 
     bool ReadBestBlock(CBlockLocator& locator);
     bool WriteBestBlock(const CBlockLocator& locator);
-
-  private:
-    unsigned int nLedgerDBUpdated;
 };
+
+void ThreadFlushLedgerDB(std::string strFile);
 
 #endif
 

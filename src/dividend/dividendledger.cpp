@@ -320,3 +320,7 @@ CAmount CDividendLedger::GetDividendCredit(const CTxOut& txout) const {
 CDividendLedger::TxItems CDividendLedger::GetOrdered() const {
   return dtxOrdered;
 }
+
+void CDividendLedger::Flush(bool shutdown) {
+  bitdbdiv.Flush(shutdown);
+}

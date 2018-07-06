@@ -23,7 +23,7 @@
 static const unsigned int DEFAULT_DIVIDEND_DBLOGSIZE = 100;
 static const bool DEFAULT_DIVIDEND_PRIVDB = true;
 
-extern unsigned int nDividendDBUpdated;
+extern unsigned int nLedgerDBUpdated;
 
 class CDBDivEnv {
 private:

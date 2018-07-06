@@ -24,7 +24,7 @@
 using namespace std;
 
 
-unsigned int nDividendDBUpdated;
+unsigned int nLedgerDBUpdated;
 
 
 //
@@ -79,9 +79,9 @@ bool CDBDivEnv::Open(const boost::filesystem::path& pathIn)
     boost::this_thread::interruption_point();
 
     strPath = pathIn.string();
-    boost::filesystem::path pathLogDir = pathIn / "database";
+    boost::filesystem::path pathLogDir = pathIn / "database_div";
     TryCreateDirectory(pathLogDir);
-    boost::filesystem::path pathErrorFile = pathIn / "db.log";
+    boost::filesystem::path pathErrorFile = pathIn / "db_div.log";
     LogPrintf("CDBDivEnv::Open: LogDir=%s ErrorFile=%s\n", pathLogDir.string(), pathErrorFile.string());
 
     unsigned int nEnvFlags = 0;
@@ -373,7 +373,7 @@ bool CDBDiv::Rewrite(const string& strFile, const char* pszSkip)
 
                     int ret = pdbCopy->open(NULL,               // Txn pointer
                                             strFileRes.c_str(), // Filename
-                                            "main",             // Logical db name
+                                            "dividends",             // Logical db name
                                             DB_BTREE,           // Database type
                                             DB_CREATE,          // Flags
                                             0);
@@ -471,7 +471,7 @@ void CDBDivEnv::Flush(bool fShutdown)
                 dbenv->log_archive(&listp, DB_ARCH_REMOVE);
                 Close();
                 if (!fMockDb)
-                    boost::filesystem::remove_all(boost::filesystem::path(strPath) / "database");
+                    boost::filesystem::remove_all(boost::filesystem::path(strPath) / "database_div");
             }
         }
     }

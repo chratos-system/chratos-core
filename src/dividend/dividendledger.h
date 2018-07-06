@@ -33,6 +33,8 @@ class CDividendLedger : public CValidationInterface {
 
     void MarkDirty();
 
+    void Flush(bool shutdown);
+
     void SetBestChain(const CBlockLocator &loc);
 
     bool AddToLedgerIfDividend(const CTransaction &tx, const CBlock *pblock,
@@ -77,6 +79,8 @@ class CDividendLedger : public CValidationInterface {
     CAmount GetDividendCredit(const CTxOut& txout) const;
 
     TxItems GetOrdered() const;
+
+    std::string GetLedgerFile() { return strLedgerFile; }
 
   private:
 

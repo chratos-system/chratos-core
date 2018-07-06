@@ -23,7 +23,7 @@ struct CDividendLedgerScanState {
 CDividendLedgerDB::CDividendLedgerDB(const std::string &filename,
                                      const char *pszMode,
                                      bool fFlushOnClose)
-: CDBDiv(filename, pszMode, fFlushOnClose), nLedgerDBUpdated(0) {
+: CDBDiv(filename, pszMode, fFlushOnClose) {
 }
 
 bool CDividendLedgerDB::WriteTx(const CDividendTx &dtx) {
@@ -225,7 +225,72 @@ bool CDividendLedgerDB::ReadBestBlock(CBlockLocator& locator) {
 }
 
 bool CDividendLedgerDB::WriteBestBlock(const CBlockLocator& locator) {
-  nDividendDBUpdated++;
+  nLedgerDBUpdated++;
   Write(std::string("bestblock"), CBlockLocator());
   return Write(std::string("bestblock_nomerkle"), locator);
 }
+
+void ThreadFlushLedgerDB(std::string strFile) {
+    // Make this thread recognisable as the ledger flushing thread
+    RenameThread("chratos-ledger");
+
+    static bool fOneThread;
+    if (fOneThread) {
+      return;
+    }
+    fOneThread = true;
+
+    if (!GetBoolArg("-flushledger", DEFAULT_FLUSHLEDGER)) {
+      return;
+    }
+
+    unsigned int nLastSeen = nLedgerDBUpdated;
+    unsigned int nLastFlushed = nLedgerDBUpdated;
+    int64_t nLastLedgerUpdate = GetTime();
+    while (true)
+    {
+        MilliSleep(500);
+
+        if (nLastSeen != nLedgerDBUpdated)
+        {
+            nLastSeen = nLedgerDBUpdated;
+            nLastLedgerUpdate = GetTime();
+        }
+
+        if (nLastFlushed != nLedgerDBUpdated && GetTime() - nLastLedgerUpdate >= 2)
+        {
+            TRY_LOCK(bitdbdiv.cs_db,lockDb);
+            if (lockDb)
+            {
+                // Don't do this if any databases are in use
+                int nRefCount = 0;
+                std::map<std::string, int>::iterator mi = bitdbdiv.mapFileUseCount.begin();
+                while (mi != bitdbdiv.mapFileUseCount.end())
+                {
+                    nRefCount += (*mi).second;
+                    mi++;
+                }
+
+                if (nRefCount == 0)
+                {
+                    boost::this_thread::interruption_point();
+                    std::map<std::string, int>::iterator mi = bitdbdiv.mapFileUseCount.find(strFile);
+                    if (mi != bitdbdiv.mapFileUseCount.end())
+                    {
+                        LogPrint("db", "Flushing %s\n", strFile);
+                        nLastFlushed = nLedgerDBUpdated;
+                        int64_t nStart = GetTimeMillis();
+
+                        // Flush wallet file so it's self contained
+                        bitdbdiv.CloseDb(strFile);
+                        bitdbdiv.CheckpointLSN(strFile);
+
+                        bitdbdiv.mapFileUseCount.erase(mi++);
+                        LogPrint("db", "Flushed %s %dms\n", strFile, GetTimeMillis() - nStart);
+                    }
+                }
+            }
+        }
+    }
+}
+

@@ -206,6 +206,9 @@ void Shutdown()
     if (pwalletMain)
         pwalletMain->Flush(false);
 #endif
+    if (pledgerMain) {
+      pledgerMain->Flush(false);
+    }
     StopNode();
     StopTorControl();
     UnregisterNodeSignals(GetNodeSignals());
@@ -239,6 +242,10 @@ void Shutdown()
     if (pwalletMain)
         pwalletMain->Flush(true);
 #endif
+
+    if (pledgerMain) {
+      pledgerMain->Flush(true);
+    }
 
 #if ENABLE_ZMQ
     if (pzmqNotificationInterface) {
@@ -1549,6 +1556,9 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         threadGroup.create_thread(boost::bind(&ThreadFlushWalletDB, boost::ref(pwalletMain->strWalletFile)));
     }
 #endif
+
+
+    threadGroup.create_thread(boost::bind(&ThreadFlushLedgerDB, pledgerMain->GetLedgerFile()));
 
     return !fRequestShutdown;
 }
