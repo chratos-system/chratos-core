@@ -164,6 +164,8 @@ public:
 
         vSeeds.emplace_back("", "45.55.56.191");
         vSeeds.emplace_back("", "206.189.179.28");
+        vSeeds.emplace_back("", "80.211.93.114");
+        vSeeds.emplace_back("", "80.211.0.197");
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
 
