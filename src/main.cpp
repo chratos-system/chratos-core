@@ -56,7 +56,7 @@
 using namespace std;
 
 #if defined(NDEBUG)
-# error "Navcoin cannot be compiled without assertions."
+# error "Chratos cannot be compiled without assertions."
 #endif
 
 /**
@@ -3688,7 +3688,9 @@ CBlockIndex* AddToBlockIndex(const CBlockHeader& block)
     // to avoid miners withholding blocks but broadcasting headers, to get a
     // competitive advantage.
     pindexNew->nSequenceId = 0;
-    BlockMap::iterator mi = mapBlockIndex.insert(make_pair(hash, pindexNew)).first;
+    BlockMap::iterator mi = mapBlockIndex.insert(
+      make_pair(hash, pindexNew)
+    ).first;
     pindexNew->phashBlock = &((*mi).first);
     BlockMap::iterator miPrev = mapBlockIndex.find(block.hashPrevBlock);
     if (miPrev != mapBlockIndex.end())
@@ -4195,44 +4197,6 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
             if(block.vtx[0].vout[i].nValue > 0) {
                 if(!isJson)
                     return state.DoS(100, error("CheckBlock() : coinbase output amount greater than 0 for proof-of-stake block. proof of work not allowed."));
-                /*
-                if(metadata[nPaymentRequestsCount].isStr()) {
-                  
-                    // CFund::CPaymentRequest prequest; CFund::CProposal parent;
-                    LogPrintf("strdzeel: %s [%d] = %s\n", block.vtx[0].strDZeel, nPaymentRequestsCount, metadata[nPaymentRequestsCount].get_str());
-                    if(!CFund::FindPaymentRequest(metadata[nPaymentRequestsCount].get_str(), prequest))
-                        return state.DoS(100, error("CheckBlock() : coinbase strdzeel refers wrong payment request hash."));
-                    if(!CFund::FindProposal(prequest.proposalhash, parent))
-                        return state.DoS(100, error("CheckBlock() : coinbase strdzeel payment request does not have parent proposal."));
-                    CTxDestination address;
-                    bool fValidAddress = ExtractDestination(block.vtx[0].vout[i].scriptPubKey, address);
-                    if(!fValidAddress)
-                        return state.DoS(100, error("CheckBlock() : coinbase cant extract destination from scriptpubkey."));
-                    CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
-                    if(pblockindex == NULL) {
-                        continue;
-                    }
-                    if(!(pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)) {
-                        return state.DoS(
-                          100, 
-                          error("CheckBlock() : payment request not mature enough.")
-                        );
-                    }
-                    if(block.vtx[0].vout[i].nValue != prequest.nAmount || prequest.fState != CFund::ACCEPTED || parent.Address != CChratosAddress(address).ToString()) {
-                        return state.DoS(100, error("CheckBlock() : coinbase output does not match an accepted payment request"));
-                    } else {
-                        
-                        prequest.paymenthash = block.GetHash();
-                        std::vector<std::pair<uint256, CFund::CPaymentRequest>> vec;
-                        vec.push_back(make_pair(prequest.hash, prequest));
-                        if(!pblocktree->UpdatePaymentRequestIndex(vec))
-                            return AbortNode(state, "Failed to write payment request index");
-                        
-                    }
-                } else {
-                    return state.DoS(100, error("CheckBlock() : coinbase strdzeel array does not include a payment request hash."));
-                }
-                nPaymentRequestsCount++;*/
             }
         }
     }
@@ -4242,21 +4206,32 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
 
 static bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state, const CChainParams& chainparams, CBlockIndex** ppindex=NULL)
 {
+
     AssertLockHeld(cs_main);
     // Check for duplicate
     uint256 hash = block.GetHash();
+    if (hash.ToString() == "000000068746859658f1ecbdbf89ecd9929ad76a14a0c54dd43eb87531da9796") {
+      printf("HEY HEY HEY HEY\n");
+      printf("Hash: %s\n", hash.ToString().c_str());
+    }
     BlockMap::iterator miSelf = mapBlockIndex.find(hash);
     CBlockIndex *pindex = NULL;
     if (hash != chainparams.GetConsensus().hashGenesisBlock) {
 
         if (miSelf != mapBlockIndex.end()) {
+          if (miSelf->second == nullptr) {
+            mapBlockIndex.erase(hash);
+          } else {
             // Block header is already known.
             pindex = miSelf->second;
-            if (ppindex)
-                *ppindex = pindex;
-            if (pindex && pindex->nStatus & BLOCK_FAILED_MASK)
-                return state.Invalid(error("%s: block %s is marked invalid", __func__, hash.ToString()), 0, "duplicate");
+            if (ppindex) {
+              *ppindex = pindex;
+            }
+            if (pindex && pindex->nStatus & BLOCK_FAILED_MASK) {
+              return state.Invalid(error("%s: block %s is marked invalid", __func__, hash.ToString()), 0, "duplicate");
+            }
             return true;
+          }
         }
 
         if (!CheckBlockHeader(block, state, chainparams.GetConsensus(), false))
@@ -4265,8 +4240,9 @@ static bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state
         // Get prev block index
         CBlockIndex* pindexPrev = NULL;
         BlockMap::iterator mi = mapBlockIndex.find(block.hashPrevBlock);
-        if (mi == mapBlockIndex.end())
+        if (mi == mapBlockIndex.end()) {
             return state.DoS(10, error("%s: prev block not found", __func__), 0, "bad-prevblk");
+        }
         pindexPrev = (*mi).second;
         if (pindexPrev->nStatus & BLOCK_FAILED_MASK)
             return state.DoS(100, error("%s: prev block invalid", __func__), REJECT_INVALID, "bad-prevblk");

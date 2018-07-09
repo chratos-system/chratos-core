@@ -28,11 +28,13 @@ CDividendLedgerDB::CDividendLedgerDB(const std::string &filename,
 
 bool CDividendLedgerDB::WriteTx(const CDividendTx &dtx) {
   nLedgerDBUpdated++;
+  //nWalletDBUpdated++;
   return Write(std::make_pair(std::string("tx"), dtx.GetHash()), dtx);
 }
 
 bool CDividendLedgerDB::EraseTx(uint256 hash) {
   nLedgerDBUpdated++;
+  //nWalletDBUpdated++;
   return Erase(std::make_pair(std::string("tx"), hash));
 }
 
@@ -226,6 +228,7 @@ bool CDividendLedgerDB::ReadBestBlock(CBlockLocator& locator) {
 
 bool CDividendLedgerDB::WriteBestBlock(const CBlockLocator& locator) {
   nLedgerDBUpdated++;
+  //nWalletDBUpdated++;
   Write(std::string("bestblock"), CBlockLocator());
   return Write(std::string("bestblock_nomerkle"), locator);
 }
@@ -292,5 +295,6 @@ void ThreadFlushLedgerDB(std::string strFile) {
             }
         }
     }
+
 }
 
