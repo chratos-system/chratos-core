@@ -56,7 +56,7 @@
 using namespace std;
 
 #if defined(NDEBUG)
-# error "Navcoin cannot be compiled without assertions."
+# error "Chratos cannot be compiled without assertions."
 #endif
 
 /**
@@ -4195,44 +4195,6 @@ bool ContextualCheckBlock(const CBlock& block, CValidationState& state, CBlockIn
             if(block.vtx[0].vout[i].nValue > 0) {
                 if(!isJson)
                     return state.DoS(100, error("CheckBlock() : coinbase output amount greater than 0 for proof-of-stake block. proof of work not allowed."));
-                /*
-                if(metadata[nPaymentRequestsCount].isStr()) {
-                  
-                    // CFund::CPaymentRequest prequest; CFund::CProposal parent;
-                    LogPrintf("strdzeel: %s [%d] = %s\n", block.vtx[0].strDZeel, nPaymentRequestsCount, metadata[nPaymentRequestsCount].get_str());
-                    if(!CFund::FindPaymentRequest(metadata[nPaymentRequestsCount].get_str(), prequest))
-                        return state.DoS(100, error("CheckBlock() : coinbase strdzeel refers wrong payment request hash."));
-                    if(!CFund::FindProposal(prequest.proposalhash, parent))
-                        return state.DoS(100, error("CheckBlock() : coinbase strdzeel payment request does not have parent proposal."));
-                    CTxDestination address;
-                    bool fValidAddress = ExtractDestination(block.vtx[0].vout[i].scriptPubKey, address);
-                    if(!fValidAddress)
-                        return state.DoS(100, error("CheckBlock() : coinbase cant extract destination from scriptpubkey."));
-                    CBlockIndex* pblockindex = mapBlockIndex[prequest.blockhash];
-                    if(pblockindex == NULL) {
-                        continue;
-                    }
-                    if(!(pindexPrev->nHeight - pblockindex->nHeight > Params().GetConsensus().nCommunityFundMinAge)) {
-                        return state.DoS(
-                          100, 
-                          error("CheckBlock() : payment request not mature enough.")
-                        );
-                    }
-                    if(block.vtx[0].vout[i].nValue != prequest.nAmount || prequest.fState != CFund::ACCEPTED || parent.Address != CChratosAddress(address).ToString()) {
-                        return state.DoS(100, error("CheckBlock() : coinbase output does not match an accepted payment request"));
-                    } else {
-                        
-                        prequest.paymenthash = block.GetHash();
-                        std::vector<std::pair<uint256, CFund::CPaymentRequest>> vec;
-                        vec.push_back(make_pair(prequest.hash, prequest));
-                        if(!pblocktree->UpdatePaymentRequestIndex(vec))
-                            return AbortNode(state, "Failed to write payment request index");
-                        
-                    }
-                } else {
-                    return state.DoS(100, error("CheckBlock() : coinbase strdzeel array does not include a payment request hash."));
-                }
-                nPaymentRequestsCount++;*/
             }
         }
     }
