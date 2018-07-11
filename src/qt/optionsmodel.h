@@ -46,7 +46,8 @@ public:
         DatabaseCache,          // int
         SpendZeroConfChange,    // bool
         Listen,                 // bool
-        OptionIDRowCount,
+        ShowNotifications,       // bool
+        OptionIDRowCount
     };
 
     void Init(bool resetSettings = false);
@@ -62,6 +63,7 @@ public:
     bool getHideTrayIcon() { return fHideTrayIcon; }
     bool getMinimizeToTray() { return fMinimizeToTray; }
     bool getMinimizeOnClose() { return fMinimizeOnClose; }
+    bool getShowNotifications() { return fShowNotifications; }
     int getDisplayUnit() { return nDisplayUnit; }
     QString getThirdPartyTxUrls() { return strThirdPartyTxUrls; }
     bool getProxySettings(QNetworkProxy& proxy) const;
@@ -81,6 +83,7 @@ private:
     int nDisplayUnit;
     QString strThirdPartyTxUrls;
     bool fCoinControlFeatures;
+    bool fShowNotifications;
     /* settings that were overriden by command-line */
     QString strOverriddenByCommandLine;
 
@@ -93,6 +96,7 @@ Q_SIGNALS:
     void displayUnitChanged(int unit);
     void coinControlFeaturesChanged(bool);
     void hideTrayIconChanged(bool);
+    void showNotificationsChanged(bool);
 };
 
 #endif // CHRATOS_QT_OPTIONSMODEL_H

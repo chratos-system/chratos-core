@@ -152,6 +152,7 @@ private:
 
     QAction *updatePriceAction;
     bool fShowingVoting;
+    bool fShowNotifications;
 
     /** Create the main UI actions. */
     void createActions();
@@ -210,6 +211,9 @@ public Q_SLOTS:
     /** Show incoming transaction notification for new transactions. */
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label);
     void onCurrencySelection(QAction* action);
+    void dividendReceived(
+      const QString &date, int unit, const CAmount &amount, const QString &type
+    );
 #endif // ENABLE_WALLET
 
 private Q_SLOTS:
@@ -273,6 +277,7 @@ private Q_SLOTS:
 
     /** When hideTrayIcon setting is changed in OptionsModel hide or show the icon accordingly. */
     void setTrayIconVisible(bool);
+    void setShowNotifications(bool);
 };
 
 class UnitDisplayStatusBarControl : public QLabel

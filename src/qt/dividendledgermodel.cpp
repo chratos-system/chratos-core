@@ -39,13 +39,15 @@ std::map<uint256, CDividendTx> DividendLedgerModel::getTransactions() const {
 }
 
 static void NotifyDividendChanged(
-  DividendLedgerModel *model, CDividendLedger *ledger,
-  const uint256 &hash, ChangeType status
+  DividendLedgerModel *model,
+  CDividendLedger *ledger,
+  const uint256 &hash,
+  ChangeType status
 ) {
-  Q_UNUSED(ledger);
-  Q_UNUSED(hash);
-  Q_UNUSED(status);
-  QMetaObject::invokeMethod(model, "updateDividend", Qt::QueuedConnection);
+  QMetaObject::invokeMethod(
+    model, "updateDividend", Qt::QueuedConnection,
+    Q_ARG(uint256, hash), Q_ARG(ChangeType, status)
+  );
 }
 
 void DividendLedgerModel::subscribeToCoreSignals() {
@@ -58,7 +60,9 @@ void DividendLedgerModel::unsubscribeFromCoreSignals() {
   ledger->NotifyDividendChanged.disconnect(boost::bind(NotifyDividendChanged, this, _1, _2, _3));
 }
 
-void DividendLedgerModel::updateDividend() {
+void DividendLedgerModel::updateDividend(
+  const uint256 &hash, const ChangeType &status
+) {
   fForceCheckDividendChanged = true;
 }
 
@@ -76,6 +80,7 @@ void DividendLedgerModel::pollDividendChange() {
       dividendTableModel->updateConfirmations();
     }
   }
+
 }
 
 CDividendLedger *DividendLedgerModel::getLedger() const {

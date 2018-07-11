@@ -39,6 +39,9 @@ class DividendLedgerModel : public QObject {
 
     CAmount getAmountReceived(const CDividendTx &tx) const;
 
+Q_SIGNALS:
+    void incomingDividend(const CDividendTx &, ChangeType);
+  
   private:
 
     CDividendLedger *ledger;
@@ -57,11 +60,14 @@ class DividendLedgerModel : public QObject {
 
     void unsubscribeFromCoreSignals();
 
-    void updateDividend();
+    void updateDividend(
+      const uint256 &hash, const ChangeType &status
+    );
 
     void pollDividendChange();
 
     DividendTableModel *dividendTableModel;
+
 };
 
 #endif

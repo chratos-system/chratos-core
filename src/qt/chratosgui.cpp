@@ -148,8 +148,8 @@ ChratosGUI::ChratosGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     toggleStakingAction(0),
     updatePriceAction(0),
     fShowingVoting(0),
-    platformStyle(platformStyle)
-{
+    fShowNotifications(true),
+    platformStyle(platformStyle) {
     GUIUtil::restoreWindowGeometry("nWindow", QSize(1006, 600), this);
     //setFixedSize(QSize(840, 600));
     QString windowTitle = tr(PACKAGE_NAME) + " - ";
@@ -183,8 +183,7 @@ ChratosGUI::ChratosGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     rpcConsole = new RPCConsole(platformStyle, 0);
     helpMessageDialog = new HelpMessageDialog(this, false);
 #ifdef ENABLE_WALLET
-    if(enableWallet)
-    {
+    if (enableWallet) {
         /** Create wallet frame and make it the central widget */
         walletFrame = new WalletFrame(platformStyle, this);
         setCentralWidget(walletFrame);
@@ -232,8 +231,7 @@ ChratosGUI::ChratosGUI(const PlatformStyle *platformStyle, const NetworkStyle *n
     labelPrice = new QLabel();
     labelConnectionsIcon = new QLabel();
     labelBlocksIcon = new QLabel();
-    if(enableWallet)
-    {
+    if (enableWallet) {
         frameBlocksLayout->addStretch();
         frameBlocksLayout->addWidget(labelStakingIcon);
         frameBlocksLayout->addStretch();
@@ -701,6 +699,15 @@ void ChratosGUI::setClientModel(ClientModel *clientModel)
 
             // initialize the disable state of the tray icon with the current value in the model.
             setTrayIconVisible(optionsModel->getHideTrayIcon());
+
+            connect(
+                optionsModel,
+                SIGNAL(showNotificationsChanged(bool)),
+                this,
+                SLOT(setShowNotifications(bool)));
+
+            setShowNotifications(optionsModel->getShowNotifications());
+
         }
     } else {
         // Disable possibility to show main window via action
@@ -1292,9 +1299,9 @@ void ChratosGUI::message(const QString &title, const QString &message, unsigned 
         int r = mBox.exec();
         if (ret != NULL)
             *ret = r == QMessageBox::Ok;
+    } else if (fShowNotifications) {
+      notificator->notify((Notificator::Class)nNotifyIcon, strTitle, message);
     }
-    else
-        notificator->notify((Notificator::Class)nNotifyIcon, strTitle, message);
 }
 
 void ChratosGUI::changeEvent(QEvent *e)
@@ -1357,6 +1364,17 @@ void ChratosGUI::incomingTransaction(const QString& date, int unit, const CAmoun
              msg, CClientUIInterface::MSG_INFORMATION);
 }
 #endif // ENABLE_WALLET
+
+void ChratosGUI::dividendReceived(
+  const QString &date, int unit, const CAmount &amount, const QString &type
+) {
+  QString msg = tr("Date: %1\n").arg(date) +
+    tr("Amount: %1\n").arg(ChratosUnits::formatWithUnit(unit, amount, true)) +
+    tr("Type: Dividend\n");
+
+  message(tr("Dividend Received"), msg, CClientUIInterface::MSG_INFORMATION);
+
+}
 
 void ChratosGUI::dragEnterEvent(QDragEnterEvent *event)
 {
@@ -1524,6 +1542,10 @@ void ChratosGUI::setTrayIconVisible(bool fHideTrayIcon)
     {
         trayIcon->setVisible(!fHideTrayIcon);
     }
+}
+
+void ChratosGUI::setShowNotifications(bool show) {
+  fShowNotifications = show;
 }
 
 static bool ThreadSafeMessageBox(ChratosGUI *gui, const std::string& message, const std::string& caption, unsigned int style)
