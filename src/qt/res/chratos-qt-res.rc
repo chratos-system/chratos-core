@@ -19,8 +19,8 @@ BEGIN
     BEGIN
         BLOCK "040904E4" // U.S. English - multilingual (hex)
         BEGIN
-            VALUE "CompanyName",        "MB8Coin"
-            VALUE "FileDescription",    PACKAGE_NAME " (GUI node for MB8Coin)"
+            VALUE "CompanyName",        "Chratos"
+            VALUE "FileDescription",    PACKAGE_NAME " (GUI node for Chratos)"
             VALUE "FileVersion",        VER_FILEVERSION_STR
             VALUE "InternalName",       "chratos-qt"
             VALUE "LegalCopyright",     COPYRIGHT_STR

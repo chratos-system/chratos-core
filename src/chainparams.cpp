@@ -162,10 +162,7 @@ public:
         vFixedSeeds.clear();
       	vSeeds.clear();
 
-        vSeeds.emplace_back("A", "45.55.56.191");
-        vSeeds.emplace_back("B", "206.189.179.28");
-        vSeeds.emplace_back("C", "80.211.93.114");
-        vSeeds.emplace_back("D", "80.211.0.197");
+        vSeeds.emplace_back("vidaru", "chratos.vidaru.org");
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
 
