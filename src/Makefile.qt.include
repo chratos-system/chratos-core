@@ -355,7 +355,6 @@ CHRATOS_QT_CPP += \
 	qt/dividendledgermodel.cpp \
 	qt/dividendview.cpp \
   qt/editaddressdialog.cpp \
-	qt/ledgermodel.cpp \
   qt/openuridialog.cpp \
   qt/overviewpage.cpp \
   qt/paymentrequestplus.cpp \

@@ -10,6 +10,9 @@
 #include "dividendtablemodel.h"
 #include "walletmodel.h"
 #include "wallet/wallet.h"
+#include "optionsmodel.h"
+#include "chratosgui.h"
+#include "guiutil.h"
 
 DividendLedgerModel::DividendLedgerModel(
   const PlatformStyle *platformStyle,
@@ -64,6 +67,17 @@ void DividendLedgerModel::updateDividend(
   const uint256 &hash, const ChangeType &status
 ) {
   fForceCheckDividendChanged = true;
+  auto mi = ledger->GetMapLedger().find(hash);
+  
+  if (status == ChangeType::CT_NEW && mi != ledger->GetMapLedger().end()) {
+    auto tx = (*mi).second;
+    QString date = GUIUtil::dateTimeStr(tx.GetBlockTime());
+
+    auto unit = optionsModel->getDisplayUnit();
+    auto amount = walletModel->getWallet()->GetCreditFromDividend(tx);
+    Q_EMIT incomingDividend(date, unit, amount);
+  }
+
 }
 
 void DividendLedgerModel::pollDividendChange() {
@@ -80,7 +94,6 @@ void DividendLedgerModel::pollDividendChange() {
       dividendTableModel->updateConfirmations();
     }
   }
-
 }
 
 CDividendLedger *DividendLedgerModel::getLedger() const {
@@ -98,5 +111,15 @@ CAmount DividendLedgerModel::getAmountReceived(const CDividendTx &tx) const {
     return this->walletModel->getWallet()->GetCreditFromDividend(tx);
   } else {
     return 0;
+  }
+}
+
+void DividendLedgerModel::setChratosGUI(ChratosGUI *gui) {
+  if (gui) {
+    connect(this,
+      SIGNAL(incomingDividend(const QString &, int, const CAmount &)),
+      gui,
+      SLOT(dividendReceived(const QString &, int, const CAmount &))
+    );
   }
 }

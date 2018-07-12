@@ -98,8 +98,7 @@ WalletView::~WalletView()
 
 void WalletView::setChratosGUI(ChratosGUI *gui)
 {
-    if (gui)
-    {
+    if (gui) {
         // Clicking on a transaction on the overview page simply sends you to transaction history page
         connect(overviewPage, SIGNAL(transactionClicked(QModelIndex)), gui, SLOT(gotoHistoryPage()));
 

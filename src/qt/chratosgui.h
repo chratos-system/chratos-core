@@ -10,6 +10,7 @@
 #endif
 
 #include "amount.h"
+#include "ui_interface.h"
 
 #include <QLabel>
 #include <QMainWindow>
@@ -38,6 +39,7 @@ class DividendLedgerModel;
 class HelpMessageDialog;
 
 class CWallet;
+class CDividendTx;
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -212,7 +214,7 @@ public Q_SLOTS:
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label);
     void onCurrencySelection(QAction* action);
     void dividendReceived(
-      const QString &date, int unit, const CAmount &amount, const QString &type
+      const QString &date, int unit, const CAmount &amount
     );
 #endif // ENABLE_WALLET
 
@@ -259,6 +261,7 @@ private Q_SLOTS:
     void showHelpMessageClicked();
     /** Toggle Staking **/
     void toggleStaking();
+
 #ifndef Q_OS_MAC
     /** Handle tray icon clicked */
     void trayIconActivated(QSystemTrayIcon::ActivationReason reason);

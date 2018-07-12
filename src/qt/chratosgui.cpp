@@ -22,6 +22,7 @@
 #include "utilitydialog.h"
 #include "walletmodel.h"
 #include "wallet/rpcwallet.h"
+#include "dividendledgermodel.h"
 
 #ifdef ENABLE_WALLET
 #include "walletframe.h"
@@ -776,11 +777,11 @@ bool ChratosGUI::setLedger(DividendLedgerModel *ledgerModel) {
     return false;
   }
 
+  ledgerModel->setChratosGUI(this);
   return walletFrame->setLedger(ledgerModel);
 }
 
-void ChratosGUI::setWalletActionsEnabled(bool enabled)
-{
+void ChratosGUI::setWalletActionsEnabled(bool enabled) {
     overviewAction->setEnabled(enabled);
     sendCoinsAction->setEnabled(enabled);
     sendCoinsMenuAction->setEnabled(enabled);
@@ -1366,7 +1367,7 @@ void ChratosGUI::incomingTransaction(const QString& date, int unit, const CAmoun
 #endif // ENABLE_WALLET
 
 void ChratosGUI::dividendReceived(
-  const QString &date, int unit, const CAmount &amount, const QString &type
+  const QString &date, int unit, const CAmount &amount
 ) {
   QString msg = tr("Date: %1\n").arg(date) +
     tr("Amount: %1\n").arg(ChratosUnits::formatWithUnit(unit, amount, true)) +

@@ -14,8 +14,12 @@ class DividendTableModel;
 class PlatformStyle;
 class WalletModel;
 class CDividendTx;
+class ChratosGUI;
 
 class DividendLedgerModel : public QObject {
+  
+  Q_OBJECT
+
   public:
     explicit DividendLedgerModel(
       const PlatformStyle *platformStyle,
@@ -39,8 +43,10 @@ class DividendLedgerModel : public QObject {
 
     CAmount getAmountReceived(const CDividendTx &tx) const;
 
+    void setChratosGUI(ChratosGUI *gui);
+
 Q_SIGNALS:
-    void incomingDividend(const CDividendTx &, ChangeType);
+    void incomingDividend(const QString &, int, const CAmount &);
   
   private:
 
