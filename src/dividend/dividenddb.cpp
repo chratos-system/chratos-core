@@ -8,6 +8,8 @@
 #include "consensus/validation.h"
 #include "main.h"
 
+#include <boost/thread.hpp>
+
 struct CDividendLedgerScanState {
     bool fAnyUnordered;
     int nFileVersion;
