@@ -359,6 +359,10 @@ static void SendMoney(const CTxDestination &address, CAmount nValue, bool fSubtr
     CScript scriptPubKey = GetScriptForDestination(address);
 
     if (dividend) {
+      if (!GetBoolArg("-txindex", DEFAULT_TXINDEX)) {
+        throw JSONRPCError(RPC_DIVIDEND_TX_NOT_INDEXED, "Please restart with -txindex in order to pay out dividends");
+        return;
+      }
       CDividend::SetScriptForDividendContribution(scriptPubKey);
     }
 
