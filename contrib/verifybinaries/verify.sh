@@ -1,6 +1,6 @@
 #!/bin/bash
 
-###   This script attempts to download the signature file SHA256SUMS.asc from chratos.org
+###   This script attempts to download the signature file SHA256SUMS.asc from chratos.io
 ###   It first checks if the signature passes, and then downloads the files specified in
 ###   the file, and checks if the hashes of these files match those that are specified
 ###   in the signature file.
@@ -19,7 +19,7 @@ TMPFILE="hashes.tmp"
 
 SIGNATUREFILENAME="SHA256SUMS.asc"
 RCSUBDIR="test/"
-BASEDIR="https://chratos.org/bin/"
+BASEDIR="https://chratos.io/bin/"
 VERSIONPREFIX="chratos-core-"
 RCVERSIONSTRING="rc"
 

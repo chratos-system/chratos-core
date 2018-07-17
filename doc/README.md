@@ -3,7 +3,7 @@ Chratos Core 0.13.0
 
 Setup
 ---------------------
-[Chratos Core](http://chratos.org/en/download) is the original Chratos client and it builds the backbone of the network. However, it downloads and stores the entire history of Chratos transactions (which is currently several GBs); depending on the speed of your computer and network connection, the synchronization process can take anywhere from a few hours to a day or more.
+[Chratos Core](http://chratos.io/en/download) is the original Chratos client and it builds the backbone of the network. However, it downloads and stores the entire history of Chratos transactions (which is currently several GBs); depending on the speed of your computer and network connection, the synchronization process can take anywhere from a few hours to a day or more.
 
 Running
 ---------------------

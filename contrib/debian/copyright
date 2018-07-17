@@ -7,7 +7,7 @@ Source: https://github.com/chratos/chratos
 Files: *
 Copyright: 2009-2016, Bitcoin Core Developers
 License: Expat
-Comment: The Chratos Core Developers encompasses the current developers listed on chratos.org,
+Comment: The Chratos Core Developers encompasses the current developers listed on chratos.io,
          as well as the numerous contributors to the project.
 
 Files: debian/*

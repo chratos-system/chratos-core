@@ -57,10 +57,10 @@ bool static TestSplitHost(string test, string host, int port)
 
 BOOST_AUTO_TEST_CASE(netbase_splithost)
 {
-    BOOST_CHECK(TestSplitHost("www.chratos.org", "www.chratos.org", -1));
-    BOOST_CHECK(TestSplitHost("[www.chratos.org]", "www.chratos.org", -1));
-    BOOST_CHECK(TestSplitHost("www.chratos.org:80", "www.chratos.org", 80));
-    BOOST_CHECK(TestSplitHost("[www.chratos.org]:80", "www.chratos.org", 80));
+    BOOST_CHECK(TestSplitHost("www.chratos.io", "www.chratos.io", -1));
+    BOOST_CHECK(TestSplitHost("[www.chratos.io]", "www.chratos.io", -1));
+    BOOST_CHECK(TestSplitHost("www.chratos.io:80", "www.chratos.io", 80));
+    BOOST_CHECK(TestSplitHost("[www.chratos.io]:80", "www.chratos.io", 80));
     BOOST_CHECK(TestSplitHost("127.0.0.1", "127.0.0.1", -1));
     BOOST_CHECK(TestSplitHost("127.0.0.1:5556", "127.0.0.1", 8333));
     BOOST_CHECK(TestSplitHost("[127.0.0.1]", "127.0.0.1", -1));

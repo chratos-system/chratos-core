@@ -86,6 +86,16 @@ int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees, CBlo
 
     // TODO - Add in halving schedule.
 
+    if (nHeight > 100 && nHeight <= 986175) {
+      nRewardCoinBlock = 12;
+    } else if (nHeight > 986175 && nHeight <= 1972350) {
+      nRewardCoinBlock = 6;
+    } else if (nHeight > 1972350 && nHeight <= 3944700) {
+      nRewardCoinBlock = 3;
+    } else {
+      nRewardCoinBlock = 0;
+    }
+
     int64_t nSubsidy = nRewardCoinBlock * COIN;
 
     return  nSubsidy + nFees;

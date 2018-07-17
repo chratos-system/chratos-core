@@ -20,8 +20,8 @@ Summary:	Peer to Peer Cryptographic Currency
 
 Group:		Applications/System
 License:	MIT
-URL:		https://chratos.org/
-Source0:	https://chratos.org/bin/chratos-core-%{version}/chratos-%{version}.tar.gz
+URL:		https://chratos.io/
+Source0:	https://chratos.io/bin/chratos-core-%{version}/chratos-%{version}.tar.gz
 Source1:	http://download.oracle.com/berkeley-db/db-%{bdbv}.NC.tar.gz
 
 Source10:	https://raw.githubusercontent.com/chratos/chratos/v%{version}/contrib/debian/examples/chratos.conf

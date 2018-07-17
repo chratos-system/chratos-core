@@ -1224,7 +1224,7 @@ void ChratosGUI::showVotingDialog()
 
     QMessageBox msgBox;
     msgBox.setText(tr("Important network notice."));
-    msgBox.setInformativeText(tr("The Nav Coin Network is currently voting on introducing changes on the consensus protocol. As a participant in our network, we value your input and the decision ultimately is yours. Please cast your vote. <br><br>For more information on the proposal, please visit <a href=\"https://chratos.org/community-fund\">this link</a><br><br>Would you like the Nav Coin Network to update the staking rewards to setup a decentralised community fund that will help grow the network?"));
+    msgBox.setInformativeText(tr("The Nav Coin Network is currently voting on introducing changes on the consensus protocol. As a participant in our network, we value your input and the decision ultimately is yours. Please cast your vote. <br><br>For more information on the proposal, please visit <a href=\"https://chratos.io/community-fund\">this link</a><br><br>Would you like the Nav Coin Network to update the staking rewards to setup a decentralised community fund that will help grow the network?"));
     QAbstractButton *myYesButton = msgBox.addButton(tr("Yes"), QMessageBox::YesRole);
     msgBox.addButton(trUtf8("No"), QMessageBox::NoRole);
     msgBox.setIcon(QMessageBox::Question);
@@ -1812,7 +1812,7 @@ void ChratosGUI::getVotingInfo()
     QSslConfiguration config = QSslConfiguration::defaultConfiguration();
     config.setProtocol(QSsl::TlsV1_2);
     request.setSslConfiguration(config);
-    request.setUrl(QUrl(QString("https://www.chratos.org/voting.") + QString((GetBoolArg("-testnet",false) ? "testnet." : "mainnet.")) + QString("json")));
+    request.setUrl(QUrl(QString("https://www.chratos.io/voting.") + QString((GetBoolArg("-testnet",false) ? "testnet." : "mainnet.")) + QString("json")));
     request.setHeader(QNetworkRequest::ServerHeader, "application/json");
     reply = manager->get(request);
     connect(manager, SIGNAL(finished(QNetworkReply*)), this,

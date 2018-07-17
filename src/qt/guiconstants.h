@@ -55,7 +55,7 @@ static const int MAX_URI_LENGTH = 255;
 #define SPINNER_FRAMES 36
 
 #define QAPP_ORG_NAME "Chratos"
-#define QAPP_ORG_DOMAIN "chratos.org"
+#define QAPP_ORG_DOMAIN "chratos.io"
 #define QAPP_APP_NAME_DEFAULT "Chratos-Qt"
 #define QAPP_APP_NAME_TESTNET "Chratos-Qt-testnet"
 

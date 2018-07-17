@@ -1805,10 +1805,9 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
 
-    if (nHeight < 500)
-    {
+    if (nHeight <= 100) {
         // Premine amount of 10,000
-        CAmount nSubsidy = (1e4 / 500) * COIN;
+        CAmount nSubsidy = (7889400 / 100) * COIN;
         return nSubsidy;
     }
 

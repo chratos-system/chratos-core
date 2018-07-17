@@ -1,6 +1,6 @@
 Chratos Core version 0.13.0 is now available from:
 
-  <https://chratos.org/bin/chratos-core-0.13.0/>
+  <https://chratos.io/bin/chratos-core-0.13.0/>
 
 This is a new major version release, including new features, various bugfixes
 and performance improvements, as well as updated translations.

@@ -3105,7 +3105,7 @@ UniValue resolveopenalias(const JSONRPCRequest &request)
           "1. \"address\"    (string) The OpenAlias address.\n"
           "\nExamples:\n"
           "\nGet information about an OpenAlias address\n"
-          + HelpExampleCli("resolveopenalias", "\"donate@chratos.org\"")
+          + HelpExampleCli("resolveopenalias", "\"donate@chratos.io\"")
       );
 
   std::vector<std::string> addresses = utils::dns_utils::addresses_from_url(address, dnssec_valid);
