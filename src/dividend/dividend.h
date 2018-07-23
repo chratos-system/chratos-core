@@ -12,7 +12,10 @@
 
 class CDividend {
   public:
+    static constexpr double DIVIDEND_THRESHOLD = 0.0001;
     static void SetScriptForDividendContribution(CScript &script);
+    static CAmount GetDividendFundAt(int blockHeight);
+    static CAmount GetCurrentDividendFund();
     static CAmount GetDividendPayout(CAmount amount, int blockHeight);
     static CAmount GetTotalWithDividend(CAmount amount, int blockHeight);
     static CAmount GetDividendPayoutUntil(

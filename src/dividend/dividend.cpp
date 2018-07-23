@@ -22,6 +22,30 @@ CAmount CDividend::GetDividendPayout(CAmount amount, int blockHeight) {
   }
 }
 
+CAmount CDividend::GetDividendFundAt(int blockHeight) {
+  auto dividends = pledgerMain->GetOrdered();
+
+  std::vector<CDividendTx> fundTxs;
+  
+  for (auto &it : dividends) {
+    auto dividend = *(it.second);
+    if (dividend.GetHeight() <= blockHeight) {
+      fundTxs.push_back(dividend);
+    }
+  }
+
+  CAmount total;
+  for (auto &it : fundTxs) {
+    total += it.GetDividendCredit();
+  }
+
+  return total;
+}
+
+CAmount CDividend::GetCurrentDividendFund() {
+  return CDividend::GetDividendFundAt(chainActive.Height());
+}
+
 CAmount CDividend::GetTotalWithDividend(CAmount amount, int blockHeight) {
 
   arith_uint256 bigAmount = arith_uint256(amount);
@@ -47,7 +71,7 @@ CAmount CDividend::GetTotalWithDividend(CAmount amount, int blockHeight) {
 
   auto total = bigAmount.GetLow64();
 
-  return total;
+  return amount;//total;
 }
 
 CAmount CDividend::GetDividendPayoutUntil(
@@ -78,6 +102,6 @@ CAmount CDividend::GetDividendPayoutUntil(
 
   auto total = bigAmount.GetLow64();
 
-  return total;
+  return amount;//total;
 
 }
