@@ -162,7 +162,7 @@ public:
         vFixedSeeds.clear();
       	vSeeds.clear();
 
-        vSeeds.emplace_back("vidaru", "chratos.vidaru.org");
+        vSeeds.emplace_back("vidaru", "chratos.seeds.vidaru.org");
 
         vFixedSeeds = std::vector<SeedSpec6>(pnSeed6_main, pnSeed6_main + ARRAYLEN(pnSeed6_main));
 
