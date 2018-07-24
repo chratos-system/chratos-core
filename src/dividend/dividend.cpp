@@ -22,10 +22,19 @@ CAmount CDividend::GetDividendPayout(CAmount amount, int blockHeight) {
   }
 }
 
-CAmount CDividend::GetDividendFundAt(int blockHeight) {
-  auto dividends = pledgerMain->GetOrdered();
+bool CDividend::ExceedsThresholdAt(const CDividendTx &tx, int blockHeight) {
+  if (tx.GetPayoutModifier() > CDividend::DIVIDEND_THRESHOLD) {
+    return true;
+  }
 
+  return false;
+}
+
+CAmount CDividend::GetDividendFundAt(int blockHeight) {
+
+  CAmount total = 0;
   std::vector<CDividendTx> fundTxs;
+  auto dividends = pledgerMain->GetOrdered();
   
   for (auto &it : dividends) {
     auto dividend = *(it.second);
@@ -34,9 +43,10 @@ CAmount CDividend::GetDividendFundAt(int blockHeight) {
     }
   }
 
-  CAmount total;
   for (auto &it : fundTxs) {
-    total += it.GetDividendCredit();
+    if (!CDividend::ExceedsThresholdAt(it, blockHeight)) {
+      total += it.GetDividendCredit();
+    }
   }
 
   return total;

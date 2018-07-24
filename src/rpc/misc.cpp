@@ -19,6 +19,7 @@
 #include "wallet/wallet.h"
 #include "wallet/walletdb.h"
 #endif
+#include "dividend/dividend.h"
 
 #include <stdint.h>
 
@@ -97,7 +98,10 @@ UniValue getinfo(const JSONRPCRequest &request)
 
     obj.push_back(Pair("moneysupply", ValueFromAmount(pindexBestHeader->nMoneySupply)));
     UniValue cf(UniValue::VOBJ);
-    cf.push_back(Pair("totalfund", ValueFromAmount(pindexBestHeader->nDividendFund)));
+    cf.push_back(Pair("totalpaid", ValueFromAmount(pindexBestHeader->nDividendFund)));
+    cf.push_back(
+      Pair("currentfund",ValueFromAmount(CDividend::GetCurrentDividendFund()))
+    );
     obj.push_back(Pair("dividends", cf));
 
     obj.push_back(Pair("timeoffset",    GetTimeOffset()));
