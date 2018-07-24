@@ -104,9 +104,13 @@ bool CDividendLedger::AddToLedger(const CDividendTx &dtxIn,
     bool fInsertedNew = ret.second;
 
     if (fInsertedNew) {
-      int64_t blocktime = mapBlockIndex[dtxIn.hashBlock]->GetBlockTime();
-      dtx.SetBlockTime(blocktime);
-      dtxOrdered.insert(std::make_pair(dtx.GetBlockTime(), &dtx));
+      BlockMap::iterator mi = mapBlockIndex.find(dtxIn.hashBlock);
+
+      if (mi != mapBlockIndex.end()) {
+        int64_t blocktime = (*mi).second->GetBlockTime();
+        dtx.SetBlockTime(blocktime);
+        dtxOrdered.insert(std::make_pair(dtx.GetBlockTime(), &dtx));
+      }
     }
 
     bool fUpdated = false;

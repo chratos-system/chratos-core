@@ -82,5 +82,10 @@ double CDividendTx::GetPayoutModifier() const {
 }
 
 CBlockIndex *CDividendTx::GetBlock() const {
-  return mapBlockIndex[hashBlock];
+  BlockMap::iterator mi = mapBlockIndex.find(hashBlock);
+  if (mi == mapBlockIndex.end()) {
+    return nullptr;
+  } else {
+    return (*mi).second;
+  }
 }
