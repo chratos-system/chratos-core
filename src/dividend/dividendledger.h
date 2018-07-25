@@ -18,6 +18,8 @@
 #include "main.h"
 #include "ui_interface.h"
 
+#include <limits>
+
 extern CDividendLedger *pledgerMain;
 
 
@@ -48,6 +50,13 @@ class CDividendLedger : public CValidationInterface {
 
     int ScanForDividendTransactions(CBlockIndex* pindexStart,
                                     bool fUpdate = false);
+
+    std::vector<CDividendTx> GetPayoutsBefore(const CDividendTx &dtxIn) const;
+
+    std::vector<CDividendTx> GetPayoutsAfter(
+      const CDividendTx &dtxIn,
+      const int untilHeight = INT_MAX
+    ) const;
 
     CAmount GetBalance() const;
 

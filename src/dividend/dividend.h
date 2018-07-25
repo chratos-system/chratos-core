@@ -21,7 +21,17 @@ class CDividend {
     static CAmount GetDividendPayoutUntil(
       CAmount amount, int blockHeight, int untilHeight
     );
-    static bool ExceedsThresholdAt(const CDividendTx &tx, int blockHeight);
+    static bool ExceedsThresholdAt(
+      const CDividendTx &tx, const int blockHeight
+    );
+
+  private:
+    static bool ExceedsThreshold(const CDividendTx &tx);
+    static bool ExceedsThresholdWithPriors(const CDividendTx &tx);
+    static bool ExceedsThresholdWithSubsequents(
+      const CDividend &tx,
+      const int blockHeight
+    );
 };
 
 #endif

@@ -98,7 +98,7 @@ UniValue getinfo(const JSONRPCRequest &request)
 
     obj.push_back(Pair("moneysupply", ValueFromAmount(pindexBestHeader->nMoneySupply)));
     UniValue cf(UniValue::VOBJ);
-    cf.push_back(Pair("totalpaid", ValueFromAmount(pindexBestHeader->nDividendFund)));
+    cf.push_back(Pair("totalfunded", ValueFromAmount(pindexBestHeader->nDividendFund)));
     cf.push_back(
       Pair("currentfund",ValueFromAmount(CDividend::GetCurrentDividendFund()))
     );

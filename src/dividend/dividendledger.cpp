@@ -12,6 +12,9 @@
 #include "base58.h"
 #include "checkpoints.h"
 
+#include <algorithm>
+#include <limits>
+
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
@@ -183,6 +186,47 @@ int CDividendLedger::ScanForDividendTransactions(CBlockIndex* pindexStart,
   }
 
   return ret;
+}
+
+std::vector<CDividendTx> CDividendLedger::GetPayoutsBefore(
+  const CDividendTx &dtxIn
+) const {
+
+  std::vector<CDividendTx> dividends;
+
+  for (auto &kv : mapLedger) {
+    auto tx = kv.second;
+    if (tx.GetHeight() < dtxIn.GetHeight()) {
+      dividends.push_back(tx);
+    }
+  }
+
+  std::sort(
+    dividends.begin(), dividends.end(), 
+    [](const CDividendTx &a, const CDividendTx &b) -> bool {
+      return a.GetHeight() < b.GetHeight();
+  });
+
+  return dividends;
+}
+
+std::vector<CDividendTx> CDividendLedger::GetPayoutsAfter(
+  const CDividendTx &dtxIn,
+  const int untilHeight
+) const {
+  
+  std::vector<CDividendTx> dividends;
+
+  for (auto &kv : mapLedger) {
+    auto tx = kv.second;
+    const auto height = tx.GetHeight();
+    if (height > dtxIn.GetHeight() && height < untilHeight) {
+      dividends.push_back(tx);
+    }
+  }
+
+  return dividends;
+
 }
 
 CAmount CDividendLedger::GetBalance() const {
