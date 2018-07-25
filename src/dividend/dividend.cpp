@@ -47,7 +47,7 @@ bool CDividend::ExceedsThresholdWithPriors(const CDividendTx &tx) {
 }
 
 bool CDividend::ExceedsThresholdWithSubsequents(
-  const CDividend &tx,
+  const CDividendTx &tx,
   const int blockHeight
 ) {
 
@@ -55,8 +55,7 @@ bool CDividend::ExceedsThresholdWithSubsequents(
   std::vector<CDividendTx> unpaids;
 
   for (auto &dtx : laters) {
-    if (ExceedsThreshold(dtx)) { break; }
-    if (ExceedsThresholdWithPriors(tx)) { 
+    if (ExceedsThreshold(dtx) || ExceedsThresholdWithPriors(tx)) { 
       return true;
     }
   }
@@ -64,7 +63,10 @@ bool CDividend::ExceedsThresholdWithSubsequents(
   return false;
 }
 
-bool CDividend::ExceedsThresholdAt(const CDividendTx &tx, int blockHeight) {
+bool CDividend::ExceedsThresholdAt(
+  const CDividendTx &tx,
+  const int blockHeight
+) {
   if (ExceedsThreshold(tx)) {
     return true;
   } else if (ExceedsThresholdWithPriors(tx)) {

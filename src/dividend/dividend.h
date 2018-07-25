@@ -29,7 +29,7 @@ class CDividend {
     static bool ExceedsThreshold(const CDividendTx &tx);
     static bool ExceedsThresholdWithPriors(const CDividendTx &tx);
     static bool ExceedsThresholdWithSubsequents(
-      const CDividend &tx,
+      const CDividendTx &tx,
       const int blockHeight
     );
 };
