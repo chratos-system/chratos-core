@@ -371,6 +371,8 @@ CAmount CDividendLedger::GetDividendCredit(const CTxOut& txout) const {
 
 std::vector<CDividendTx> CDividendLedger::GetOrdered() const {
 
+  LOCK(cs_ledger);
+
   std::vector<CDividendTx> dtxs;
   for (auto &it : dtxOrdered) {
     dtxs.push_back(*(it.second));

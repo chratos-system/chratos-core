@@ -1805,14 +1805,14 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
 
+  CAmount nSubsidy = 12 * COIN;
+
     if (nHeight <= 100) {
         // Premine amount of 10,000
         CAmount nSubsidy = (7889400 / 100) * COIN;
         return nSubsidy;
     }
 
-    // Only 1 coin after premine until start of Proof of stake.
-    CAmount nSubsidy = 1 * COIN;
     return nSubsidy;
 }
 
@@ -2878,6 +2878,10 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 
         if (tx.IsCoinBase()) {
           pindex->nMoneySupply += tx.GetValueOut();
+        } else if (tx.IsCoinStake()) {
+          pindex->nMoneySupply += GetProofOfStakeReward(
+            pindex->nHeight, 0, 0
+          );
         }
 
         BOOST_FOREACH(const CTxOut& vout, tx.vout) {

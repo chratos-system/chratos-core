@@ -109,7 +109,7 @@ UniValue dividendlisttransactions(const JSONRPCRequest &request) {
    );
   }
 
-  LOCK2(cs_main, pledgerMain->cs_ledger);
+  LOCK(cs_main);
 
   int nCount = 10;
   if (request.params.size() > 0) {
