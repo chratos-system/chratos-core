@@ -52,6 +52,7 @@ bool CDividend::ExceedsThresholdWithSubsequents(
 ) {
 
   auto laters = pledgerMain->GetPayoutsAfter(tx, blockHeight);
+
   std::vector<CDividendTx> unpaids;
 
   for (auto &dtx : laters) {

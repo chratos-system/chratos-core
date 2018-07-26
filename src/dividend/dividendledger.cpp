@@ -196,7 +196,8 @@ std::vector<CDividendTx> CDividendLedger::GetPayoutsBefore(
 
   for (auto &kv : mapLedger) {
     auto tx = kv.second;
-    if (tx.GetHeight() < dtxIn.GetHeight()) {
+    if (tx.GetHeight() <= dtxIn.GetHeight() &&
+      dtxIn.GetHash() != tx.GetHash()) {
       dividends.push_back(tx);
     }
   }
@@ -220,7 +221,8 @@ std::vector<CDividendTx> CDividendLedger::GetPayoutsAfter(
   for (auto &kv : mapLedger) {
     auto tx = kv.second;
     const auto height = tx.GetHeight();
-    if (height > dtxIn.GetHeight() && height < untilHeight) {
+    if (height >= dtxIn.GetHeight() && height < untilHeight &&
+        dtxIn.GetHash() != tx.GetHash()) {
       dividends.push_back(tx);
     }
   }
