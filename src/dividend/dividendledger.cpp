@@ -99,7 +99,7 @@ bool CDividendLedger::AddToLedger(const CDividendTx &dtxIn,
   if (fFromLoadLedger) {
     mapLedger[hash] = dtxIn;
     CDividendTx &dtx = mapLedger[hash];
-    dtxOrdered.insert(std::make_pair(dtx.GetBlockTime(), &dtx));
+    dtxOrdered.insert(std::make_pair(dtx.GetHash(), &dtx));
   } else {
     LOCK(cs_ledger);
     auto ret = mapLedger.insert(std::make_pair(hash, dtxIn));
@@ -112,7 +112,7 @@ bool CDividendLedger::AddToLedger(const CDividendTx &dtxIn,
       if (mi != mapBlockIndex.end()) {
         int64_t blocktime = (*mi).second->GetBlockTime();
         dtx.SetBlockTime(blocktime);
-        dtxOrdered.insert(std::make_pair(dtx.GetBlockTime(), &dtx));
+        dtxOrdered.insert(std::make_pair(dtx.GetHash(), &dtx));
       }
     }
 
@@ -189,7 +189,8 @@ int CDividendLedger::ScanForDividendTransactions(CBlockIndex* pindexStart,
 }
 
 std::vector<CDividendTx> CDividendLedger::GetPayoutsBefore(
-  const CDividendTx &dtxIn
+  const CDividendTx &dtxIn,
+  const int untilHeight
 ) const {
 
   std::vector<CDividendTx> dividends;
@@ -197,6 +198,7 @@ std::vector<CDividendTx> CDividendLedger::GetPayoutsBefore(
   for (auto &kv : mapLedger) {
     auto tx = kv.second;
     if (tx.GetHeight() <= dtxIn.GetHeight() &&
+      tx.GetHeight() > untilHeight &&
       dtxIn.GetHash() != tx.GetHash()) {
       dividends.push_back(tx);
     }
@@ -367,8 +369,20 @@ CAmount CDividendLedger::GetDividendCredit(const CTxOut& txout) const {
   return (IsDividend(txout) ? txout.nValue : 0);
 }
 
-CDividendLedger::TxItems CDividendLedger::GetOrdered() const {
-  return dtxOrdered;
+std::vector<CDividendTx> CDividendLedger::GetOrdered() const {
+
+  std::vector<CDividendTx> dtxs;
+  for (auto &it : dtxOrdered) {
+    dtxs.push_back(*(it.second));
+  }
+  std::sort(
+    dtxs.begin(), dtxs.end(), 
+    [](const CDividendTx &a, const CDividendTx &b) -> bool {
+      return a.GetHeight() < b.GetHeight();
+    }
+  );
+
+  return dtxs;
 }
 
 void CDividendLedger::Flush(bool shutdown) {

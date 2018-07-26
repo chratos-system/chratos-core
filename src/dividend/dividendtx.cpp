@@ -75,10 +75,7 @@ void CDividendTx::SetBlockTime(int64_t bt) {
 }
 
 double CDividendTx::GetPayoutModifier() const {
-  auto credit = GetDividendCredit();
-  auto supply = GetCoinSupply() - credit;
-
-  return double(credit) / double(supply);
+  return CDividend::GetModifier(GetDividendCredit(), GetCoinSupply());
 }
 
 CBlockIndex *CDividendTx::GetBlock() const {

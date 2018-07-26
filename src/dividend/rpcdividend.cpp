@@ -39,6 +39,9 @@ void DividendTxToJSON(const CDividendTx &dtx, UniValue &entry) {
   entry.push_back(Pair("txid", hash.GetHex()));
   entry.push_back(Pair("time", dtx.GetBlockTime()));
   entry.push_back(Pair("coinsupply", ValueFromAmount(dtx.GetCoinSupply())));
+  entry.push_back(
+    Pair("paid", CDividend::ExceedsThresholdAt(dtx, chainActive.Tip()->nHeight))
+  );
 }
 
 void ListDividendTransactions(const CDividendTx& dtx, UniValue& ret) {
@@ -120,15 +123,12 @@ UniValue dividendlisttransactions(const JSONRPCRequest &request) {
 
   UniValue ret(UniValue::VARR);
 
-  const CDividendLedger::TxItems &txOrdered = pledgerMain->GetOrdered();
+  const auto txOrdered = pledgerMain->GetOrdered();
 
-  for (CDividendLedger::TxItems::const_reverse_iterator it = txOrdered.rbegin();
+  for (std::vector<CDividendTx>::const_reverse_iterator it = txOrdered.rbegin();
       it != txOrdered.rend(); ++it) {
 
-    CDividendTx *const pdtx = (*it).second;
-    if (pdtx != 0) {
-      ListDividendTransactions(*pdtx, ret);
-    }
+    ListDividendTransactions(*it, ret);
   }
  
   if (nFrom > (int)ret.size()) {

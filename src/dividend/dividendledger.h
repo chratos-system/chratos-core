@@ -25,7 +25,7 @@ extern CDividendLedger *pledgerMain;
 
 class CDividendLedger : public CValidationInterface {
   public:
-    typedef std::multimap<int64_t, CDividendTx *> TxItems;
+    typedef std::multimap<uint256, CDividendTx *> TxItems;
  
     CDividendLedger();
 
@@ -51,7 +51,10 @@ class CDividendLedger : public CValidationInterface {
     int ScanForDividendTransactions(CBlockIndex* pindexStart,
                                     bool fUpdate = false);
 
-    std::vector<CDividendTx> GetPayoutsBefore(const CDividendTx &dtxIn) const;
+    std::vector<CDividendTx> GetPayoutsBefore(
+      const CDividendTx &dtxIn,
+      const int untilHeight = -1
+    ) const;
 
     std::vector<CDividendTx> GetPayoutsAfter(
       const CDividendTx &dtxIn,
@@ -87,7 +90,7 @@ class CDividendLedger : public CValidationInterface {
 
     CAmount GetDividendCredit(const CTxOut& txout) const;
 
-    TxItems GetOrdered() const;
+    std::vector<CDividendTx> GetOrdered() const;
 
     std::string GetLedgerFile() { return strLedgerFile; }
 

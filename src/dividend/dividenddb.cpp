@@ -21,12 +21,11 @@ struct CDividendLedgerScanState {
     }
 };
 
-
-CDividendLedgerDB::CDividendLedgerDB(const std::string &filename,
-                                     const char *pszMode,
-                                     bool fFlushOnClose)
-: CDBDiv(filename, pszMode, fFlushOnClose) {
-}
+CDividendLedgerDB::CDividendLedgerDB(
+  const std::string &filename,
+  const char *pszMode,
+  bool fFlushOnClose
+): CDBDiv(filename, pszMode, fFlushOnClose) {}
 
 bool CDividendLedgerDB::WriteTx(const CDividendTx &dtx) {
   nLedgerDBUpdated++;
@@ -38,9 +37,14 @@ bool CDividendLedgerDB::EraseTx(uint256 hash) {
   return Erase(std::make_pair(std::string("tx"), hash));
 }
 
-bool
-ReadKeyValue(CDividendLedger* pledger, CDataStream& ssKey, CDataStream& ssValue,
-             CDividendLedgerScanState &lss, std::string& strType, std::string& strErr) {
+bool ReadKeyValue(
+  CDividendLedger* pledger,
+  CDataStream& ssKey,
+  CDataStream& ssValue,
+  CDividendLedgerScanState &lss,
+  std::string& strType,
+  std::string& strErr
+) {
 
   try {
     // Unserialize

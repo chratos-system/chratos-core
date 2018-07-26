@@ -24,14 +24,18 @@ class CDividend {
     static bool ExceedsThresholdAt(
       const CDividendTx &tx, const int blockHeight
     );
+    static bool DoesExceedThreshold(const CDividendTx &tx);
+    static double GetModifier(const CAmount &amount, const CAmount &supply);
 
   private:
-    static bool ExceedsThreshold(const CDividendTx &tx);
+    static bool ExceedsThresholdSolo(const CDividendTx &tx);
     static bool ExceedsThresholdWithPriors(const CDividendTx &tx);
     static bool ExceedsThresholdWithSubsequents(
       const CDividendTx &tx,
       const int blockHeight
     );
+    static std::vector<CDividendTx> GetExceedChainFor(const CDividendTx &tx);
+    static int GetPaidBlockBefore(const CDividendTx &tx);
 };
 
 #endif

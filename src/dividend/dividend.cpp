@@ -5,6 +5,7 @@
 #include "dividend/dividend.h"
 #include "dividend/dividendledger.h"
 #include "dividend/dividendtx.h"
+#include <algorithm>
 
 void CDividend::SetScriptForDividendContribution(CScript &script) {
   script.resize(2);
@@ -22,17 +23,20 @@ CAmount CDividend::GetDividendPayout(CAmount amount, int blockHeight) {
   }
 }
 
-bool CDividend::ExceedsThreshold(const CDividendTx &tx) {
+bool CDividend::ExceedsThresholdSolo(const CDividendTx &tx) {
   return (tx.GetPayoutModifier() >= CDividend::DIVIDEND_THRESHOLD);
 }
 
 bool CDividend::ExceedsThresholdWithPriors(const CDividendTx &tx) {
   auto priors = pledgerMain->GetPayoutsBefore(tx);
+  std::reverse(priors.begin(), priors.end());
   std::vector<CDividendTx> unpaids;
 
   for (auto &dtx : priors) {
-    if (ExceedsThreshold(dtx)) { break; }
-    if (ExceedsThresholdWithPriors(tx)) { break; }
+    if (dtx.GetHeight() != tx.GetHeight()) {
+      if (ExceedsThresholdSolo(dtx)) { break; }
+      if (ExceedsThresholdWithPriors(dtx)) { break; }
+    }
     unpaids.push_back(tx);
   }
 
@@ -42,7 +46,7 @@ bool CDividend::ExceedsThresholdWithPriors(const CDividendTx &tx) {
     total += unpaid.GetDividendCredit();
   }
 
-  const auto modifier = double(total) / double(supply);
+  const auto modifier = GetModifier(total, supply);
   return modifier >= CDividend::DIVIDEND_THRESHOLD;
 }
 
@@ -56,7 +60,9 @@ bool CDividend::ExceedsThresholdWithSubsequents(
   std::vector<CDividendTx> unpaids;
 
   for (auto &dtx : laters) {
-    if (ExceedsThreshold(dtx) || ExceedsThresholdWithPriors(tx)) { 
+    if (ExceedsThresholdSolo(dtx)) {
+      return true;
+    } else if (ExceedsThresholdWithPriors(dtx)) { 
       return true;
     }
   }
@@ -64,11 +70,15 @@ bool CDividend::ExceedsThresholdWithSubsequents(
   return false;
 }
 
+bool CDividend::DoesExceedThreshold(const CDividendTx &tx) {
+  return ExceedsThresholdSolo(tx) || ExceedsThresholdWithPriors(tx);
+}
+
 bool CDividend::ExceedsThresholdAt(
   const CDividendTx &tx,
   const int blockHeight
 ) {
-  if (ExceedsThreshold(tx)) {
+  if (ExceedsThresholdSolo(tx)) {
     return true;
   } else if (ExceedsThresholdWithPriors(tx)) {
     return true;
@@ -79,14 +89,18 @@ bool CDividend::ExceedsThresholdAt(
   return false;
 }
 
+
+double CDividend::GetModifier(const CAmount &amount, const CAmount &supply) {
+  return (double)amount / (double)(supply - amount);
+}
+
 CAmount CDividend::GetDividendFundAt(int blockHeight) {
 
   CAmount total = 0;
   std::vector<CDividendTx> fundTxs;
   auto dividends = pledgerMain->GetOrdered();
   
-  for (auto &it : dividends) {
-    auto dividend = *(it.second);
+  for (auto &dividend : dividends) {
     if (dividend.GetHeight() <= blockHeight) {
       fundTxs.push_back(dividend);
     }
@@ -111,12 +125,20 @@ CAmount CDividend::GetTotalWithDividend(CAmount amount, int blockHeight) {
 
   auto dividends = pledgerMain->GetOrdered();
 
-  for (auto &it : dividends) {
+  for (auto &dividend : dividends) {
 
-    auto dividend = *(it.second);
+    if (dividend.GetHeight() >= blockHeight && DoesExceedThreshold(dividend)) {
 
-    if (dividend.GetHeight() >= blockHeight) {
-      arith_uint256 fund = arith_uint256(dividend.GetDividendCredit());
+      auto chain = GetExceedChainFor(dividend);
+
+      CAmount total = 0;
+      for (auto &it : chain) {
+        total += it.GetDividendCredit();
+      }
+
+      if (total == 0) { continue; }
+
+      arith_uint256 fund = arith_uint256(total);
 
       arith_uint256 supply = arith_uint256(
           dividend.GetCoinSupply() - dividend.GetDividendCredit()
@@ -130,7 +152,7 @@ CAmount CDividend::GetTotalWithDividend(CAmount amount, int blockHeight) {
 
   auto total = bigAmount.GetLow64();
 
-  return amount;//total;
+  return total;
 }
 
 CAmount CDividend::GetDividendPayoutUntil(
@@ -141,13 +163,21 @@ CAmount CDividend::GetDividendPayoutUntil(
 
   auto dividends = pledgerMain->GetOrdered();
 
-  for (auto &it : dividends) {
-
-    auto dividend = *(it.second);
+  for (auto &dividend : dividends) {
 
     if (dividend.GetHeight() >= blockHeight &&
-        dividend.GetHeight() < untilHeight) {
-      arith_uint256 fund = arith_uint256(dividend.GetDividendCredit());
+        dividend.GetHeight() < untilHeight &&
+        DoesExceedThreshold(dividend)) {
+
+      auto chain = GetExceedChainFor(dividend);
+      CAmount total = 0;
+      for (auto &it : chain) {
+        total += it.GetDividendCredit();
+      }
+
+      if (total == 0) { continue; }
+
+      arith_uint256 fund = arith_uint256(total);
 
       arith_uint256 supply = arith_uint256(
           dividend.GetCoinSupply() - dividend.GetDividendCredit()
@@ -161,6 +191,45 @@ CAmount CDividend::GetDividendPayoutUntil(
 
   auto total = bigAmount.GetLow64();
 
-  return amount;//total;
+  return total;
 
+}
+
+int CDividend::GetPaidBlockBefore(const CDividendTx &tx) {
+  const int starting = tx.GetHeight();
+
+  auto priors = pledgerMain->GetPayoutsBefore(tx);
+
+  int ending = -1;
+
+  for (auto &dtx : priors) {
+    if (dtx.GetHeight() == tx.GetHeight()) { continue; }
+
+    if (DoesExceedThreshold(dtx)) {
+      ending = dtx.GetHeight();
+    }
+  }
+
+  return ending;
+}
+
+std::vector<CDividendTx> CDividend::GetExceedChainFor(const CDividendTx &tx) {
+  std::vector<CDividendTx> chain;
+
+  if (DoesExceedThreshold(tx)) {
+    auto lastPaidHeight = GetPaidBlockBefore(tx);
+    auto priors = pledgerMain->GetPayoutsBefore(tx, lastPaidHeight);
+
+    const CAmount supply = tx.GetCoinSupply();
+    CAmount total = 0;
+    for (auto &dtx : priors) {
+      total += dtx.GetDividendCredit();
+    }
+
+    if (GetModifier(total, supply) > CDividend::DIVIDEND_THRESHOLD) {
+      chain.insert(std::end(chain), std::begin(priors), std::end(priors));
+    }
+  }
+
+  return chain;
 }
