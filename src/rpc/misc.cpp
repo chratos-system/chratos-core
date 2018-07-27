@@ -55,6 +55,12 @@ UniValue getinfo(const JSONRPCRequest &request)
             "  \"walletversion\": xxxxx,     (numeric) the wallet version\n"
             "  \"balance\": xxxxxxx,         (numeric) the total chratos balance of the wallet\n"
             "  \"blocks\": xxxxxx,           (numeric) the current number of blocks processed in the server\n"
+            "  \"moneysupply\": xxxxxx,      (numeric) The total money minted in the chratos network\n"
+            "  \"dividends: {\n"
+            "    \"total\": xxxxxx,          (numeric) The total dividends that have been paid in to the system\n"
+            "    \"unpaid\": xxxxxx          (numeric) The current amount of paid in dividends that has yet to be paid out to coin holders\n"
+            "    \"paid\": xxxxx             (numeric) The current amount of dividends that has been paid out to coin holders\n"
+            "}\n"
             "  \"timeoffset\": xxxxx,        (numeric) the time offset\n"
             "  \"connections\": xxxxx,       (numeric) the number of connections\n"
             "  \"proxy\": \"host:port\",     (string, optional) the proxy used by the server\n"
@@ -98,9 +104,12 @@ UniValue getinfo(const JSONRPCRequest &request)
 
     obj.push_back(Pair("moneysupply", ValueFromAmount(pindexBestHeader->nMoneySupply)));
     UniValue cf(UniValue::VOBJ);
-    cf.push_back(Pair("totalfunded", ValueFromAmount(pindexBestHeader->nDividendFund)));
+    cf.push_back(Pair("total", ValueFromAmount(pindexBestHeader->nDividendFund)));
     cf.push_back(
-      Pair("currentfund",ValueFromAmount(CDividend::GetCurrentDividendFund()))
+      Pair("unpaid",ValueFromAmount(CDividend::GetCurrentDividendFund()))
+    );
+    cf.push_back(
+      Pair("paid", ValueFromAmount(CDividend::GetTotalPaid()))
     );
     obj.push_back(Pair("dividends", cf));
 

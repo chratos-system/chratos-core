@@ -13,6 +13,8 @@
 class CDividend {
   public:
     static constexpr double DIVIDEND_THRESHOLD = 0.0001;
+    static constexpr int DIVIDEND_MIN_AGE = 10;
+
     static void SetScriptForDividendContribution(CScript &script);
     static CAmount GetDividendFundAt(int blockHeight);
     static CAmount GetCurrentDividendFund();
@@ -21,11 +23,13 @@ class CDividend {
     static CAmount GetDividendPayoutUntil(
       CAmount amount, int blockHeight, int untilHeight
     );
+    static CAmount GetTotalPaid();
     static bool ExceedsThresholdAt(
       const CDividendTx &tx, const int blockHeight
     );
     static bool DoesExceedThreshold(const CDividendTx &tx);
     static double GetModifier(const CAmount &amount, const CAmount &supply);
+    static CAmount GetMoneySupplyAtHeight(int height);
 
   private:
     static bool ExceedsThresholdSolo(const CDividendTx &tx);

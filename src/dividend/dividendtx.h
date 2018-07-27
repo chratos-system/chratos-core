@@ -27,6 +27,12 @@ class CDividendTx : public CMerkleTx {
 
     bool IsTrusted() const;
 
+    bool isMature() const;
+
+    bool isImmature() const;
+
+    bool isMatureAt(int64_t) const;
+
     CAmount GetDividendCredit() const;
 
     void Init(const CDividendLedger *pledgerIn);
@@ -34,6 +40,8 @@ class CDividendTx : public CMerkleTx {
     int64_t GetBlockTime() const;
 
     int64_t GetHeight() const;
+
+    int64_t GetMatureHeight() const;
 
     void SetBlockTime(int64_t);
 

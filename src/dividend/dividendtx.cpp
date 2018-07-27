@@ -33,6 +33,20 @@ bool CDividendTx::IsTrusted() const {
   return true;
 }
 
+bool CDividendTx::isMature() const {
+  const auto height = GetHeight();
+  return isMatureAt(height);
+}
+
+bool CDividendTx::isImmature() const {
+  return !isMature();
+}
+
+bool CDividendTx::isMatureAt(int64_t height) const {
+  const auto tip = chainActive.Tip()->nHeight;
+  return tip >= height + CDividend::DIVIDEND_MIN_AGE;
+}
+
 CAmount CDividendTx::GetDividendCredit() const {
 
   CAmount nCredit = 0;
@@ -40,7 +54,9 @@ CAmount CDividendTx::GetDividendCredit() const {
   for (auto &txout : vout) {
     nCredit += ledger->GetDividendCredit(txout);
     if (!MoneyRange(nCredit)) {
-      throw std::runtime_error("CDividendTx::GetAvailableCredit() : value out of range");
+      throw std::runtime_error(
+        "CDividendTx::GetAvailableCredit() : value out of range"
+      );
     }
   }
 
@@ -48,7 +64,8 @@ CAmount CDividendTx::GetDividendCredit() const {
 }
 
 CAmount CDividendTx::GetCoinSupply() const {
-  CAmount supply = GetBlock()->nMoneySupply;
+  const auto height = GetMatureHeight();
+  CAmount supply = CDividend::GetMoneySupplyAtHeight(height);
   return supply;
 }
 
@@ -59,6 +76,12 @@ int64_t CDividendTx::GetHeight() const {
   } else {
     return -1;
   }
+}
+
+int64_t CDividendTx::GetMatureHeight() const {
+  auto height = GetHeight();
+  if (height > 0) { height += CDividend::DIVIDEND_MIN_AGE; }
+  return height;
 }
 
 int64_t CDividendTx::GetBlockTime() const {
