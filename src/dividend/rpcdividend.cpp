@@ -23,6 +23,18 @@ bool EnsureLedgerIsAvailable(bool avoidException) {
   return true;
 }
 
+std::string DividendStatus(const CDividendTx &dtx) {
+  if (CDividend::ExceedsThresholdAt(dtx, chainActive.Tip()->nHeight)) {
+    return "paid";
+  }
+
+  if (dtx.isImmature()) {
+    return "immature";
+  }
+
+  return "unpaid";
+}
+
 void DividendTxToJSON(const CDividendTx &dtx, UniValue &entry) {
   int confirms = dtx.GetDepthInMainChain();
   entry.push_back(Pair("confirmations", confirms));
@@ -39,9 +51,8 @@ void DividendTxToJSON(const CDividendTx &dtx, UniValue &entry) {
   entry.push_back(Pair("txid", hash.GetHex()));
   entry.push_back(Pair("time", dtx.GetBlockTime()));
   entry.push_back(Pair("coinsupply", ValueFromAmount(dtx.GetCoinSupply())));
-  entry.push_back(
-    Pair("paid", CDividend::ExceedsThresholdAt(dtx, chainActive.Tip()->nHeight))
-  );
+
+  entry.push_back(Pair("status", DividendStatus(dtx)));
 }
 
 void ListDividendTransactions(const CDividendTx& dtx, UniValue& ret) {

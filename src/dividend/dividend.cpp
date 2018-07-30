@@ -88,6 +88,8 @@ bool CDividend::ExceedsThresholdAt(
   const CDividendTx &tx,
   const int blockHeight
 ) {
+  if (tx.isImmature()) { return false; }
+
   if (ExceedsThresholdSolo(tx)) {
     return true;
   } else if (ExceedsThresholdWithPriors(tx)) {
@@ -270,6 +272,8 @@ std::vector<CDividendTx> CDividend::GetExceedChainFor(const CDividendTx &tx) {
     if (GetModifier(total, supply) > CDividend::DIVIDEND_THRESHOLD) {
       chain.insert(std::end(chain), std::begin(priors), std::end(priors));
     }
+
+    chain.push_back(tx);
   }
 
   return chain;
