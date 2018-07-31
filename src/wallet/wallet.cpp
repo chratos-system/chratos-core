@@ -406,7 +406,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
                 txNew.nTime -= n;
                 txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
-                nCredit += pcoin.first->vout[pcoin.second].nValue;
+                nCredit += GetAvailableAmount(pcoin.first, pcoin.second);
                 vwtxPrev.insert(make_pair(pcoin.first,pcoin.second));
                 txNew.vout.push_back(CTxOut(0, scriptPubKeyOut));
 
@@ -422,8 +422,9 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             break; // if kernel is found stop searching
     }
 
-    if (nCredit == 0 || nCredit > nBalance - nReserveBalance)
-        return false;
+    if (nCredit == 0 || nCredit > nBalance - nReserveBalance) {
+      return false;
+    }
 
     BOOST_FOREACH(PAIRTYPE(const CWalletTx*, unsigned int) pcoin, setCoins)
     {
@@ -438,18 +439,19 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
             if (txNew.vin.size() >= 100)
                 break;
             // Stop adding inputs if reached reserve limit
-            if (nCredit + pcoin.first->vout[pcoin.second].nValue > nBalance - nReserveBalance)
+            if (nCredit + GetAvailableAmount(pcoin.first, pcoin.second) > nBalance - nReserveBalance)
                 break;
             // Do not add additional significant input
-            if (pcoin.first->vout[pcoin.second].nValue >= Params().GetConsensus().nStakeCombineThreshold)
+            if (GetAvailableAmount(pcoin.first, pcoin.second) >= Params().GetConsensus().nStakeCombineThreshold)
                 continue;
             // Do not add input that is still too young
-            if (nTimeWeight < Params().GetConsensus().nStakeMinAge)
+            if (nTimeWeight < Params().GetConsensus().nStakeMinAge) {
                 continue;
+            }
 
             txNew.vin.push_back(CTxIn(pcoin.first->GetHash(), pcoin.second));
-            nCredit += pcoin.first->vout[pcoin.second].nValue;
-            vwtxPrev.insert(make_pair(pcoin.first,pcoin.second));
+            nCredit += GetAvailableAmount(pcoin.first, pcoin.second);
+            vwtxPrev.insert(make_pair(pcoin.first, pcoin.second));
         }
     }
 
@@ -468,8 +470,9 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         nCredit += nReward;
     }
 
-    if (nCredit >= Params().GetConsensus().nStakeSplitThreshold)
-        txNew.vout.push_back(CTxOut(0, txNew.vout[1].scriptPubKey)); //split stake
+    if (nCredit >= Params().GetConsensus().nStakeSplitThreshold) {
+      txNew.vout.push_back(CTxOut(0, txNew.vout[1].scriptPubKey)); //split stake
+    }
 
     // Inode Payments
     int payments = 1;
@@ -478,21 +481,10 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
 
     CScript payee;
+    
     bool hasPayment = false;
-    if(bINodePayment) {
-        //hub
-        // if(!inodePayments.GetBlockPayee(pindexPrev->nHeight+1, payee)){
-        //     int winningNode = GetCurrentINode(1);
-        //         if(winningNode >= 0){
-        //             payee =GetScriptForDestination(vecInodes[winningNode].pubkey.GetID());
-        //         } else {
-        //             LogPrintf("CreateCoinStake: Failed to detect inode to pay\n");
-        //             hasPayment = false;
-        //         }
-        // }
-    }
-
-    if(hasPayment){
+/*
+    if (hasPayment){
         payments = txNew.vout.size() + 1;
         txNew.vout.resize(payments);
 
@@ -505,10 +497,9 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
         LogPrintf("Inode payment to %s\n", address2.ToString().c_str());
     }
-
+*/
     int64_t blockValue = nCredit;
-    int64_t inodePayment = 0; //GetInodePayment(pindexPrev->nHeight+1, nReward);
-
+    int64_t inodePayment = 0; 
 
     // Set output amount
     if (!hasPayment && txNew.vout.size() == 3) // 2 stake outputs, stake was split, no inode payment
@@ -540,7 +531,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         bool signSuccess;
         const CScript& scriptPubKey = coin.first->vout[coin.second].scriptPubKey;
         SignatureData sigdata;
-        signSuccess = ProduceSignature(TransactionSignatureCreator(this, &txNewConst, nIn, coin.first->vout[coin.second].nValue, SIGHASH_ALL), scriptPubKey, sigdata);
+        signSuccess = ProduceSignature(TransactionSignatureCreator(this, &txNewConst, nIn, GetAvailableAmount(coin.first, coin.second), SIGHASH_ALL), scriptPubKey, sigdata);
 
         if (!signSuccess)
         {
