@@ -1698,6 +1698,25 @@ CAmount CWallet::GetCredit(const CTransaction& tx, const isminefilter& filter) c
     return nCredit;
 }
 
+CAmount CWallet::GetConsumedDividend(
+    const CTransaction &tx, const isminefilter &filter
+) const {
+    CAmount consumed = 0;
+
+    BOOST_FOREACH(const CTxIn& txin, tx.vin)
+    {
+      auto it = mapWallet.find(txin.prevout.hash);
+      if (it != mapWallet.end()) {
+        const CWalletTx &coin = it->second;
+
+        auto index = txin.prevout.n;
+        consumed += GetDividendCredit(coin.vout[index], coin, filter);
+      }
+    }
+
+    return consumed;
+}
+
 CAmount CWallet::GetChange(const CTransaction& tx) const
 {
     CAmount nChange = 0;
@@ -2078,6 +2097,15 @@ CAmount CWalletTx::GetCredit(const isminefilter& filter) const
             credit += nWatchCreditCached;
         }
     }
+    return credit;
+}
+
+CAmount CWalletTx::GetConsumedDividend(const isminefilter& filter) const {
+
+    int64_t credit = 0;
+
+    credit += pwallet->GetConsumedDividend(*this, filter);
+
     return credit;
 }
 

@@ -1702,11 +1702,15 @@ void ListTransactions(const CWalletTx& wtx, const string& strAccount, int nMinDe
                 {
                     entry.push_back(Pair("category", "receive"));
                 }
-                if (!wtx.IsCoinStake())
-                    entry.push_back(Pair("amount", ValueFromAmount(r.amount)));
+
+                auto nDividend = wtx.GetConsumedDividend(filter);
+                if (!wtx.IsCoinStake()) {
+                  entry.push_back(Pair("amount", ValueFromAmount(r.amount)));
+                }
                 else
                 {
-                    entry.push_back(Pair("amount", ValueFromAmount(-nFee)));
+                    entry.push_back(Pair("amount", ValueFromAmount(-nFee - nDividend)));
+                    entry.push_back(Pair("dividend", ValueFromAmount(nDividend)));
                     stop = true; // only one coinstake output
                 }
                 if (pwalletMain->mapAddressBook.count(r.destination))
@@ -1767,6 +1771,7 @@ UniValue listtransactions(const JSONRPCRequest &request)
             "    \"amount\": x.xxx,          (numeric) The amount in " + CURRENCY_UNIT + ". This is negative for the 'send' category, and for the\n"
             "                                         'move' category for moves outbound. It is positive for the 'receive' category,\n"
             "                                         and for the 'move' category for inbound funds.\n"
+            "    \"dividend\": x.xxx,        (numeric) The amount of dividend received with this transaction generated from the inputs.\n"
             "    \"vout\": n,                (numeric) the vout value\n"
             "    \"fee\": x.xxx,             (numeric) The amount of the fee in " + CURRENCY_UNIT + ". This is negative and only available for the \n"
             "                                         'send' category of transactions.\n"
@@ -2100,8 +2105,12 @@ UniValue gettransaction(const JSONRPCRequest &request)
     CAmount nDebit = wtx.GetDebit(filter);
     CAmount nNet = nCredit - nDebit;
     CAmount nFee = (wtx.IsFromMe(filter) ? wtx.GetValueOut() - nDebit : 0);
+    CAmount nDividend = wtx.GetConsumedDividend(filter);
 
-    entry.push_back(Pair("amount", ValueFromAmount(nNet - nFee)));
+    CAmount nAmount = (nNet - nFee) - nDividend;
+
+    entry.push_back(Pair("amount", ValueFromAmount(nAmount)));
+    entry.push_back(Pair("dividend", ValueFromAmount(nDividend)));
     if (wtx.IsFromMe(filter))
         entry.push_back(Pair("fee", ValueFromAmount(nFee)));
 
