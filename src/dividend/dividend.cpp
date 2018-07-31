@@ -128,7 +128,7 @@ CAmount CDividend::GetDividendFundAt(int blockHeight) {
   auto dividends = pledgerMain->GetOrdered();
   
   for (auto &dividend : dividends) {
-    if (dividend.GetHeight() <= blockHeight) {
+    if (dividend.GetMatureHeight() <= blockHeight) {
       fundTxs.push_back(dividend);
     }
   }
@@ -154,7 +154,7 @@ CAmount CDividend::GetTotalWithDividend(CAmount amount, int blockHeight) {
 
   for (auto &dividend : dividends) {
 
-    if (dividend.GetHeight() >= blockHeight && 
+    if (dividend.GetMatureHeight() >= blockHeight && 
         DoesExceedThreshold(dividend) &&
         dividend.isMature()) {
 
@@ -194,8 +194,8 @@ CAmount CDividend::GetDividendPayoutUntil(
 
   for (auto &dividend : dividends) {
 
-    if (dividend.GetHeight() >= blockHeight &&
-        dividend.GetHeight() < untilHeight &&
+    if (dividend.GetMatureHeight() >= blockHeight &&
+        dividend.GetMatureHeight() < untilHeight &&
         dividend.isMature() &&
         DoesExceedThreshold(dividend)) {
 
